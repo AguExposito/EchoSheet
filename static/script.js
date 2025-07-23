@@ -698,32 +698,68 @@ function applyAutofillSuggestions() {
         updateRacialBonuses();
     }
     
-    // Apply suggested skills exactly as shown in the preview
-    if (previewSkills.length > 0) {
-        // First, deselect ALL skills (including background skills)
-        document.querySelectorAll('.skill-item').forEach(item => {
-            item.classList.remove('selected');
-            const indicator = item.querySelector('.skill-indicator');
-            if (indicator) {
-                indicator.classList.remove('selected');
+            // Apply suggested skills exactly as shown in the preview
+        if (previewSkills.length > 0) {
+            // First, deselect ALL skills (including background skills)
+            document.querySelectorAll('.skill-item').forEach(item => {
+                item.classList.remove('selected');
+                const indicator = item.querySelector('.skill-indicator');
+                if (indicator) {
+                    indicator.classList.remove('selected');
+                }
+            });
+            
+            // Reset remaining skills count to initial value
+            const charClass = document.getElementById('char_class').value;
+            const classChoices = {
+                'Fighter': 2, 'Wizard': 2, 'Cleric': 2, 'Rogue': 4,
+                'Ranger': 3, 'Paladin': 2, 'Bard': 3, 'Sorcerer': 2,
+                'Warlock': 2, 'Monk': 2, 'Druid': 2, 'Barbarian': 2
+            };
+            const totalChoices = classChoices[charClass] || 0;
+            const remainingSkillsElement = document.getElementById('remaining-skills');
+            if (remainingSkillsElement) {
+                remainingSkillsElement.textContent = totalChoices;
             }
-        });
-        
-        // Reset remaining skills count to initial value
-        const charClass = document.getElementById('char_class').value;
-        const classChoices = {
-            'Fighter': 2, 'Wizard': 2, 'Cleric': 2, 'Rogue': 4,
-            'Ranger': 3, 'Paladin': 2, 'Bard': 3, 'Sorcerer': 2,
-            'Warlock': 2, 'Monk': 2, 'Druid': 2, 'Barbarian': 2
-        };
-        const totalChoices = classChoices[charClass] || 0;
-        const remainingSkillsElement = document.getElementById('remaining-skills');
-        if (remainingSkillsElement) {
-            remainingSkillsElement.textContent = totalChoices;
-        }
-        
-        // Get background skills that should always be selected
-        const backgroundSkills = getBackgroundSkills();
+            
+            // Get background skills that should always be selected
+            const backgroundSkills = getBackgroundSkills();
+            
+            // Apply suggested spells if available
+            const previewSpells = [];
+            const spellElements = document.querySelectorAll('#preview-spells .spell-item');
+            spellElements.forEach(element => {
+                const spellName = element.textContent.trim();
+                if (spellName) {
+                    previewSpells.push(spellName);
+                }
+            });
+            
+            // Apply suggested spells
+            if (previewSpells.length > 0) {
+                // First, deselect ALL spells
+                document.querySelectorAll('.spell-item').forEach(item => {
+                    item.classList.remove('selected');
+                    const indicator = item.querySelector('.spell-indicator');
+                    if (indicator) {
+                        indicator.classList.remove('selected');
+                    }
+                });
+                
+                // Select suggested spells
+                previewSpells.forEach(spellName => {
+                    const spellItem = document.querySelector(`.spell-item[data-spell="${spellName}"]`);
+                    if (spellItem) {
+                        spellItem.classList.add('selected');
+                        const indicator = spellItem.querySelector('.spell-indicator');
+                        if (indicator) {
+                            indicator.classList.add('selected');
+                        }
+                    }
+                });
+                
+                updateSpellCounts();
+            }
         
         // First, select background skills (these are guaranteed)
         backgroundSkills.forEach(skillName => {
@@ -747,16 +783,27 @@ function applyAutofillSuggestions() {
         console.log(`Background skills: ${backgroundSkills}`);
         console.log(`Initial remaining skills: ${remainingSkills}`);
         
-        for (let index = 0; index < previewSkills.length; index++) {
-            const skillName = previewSkills[index];
+        // Create a list of skills to select (excluding background skills)
+        const skillsToSelect = previewSkills.filter(skill => !backgroundSkills.includes(skill));
+        console.log('Skills to select (excluding background):', skillsToSelect);
+        
+        for (let index = 0; index < skillsToSelect.length && remainingSkills > 0; index++) {
+            const skillName = skillsToSelect[index];
             
-            // Skip if this skill is already a background skill
-            if (backgroundSkills.includes(skillName)) {
-                console.log(`Skill ${skillName} is already a background skill, skipping`);
-                continue;
+            // Try multiple selectors to find the skill
+            let skillItem = document.querySelector(`[data-skill="${skillName}"]`);
+            if (!skillItem) {
+                // Try case-insensitive search
+                skillItem = document.querySelector(`[data-skill*="${skillName.toLowerCase()}" i]`);
+            }
+            if (!skillItem) {
+                // Try finding by text content
+                const allSkillItems = document.querySelectorAll('.skill-item');
+                skillItem = Array.from(allSkillItems).find(item => 
+                    item.textContent.trim().toLowerCase() === skillName.toLowerCase()
+                );
             }
             
-            const skillItem = document.querySelector(`[data-skill="${skillName}"]`);
             if (skillItem && remainingSkills > 0) {
                 // Select the class skill
                 skillItem.classList.add('selected');
@@ -777,11 +824,44 @@ function applyAutofillSuggestions() {
                 console.log(`No skill points remaining, cannot select ${skillName}`);
             } else {
                 console.log(`Skill not found: ${skillName}`);
+                // Try to find similar skills
+                const allSkills = Array.from(document.querySelectorAll('.skill-item')).map(item => item.textContent.trim());
+                console.log('Available skills:', allSkills);
             }
         }
         
         console.log(`Total selected: ${skillsSelected} class skills`);
         console.log(`Final remaining skills: ${remainingSkills}`);
+        
+        // If we still have remaining skills, try to fill them with available class skills
+        if (remainingSkills > 0) {
+            console.log(`Attempting to fill remaining ${remainingSkills} skills with available class skills`);
+            const availableClassSkills = getClassSkills(charClass);
+            const unselectedSkills = availableClassSkills.filter(skill => {
+                const skillItem = document.querySelector(`[data-skill="${skill}"]`);
+                return skillItem && !skillItem.classList.contains('selected');
+            });
+            
+            for (let i = 0; i < Math.min(remainingSkills, unselectedSkills.length); i++) {
+                const skillName = unselectedSkills[i];
+                const skillItem = document.querySelector(`[data-skill="${skillName}"]`);
+                if (skillItem) {
+                    skillItem.classList.add('selected');
+                    skillItem.classList.remove('disabled');
+                    const indicator = skillItem.querySelector('.skill-indicator');
+                    if (indicator) {
+                        indicator.classList.add('selected');
+                    }
+                    remainingSkills--;
+                    console.log(`Auto-filled remaining skill: ${skillName}`);
+                }
+            }
+            
+            // Update remaining skills count
+            if (remainingSkillsElement) {
+                remainingSkillsElement.textContent = remainingSkills;
+            }
+        }
         
         // Update skill selection logic
         updateSkillSelectionLogic(remainingSkills);

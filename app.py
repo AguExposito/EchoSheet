@@ -80,6 +80,12 @@ def create_character():
             total_cost = 0
             
             for attr, value in data['attributes'].items():
+                # Convert string to int if necessary
+                try:
+                    value = int(value)
+                except (ValueError, TypeError):
+                    return jsonify({'success': False, 'error': f'Invalid {attr} value: {value}. Must be a number between 8-15.'})
+                
                 if value < 8 or value > 15:
                     return jsonify({'success': False, 'error': f'Invalid {attr} value: {value}. Must be between 8-15.'})
                 if value in point_costs:
