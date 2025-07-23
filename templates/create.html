@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create Character - EchoSheet</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Crimson+Text:wght@400;600&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <header class="main-header">
+            <h1 class="title">🎲 EchoSheet</h1>
+            <a href="{{ url_for('index') }}" class="back-link">← Back</a>
+        </header>
+
+        <main class="main-content">
+            <div class="create-section">
+                <h2>⚔️ Create New Character</h2>
+                <p class="create-description">Complete the basic information and let the AI fill in the rest automatically.</p>
+
+                <form id="character-form" class="character-form">
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="name">Character Name</label>
+                            <input type="text" id="name" name="name" required placeholder="Ex: Gandalf, Aragorn...">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="race">Race</label>
+                            <select id="race" name="race" required>
+                                <option value="">Select a race</option>
+                                <option value="Human">Human</option>
+                                <option value="Elf">Elf</option>
+                                <option value="Dwarf">Dwarf</option>
+                                <option value="Halfling">Halfling</option>
+                                <option value="Dragonborn">Dragonborn</option>
+                                <option value="Tiefling">Tiefling</option>
+                                <option value="Half-Elf">Half-Elf</option>
+                                <option value="Half-Orc">Half-Orc</option>
+                                <option value="Gnome">Gnome</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="char_class">Class</label>
+                            <select id="char_class" name="char_class" required>
+                                <option value="">Select a class</option>
+                                <option value="Fighter">Fighter</option>
+                                <option value="Wizard">Wizard</option>
+                                <option value="Cleric">Cleric</option>
+                                <option value="Rogue">Rogue</option>
+                                <option value="Ranger">Ranger</option>
+                                <option value="Paladin">Paladin</option>
+                                <option value="Bard">Bard</option>
+                                <option value="Sorcerer">Sorcerer</option>
+                                <option value="Warlock">Warlock</option>
+                                <option value="Monk">Monk</option>
+                                <option value="Druid">Druid</option>
+                                <option value="Barbarian">Barbarian</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="level">Level</label>
+                            <input type="number" id="level" name="level" min="1" max="20" value="1" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="background">Background *</label>
+                            <select id="background" name="background" required>
+                                <option value="">Select a background</option>
+                                <option value="Acolyte">Acolyte</option>
+                                <option value="Criminal">Criminal</option>
+                                <option value="Entertainer">Entertainer</option>
+                                <option value="Folk Hero">Folk Hero</option>
+                                <option value="Guild Artisan">Guild Artisan</option>
+                                <option value="Hermit">Hermit</option>
+                                <option value="Noble">Noble</option>
+                                <option value="Outlander">Outlander</option>
+                                <option value="Sage">Sage</option>
+                                <option value="Soldier">Soldier</option>
+                                <option value="Urchin">Urchin</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="button" id="autofill-btn" class="btn btn-secondary">
+                            <span class="btn-icon">🤖</span>
+                            Auto-Fill
+                        </button>
+                        <button type="button" id="apply-btn" class="btn btn-accent" style="display: none;">
+                            <span class="btn-icon">✅</span>
+                            Apply Suggestions
+                        </button>
+                        <button type="submit" class="btn btn-primary">
+                            <span class="btn-icon">✨</span>
+                            Create Character
+                        </button>
+                    </div>
+                </form>
+
+                <!-- Attribute Assignment Section -->
+                <div class="attributes-section" style="display: none;">
+                    <h3>Attribute Assignment (Point Buy System)</h3>
+                    <div class="point-buy-info">
+                        <p>You have <span id="remaining-points">27</span> points to spend. Each attribute can be between 8-15.</p>
+                        <p>Point costs: 8=0, 9=1, 10=2, 11=3, 12=4, 13=5, 14=7, 15=9</p>
+                    </div>
+                    
+                    <div class="attribute-table">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Attribute</th>
+                                    <th>Base Score</th>
+                                    <th>Racial Bonus</th>
+                                    <th>Total Score</th>
+                                    <th>Modifier</th>
+                                    <th>Point Cost</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>Strength</td>
+                                    <td>
+                                        <div class="attribute-group">
+                                            <button class="attr-btn" onclick="changeAttribute('str', -1)">-</button>
+                                            <input type="number" id="str" value="8" min="8" max="15" readonly>
+                                            <button class="attr-btn" onclick="changeAttribute('str', 1)">+</button>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="racial-bonus" id="racial-str">+0</div>
+                                    </td>
+                                    <td>
+                                        <div class="total-score" id="total-str">8</div>
+                                    </td>
+                                    <td>
+                                        <div class="modifier" id="modifier-str">-1</div>
+                                    </td>
+                                    <td>
+                                        <div class="point-cost" id="cost-str">0</div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>Dexterity</td>
+                                    <td>
+                                        <div class="attribute-group">
+                                            <button class="attr-btn" onclick="changeAttribute('dex', -1)">-</button>
+                                            <input type="number" id="dex" value="8" min="8" max="15" readonly>
+                                            <button class="attr-btn" onclick="changeAttribute('dex', 1)">+</button>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="racial-bonus" id="racial-dex">+0</div>
+                                    </td>
+                                    <td>
+                                        <div class="total-score" id="total-dex">8</div>
+                                    </td>
+                                    <td>
+                                        <div class="modifier" id="modifier-dex">-1</div>
+                                    </td>
+                                    <td>
+                                        <div class="point-cost" id="cost-dex">0</div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>Constitution</td>
+                                    <td>
+                                        <div class="attribute-group">
+                                            <button class="attr-btn" onclick="changeAttribute('con', -1)">-</button>
+                                            <input type="number" id="con" value="8" min="8" max="15" readonly>
+                                            <button class="attr-btn" onclick="changeAttribute('con', 1)">+</button>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="racial-bonus" id="racial-con">+0</div>
+                                    </td>
+                                    <td>
+                                        <div class="total-score" id="total-con">8</div>
+                                    </td>
+                                    <td>
+                                        <div class="modifier" id="modifier-con">-1</div>
+                                    </td>
+                                    <td>
+                                        <div class="point-cost" id="cost-con">0</div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>Intelligence</td>
+                                    <td>
+                                        <div class="attribute-group">
+                                            <button class="attr-btn" onclick="changeAttribute('int', -1)">-</button>
+                                            <input type="number" id="int" value="8" min="8" max="15" readonly>
+                                            <button class="attr-btn" onclick="changeAttribute('int', 1)">+</button>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="racial-bonus" id="racial-int">+0</div>
+                                    </td>
+                                    <td>
+                                        <div class="total-score" id="total-int">8</div>
+                                    </td>
+                                    <td>
+                                        <div class="modifier" id="modifier-int">-1</div>
+                                    </td>
+                                    <td>
+                                        <div class="point-cost" id="cost-int">0</div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>Wisdom</td>
+                                    <td>
+                                        <div class="attribute-group">
+                                            <button class="attr-btn" onclick="changeAttribute('wis', -1)">-</button>
+                                            <input type="number" id="wis" value="8" min="8" max="15" readonly>
+                                            <button class="attr-btn" onclick="changeAttribute('wis', 1)">+</button>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="racial-bonus" id="racial-wis">+0</div>
+                                    </td>
+                                    <td>
+                                        <div class="total-score" id="total-wis">8</div>
+                                    </td>
+                                    <td>
+                                        <div class="modifier" id="modifier-wis">-1</div>
+                                    </td>
+                                    <td>
+                                        <div class="point-cost" id="cost-wis">0</div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>Charisma</td>
+                                    <td>
+                                        <div class="attribute-group">
+                                            <button class="attr-btn" onclick="changeAttribute('cha', -1)">-</button>
+                                            <input type="number" id="cha" value="8" min="8" max="15" readonly>
+                                            <button class="attr-btn" onclick="changeAttribute('cha', 1)">+</button>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="racial-bonus" id="racial-cha">+0</div>
+                                    </td>
+                                    <td>
+                                        <div class="total-score" id="total-cha">8</div>
+                                    </td>
+                                    <td>
+                                        <div class="modifier" id="modifier-cha">-1</div>
+                                    </td>
+                                    <td>
+                                        <div class="point-cost" id="cost-cha">0</div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Skill Selection Section -->
+                <div class="skills-section" id="skills-section" style="display: none;">
+                    <h3>🎯 Select Skills</h3>
+                    <div class="skill-selection-info">
+                        <p><strong>Available Choices:</strong> <span id="remaining-skills">0</span></p>
+                        <p><strong>Class Skills:</strong> <span id="class-skills-list"></span></p>
+                    </div>
+                    
+                    <div class="skills-container" id="skills-container">
+                        <!-- Skills will be populated dynamically -->
+                    </div>
+                </div>
+
+                <!-- Spell Selection Section -->
+                <div class="spells-section" id="spells-section" style="display: none;">
+                    <h3>✨ Select Spells</h3>
+                    <div class="spell-selection-info">
+                        <p><strong>Spellcasting Ability:</strong> <span id="spellcasting-ability">-</span></p>
+                        <p><strong>Cantrips Known:</strong> <span id="cantrips-known">0</span> / <span id="cantrips-limit">0</span></p>
+                        <p><strong>Spells Known:</strong> <span id="spells-known">0</span> / <span id="spells-limit">0</span></p>
+                    </div>
+                    
+                    <!-- Cantrips Section -->
+                    <div class="cantrips-section">
+                        <h4>🔮 Cantrips</h4>
+                        <div class="cantrips-container" id="cantrips-container">
+                            <!-- Cantrips will be populated dynamically -->
+                        </div>
+                    </div>
+                    
+                    <!-- Spells Section -->
+                    <div class="spells-section">
+                        <h4>📚 1st Level Spells</h4>
+                        <div class="spells-container" id="spells-container">
+                            <!-- Spells will be populated dynamically -->
+                        </div>
+                    </div>
+                </div>
+
+                <div id="preview-section" class="preview-section" style="display: none;">
+                    <h3>👁️ Preview</h3>
+                    <div class="preview-card">
+                        <div class="preview-header">
+                            <h4 id="preview-name">Character Name</h4>
+                            <span id="preview-level">Level 1</span>
+                        </div>
+                        <div class="preview-details">
+                            <p id="preview-race-class">Race • Class</p>
+                            <p id="preview-background">Background</p>
+                        </div>
+                        <div class="preview-attributes">
+                            <h5>Attributes</h5>
+                            <div id="preview-attributes" class="attributes-grid">
+                                <!-- Will be filled dynamically -->
+                            </div>
+                        </div>
+                        <div class="preview-skills">
+                            <h5>Skills</h5>
+                            <div id="preview-skills" class="skills-list">
+                                <!-- Will be filled dynamically -->
+                            </div>
+                        </div>
+                        <div class="preview-spells" id="preview-spells-section" style="display: none;">
+                            <h5>Spells</h5>
+                            <div id="preview-spells" class="spells-list">
+                                <!-- Will be filled dynamically -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <footer class="main-footer">
+            <p>&copy; 2024 EchoSheet - Intelligent Character Sheets for D&D</p>
+        </footer>
+    </div>
+
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+</html> 

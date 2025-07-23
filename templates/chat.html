@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat with {{ character.name }} - EchoSheet</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Crimson+Text:wght@400;600&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <header class="main-header">
+            <h1 class="title">🎲 EchoSheet</h1>
+            <a href="{{ url_for('view_character', character_id=character.id) }}" class="back-link">← Back to {{ character.name }}</a>
+        </header>
+
+        <main class="main-content">
+            <div class="chat-container">
+                <div class="chat-header">
+                    <div class="character-info">
+                        <h2>💬 Chatting with {{ character.name }}</h2>
+                        <p class="character-subtitle">{{ character.race }} {{ character.char_class }} level {{ character.level }}</p>
+                        {% if character.personality_traits %}
+                            <p class="personality-preview">{{ character.personality_traits }}</p>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="chat-messages" id="chat-messages">
+                    <div class="message character-message">
+                        <div class="message-avatar">👤</div>
+                        <div class="message-content">
+                            <div class="message-sender">{{ character.name }}</div>
+                            <div class="message-text">
+                                Hello! I'm {{ character.name }}, a {{ character.race.lower() }} {{ character.char_class.lower() }}. 
+                                {% if character.char_class == 'Fighter' %}
+                                    I'm ready for battle and always seek to improve my combat techniques.
+                                {% elif character.char_class == 'Wizard' %}
+                                    Knowledge and magic are my passion. Each spell is a new opportunity for learning.
+                                {% elif character.char_class == 'Cleric' %}
+                                    My faith guides me in every step. I'm here to help and protect those in need.
+                                {% elif character.char_class == 'Rogue' %}
+                                    The shadows are my allies. I prefer to work from the shadows, but when necessary, I act.
+                                {% elif character.char_class == 'Ranger' %}
+                                    Nature is my home. The forests have taught me everything I know about survival.
+                                {% elif character.char_class == 'Paladin' %}
+                                    Justice and honor are my principles. I fight for what is right and protect the innocent.
+                                {% elif character.char_class == 'Bard' %}
+                                    Stories and music are my life. Each adventure is a new song waiting to be sung.
+                                {% elif character.char_class == 'Sorcerer' %}
+                                    Magic flows in my veins. My power is part of my being, both blessing and responsibility.
+                                {% elif character.char_class == 'Warlock' %}
+                                    My patron has granted me power, but at a price. Arcane secrets are my specialty.
+                                {% elif character.char_class == 'Monk' %}
+                                    Inner peace and discipline are my path. The balance between body and mind is essential.
+                                {% elif character.char_class == 'Druid' %}
+                                    I am one with nature. The spirits of the earth guide and protect me.
+                                {% elif character.char_class == 'Barbarian' %}
+                                    Rage and strength are my weapons. My tribe has forged me in the fire of battle.
+                                {% else %}
+                                    I'm here to adventure and grow in power and experience.
+                                {% endif %}
+                                What would you like to know about me or my adventures?
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="chat-input-section">
+                    <div class="suggested-questions">
+                        <h4>💭 Suggested Questions:</h4>
+                        <div class="question-buttons">
+                            <button class="question-btn" data-question="What did you learn today?">What did you learn today?</button>
+                            <button class="question-btn" data-question="What do you think about our last adventure?">What do you think about our last adventure?</button>
+                            <button class="question-btn" data-question="How do you feel about your progress?">How do you feel about your progress?</button>
+                            <button class="question-btn" data-question="What is your greatest strength?">What is your greatest strength?</button>
+                            <button class="question-btn" data-question="What motivates you to keep going?">What motivates you to keep going?</button>
+                        </div>
+                    </div>
+
+                    <form id="chat-form" class="chat-form">
+                        <div class="input-group">
+                            <input type="text" id="message-input" placeholder="Type your message..." required>
+                            <button type="submit" class="btn btn-primary">
+                                <span class="btn-icon">💬</span>
+                                Send
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </main>
+
+        <footer class="main-footer">
+            <p>&copy; 2024 EchoSheet - Intelligent Character Sheets for D&D</p>
+        </footer>
+    </div>
+
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+</html> 

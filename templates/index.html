@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EchoSheet - Intelligent Character Sheets</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Crimson+Text:wght@400;600&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <header class="main-header">
+            <h1 class="title">🎲 EchoSheet</h1>
+            <p class="subtitle">Intelligent Character Sheets for D&D</p>
+        </header>
+
+        <main class="main-content">
+            <div class="hero-section">
+                <div class="hero-content">
+                    <h2>Welcome to your Character Library</h2>
+                    <p>Manage your D&D characters with artificial intelligence. Create, customize and chat with your characters like never before.</p>
+                    <a href="{{ url_for('create_character') }}" class="btn btn-primary btn-large">
+                        <span class="btn-icon">⚔️</span>
+                        Create New Character
+                    </a>
+                </div>
+            </div>
+
+            <section class="characters-section">
+                <h3>📚 Your Characters</h3>
+                
+                {% if characters %}
+                    <div class="characters-grid">
+                        {% for char in characters %}
+                        <div class="character-card">
+                            <div class="character-header">
+                                <h4 class="character-name">{{ char[1] }}</h4>
+                                <span class="character-level">Level {{ char[4] }}</span>
+                            </div>
+                            <div class="character-details">
+                                <p class="character-race">{{ char[2] }}</p>
+                                <p class="character-class">{{ char[3] }}</p>
+                            </div>
+                            <div class="character-actions">
+                                <a href="{{ url_for('view_character', character_id=char[0]) }}" class="btn btn-secondary">
+                                    View Sheet
+                                </a>
+                                <a href="{{ url_for('chat_with_character', character_id=char[0]) }}" class="btn btn-accent">
+                                    💬 Chat
+                                </a>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <div class="empty-state">
+                        <div class="empty-icon">📜</div>
+                        <h4>You don't have any characters yet</h4>
+                        <p>Create your first character to start your adventure</p>
+                        <a href="{{ url_for('create_character') }}" class="btn btn-primary">
+                            Create First Character
+                        </a>
+                    </div>
+                {% endif %}
+            </section>
+
+            <section class="features-section">
+                <h3>✨ Features</h3>
+                <div class="features-grid">
+                    <div class="feature-card">
+                        <div class="feature-icon">🤖</div>
+                        <h4>Auto-Fill</h4>
+                        <p>Generate attributes, skills and spells automatically based on your class and race.</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">💡</div>
+                        <h4>Intelligent Recommendations</h4>
+                        <p>Receive suggestions for improvements, spells and optimized skills for your character.</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">💬</div>
+                        <h4>Chat with your Character</h4>
+                        <p>Chat with your character as if they had their own consciousness. A unique interactive journal.</p>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <footer class="main-footer">
+            <p>&copy; 2024 EchoSheet - Intelligent Character Sheets for D&D</p>
+        </footer>
+    </div>
+
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+</html> 

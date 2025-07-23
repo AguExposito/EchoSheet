@@ -1,0 +1,782 @@
+{
+  "cantrips": {
+    "Wizard": [
+      {
+        "name": "Fire Bolt",
+        "school": "Evocation",
+        "casting_time": "1 action",
+        "range": "120 feet",
+        "components": ["V", "S"],
+        "duration": "Instantaneous",
+        "description": "You hurl a mote of fire at a creature or object within range. Make a ranged spell attack. On a hit, the target takes 1d10 fire damage."
+      },
+      {
+        "name": "Mage Hand",
+        "school": "Conjuration",
+        "casting_time": "1 action",
+        "range": "30 feet",
+        "components": ["V", "S"],
+        "duration": "1 minute",
+        "description": "A spectral, floating hand appears at a point you choose within range. The hand lasts for the duration or until you dismiss it as an action."
+      },
+      {
+        "name": "Light",
+        "school": "Evocation",
+        "casting_time": "1 action",
+        "range": "Touch",
+        "components": ["V", "M"],
+        "duration": "1 hour",
+        "description": "You touch one object that is no larger than 10 feet in any dimension. The object sheds bright light in a 20-foot radius and dim light for an additional 20 feet."
+      },
+      {
+        "name": "Prestidigitation",
+        "school": "Transmutation",
+        "casting_time": "1 action",
+        "range": "10 feet",
+        "components": ["V", "S"],
+        "duration": "Up to 1 hour",
+        "description": "This spell is a minor magical trick that novice spellcasters use for practice. You create one of the following magical effects within range."
+      },
+      {
+        "name": "Ray of Frost",
+        "school": "Evocation",
+        "casting_time": "1 action",
+        "range": "60 feet",
+        "components": ["V", "S"],
+        "duration": "Instantaneous",
+        "description": "A frigid beam of blue-white light streaks toward a creature within range. Make a ranged spell attack. On a hit, it takes 1d8 cold damage, and its speed is reduced by 10 feet until the start of your next turn."
+      }
+    ],
+    "Cleric": [
+      {
+        "name": "Sacred Flame",
+        "school": "Evocation",
+        "casting_time": "1 action",
+        "range": "60 feet",
+        "components": ["V", "S"],
+        "duration": "Instantaneous",
+        "description": "Flame-like radiance descends on a creature that you can see within range. The target must succeed on a Dexterity saving throw or take 1d8 radiant damage."
+      },
+      {
+        "name": "Guidance",
+        "school": "Divination",
+        "casting_time": "1 action",
+        "range": "Touch",
+        "components": ["V", "S"],
+        "duration": "Concentration, up to 1 minute",
+        "description": "You touch one willing creature. Once before the spell ends, the target can roll a d4 and add the number rolled to one ability check of its choice."
+      },
+      {
+        "name": "Light",
+        "school": "Evocation",
+        "casting_time": "1 action",
+        "range": "Touch",
+        "components": ["V", "M"],
+        "duration": "1 hour",
+        "description": "You touch one object that is no larger than 10 feet in any dimension. The object sheds bright light in a 20-foot radius and dim light for an additional 20 feet."
+      },
+      {
+        "name": "Resistance",
+        "school": "Abjuration",
+        "casting_time": "1 action",
+        "range": "Touch",
+        "components": ["V", "S", "M"],
+        "duration": "Concentration, up to 1 minute",
+        "description": "You touch one willing creature. Once before the spell ends, the target can roll a d4 and add the number rolled to one saving throw of its choice."
+      },
+      {
+        "name": "Spare the Dying",
+        "school": "Necromancy",
+        "casting_time": "1 action",
+        "range": "Touch",
+        "components": ["V", "S"],
+        "duration": "Instantaneous",
+        "description": "You touch a living creature that has 0 hit points. The creature becomes stable. This spell has no effect on undead or constructs."
+      }
+    ],
+    "Bard": [
+      {
+        "name": "Vicious Mockery",
+        "school": "Enchantment",
+        "casting_time": "1 action",
+        "range": "60 feet",
+        "components": ["V"],
+        "duration": "Instantaneous",
+        "description": "You unleash a string of insults laced with subtle enchantments at a creature you can see within range. If the target can hear you, it must succeed on a Wisdom saving throw or take 1d4 psychic damage and have disadvantage on the next attack roll it makes before the end of its next turn."
+      },
+      {
+        "name": "Light",
+        "school": "Evocation",
+        "casting_time": "1 action",
+        "range": "Touch",
+        "components": ["V", "M"],
+        "duration": "1 hour",
+        "description": "You touch one object that is no larger than 10 feet in any dimension. The object sheds bright light in a 20-foot radius and dim light for an additional 20 feet."
+      },
+      {
+        "name": "Mage Hand",
+        "school": "Conjuration",
+        "casting_time": "1 action",
+        "range": "30 feet",
+        "components": ["V", "S"],
+        "duration": "1 minute",
+        "description": "A spectral, floating hand appears at a point you choose within range. The hand lasts for the duration or until you dismiss it as an action."
+      },
+      {
+        "name": "Prestidigitation",
+        "school": "Transmutation",
+        "casting_time": "1 action",
+        "range": "10 feet",
+        "components": ["V", "S"],
+        "duration": "Up to 1 hour",
+        "description": "This spell is a minor magical trick that novice spellcasters use for practice. You create one of the following magical effects within range."
+      }
+    ],
+    "Sorcerer": [
+      {
+        "name": "Fire Bolt",
+        "school": "Evocation",
+        "casting_time": "1 action",
+        "range": "120 feet",
+        "components": ["V", "S"],
+        "duration": "Instantaneous",
+        "description": "You hurl a mote of fire at a creature or object within range. Make a ranged spell attack. On a hit, the target takes 1d10 fire damage."
+      },
+      {
+        "name": "Light",
+        "school": "Evocation",
+        "casting_time": "1 action",
+        "range": "Touch",
+        "components": ["V", "M"],
+        "duration": "1 hour",
+        "description": "You touch one object that is no larger than 10 feet in any dimension. The object sheds bright light in a 20-foot radius and dim light for an additional 20 feet."
+      },
+      {
+        "name": "Mage Hand",
+        "school": "Conjuration",
+        "casting_time": "1 action",
+        "range": "30 feet",
+        "components": ["V", "S"],
+        "duration": "1 minute",
+        "description": "A spectral, floating hand appears at a point you choose within range. The hand lasts for the duration or until you dismiss it as an action."
+      },
+      {
+        "name": "Prestidigitation",
+        "school": "Transmutation",
+        "casting_time": "1 action",
+        "range": "10 feet",
+        "components": ["V", "S"],
+        "duration": "Up to 1 hour",
+        "description": "This spell is a minor magical trick that novice spellcasters use for practice. You create one of the following magical effects within range."
+      },
+      {
+        "name": "Ray of Frost",
+        "school": "Evocation",
+        "casting_time": "1 action",
+        "range": "60 feet",
+        "components": ["V", "S"],
+        "duration": "Instantaneous",
+        "description": "A frigid beam of blue-white light streaks toward a creature within range. Make a ranged spell attack. On a hit, it takes 1d8 cold damage, and its speed is reduced by 10 feet until the start of your next turn."
+      }
+    ],
+    "Warlock": [
+      {
+        "name": "Eldritch Blast",
+        "school": "Evocation",
+        "casting_time": "1 action",
+        "range": "120 feet",
+        "components": ["V", "S"],
+        "duration": "Instantaneous",
+        "description": "A beam of crackling energy streaks toward a creature within range. Make a ranged spell attack. On a hit, the target takes 1d10 force damage."
+      },
+      {
+        "name": "Mage Hand",
+        "school": "Conjuration",
+        "casting_time": "1 action",
+        "range": "30 feet",
+        "components": ["V", "S"],
+        "duration": "1 minute",
+        "description": "A spectral, floating hand appears at a point you choose within range. The hand lasts for the duration or until you dismiss it as an action."
+      },
+      {
+        "name": "Prestidigitation",
+        "school": "Transmutation",
+        "casting_time": "1 action",
+        "range": "10 feet",
+        "components": ["V", "S"],
+        "duration": "Up to 1 hour",
+        "description": "This spell is a minor magical trick that novice spellcasters use for practice. You create one of the following magical effects within range."
+      }
+    ],
+    "Druid": [
+      {
+        "name": "Produce Flame",
+        "school": "Conjuration",
+        "casting_time": "1 action",
+        "range": "Self",
+        "components": ["V", "S"],
+        "duration": "10 minutes",
+        "description": "A flickering flame appears in your hand. The flame remains there for the duration and harms neither you nor your equipment."
+      },
+      {
+        "name": "Guidance",
+        "school": "Divination",
+        "casting_time": "1 action",
+        "range": "Touch",
+        "components": ["V", "S"],
+        "duration": "Concentration, up to 1 minute",
+        "description": "You touch one willing creature. Once before the spell ends, the target can roll a d4 and add the number rolled to one ability check of its choice."
+      },
+      {
+        "name": "Light",
+        "school": "Evocation",
+        "casting_time": "1 action",
+        "range": "Touch",
+        "components": ["V", "M"],
+        "duration": "1 hour",
+        "description": "You touch one object that is no larger than 10 feet in any dimension. The object sheds bright light in a 20-foot radius and dim light for an additional 20 feet."
+      },
+      {
+        "name": "Resistance",
+        "school": "Abjuration",
+        "casting_time": "1 action",
+        "range": "Touch",
+        "components": ["V", "S", "M"],
+        "duration": "Concentration, up to 1 minute",
+        "description": "You touch one willing creature. Once before the spell ends, the target can roll a d4 and add the number rolled to one saving throw of its choice."
+      }
+    ],
+    "Paladin": [
+      {
+        "name": "Light",
+        "school": "Evocation",
+        "casting_time": "1 action",
+        "range": "Touch",
+        "components": ["V", "M"],
+        "duration": "1 hour",
+        "description": "You touch one object that is no larger than 10 feet in any dimension. The object sheds bright light in a 20-foot radius and dim light for an additional 20 feet."
+      }
+    ],
+    "Ranger": [
+      {
+        "name": "Light",
+        "school": "Evocation",
+        "casting_time": "1 action",
+        "range": "Touch",
+        "components": ["V", "M"],
+        "duration": "1 hour",
+        "description": "You touch one object that is no larger than 10 feet in any dimension. The object sheds bright light in a 20-foot radius and dim light for an additional 20 feet."
+      }
+    ]
+  },
+  "spells": {
+    "1st": {
+      "Wizard": [
+        {
+          "name": "Magic Missile",
+          "school": "Evocation",
+          "casting_time": "1 action",
+          "range": "120 feet",
+          "components": ["V", "S"],
+          "duration": "Instantaneous",
+          "description": "You create three glowing darts of magical force. Each dart hits a creature of your choice that you can see within range."
+        },
+        {
+          "name": "Shield",
+          "school": "Abjuration",
+          "casting_time": "1 reaction",
+          "range": "Self",
+          "components": ["V", "S"],
+          "duration": "1 round",
+          "description": "An invisible barrier of magical force appears and protects you. Until the start of your next turn, you have a +5 bonus to AC."
+        },
+        {
+          "name": "Mage Armor",
+          "school": "Abjuration",
+          "casting_time": "1 action",
+          "range": "Touch",
+          "components": ["V", "S", "M"],
+          "duration": "8 hours",
+          "description": "You touch a willing creature who isn't wearing armor, and a protective magical force surrounds it until the spell ends."
+        },
+        {
+          "name": "Detect Magic",
+          "school": "Divination",
+          "casting_time": "1 action",
+          "range": "Self",
+          "components": ["V", "S"],
+          "duration": "Concentration, up to 10 minutes",
+          "description": "For the duration, you sense the presence of magic within 30 feet of you."
+        },
+        {
+          "name": "Comprehend Languages",
+          "school": "Divination",
+          "casting_time": "1 action",
+          "range": "Self",
+          "components": ["V", "S", "M"],
+          "duration": "1 hour",
+          "description": "For the duration, you understand the literal meaning of any spoken language that you hear."
+        }
+      ],
+      "Cleric": [
+        {
+          "name": "Cure Wounds",
+          "school": "Evocation",
+          "casting_time": "1 action",
+          "range": "Touch",
+          "components": ["V", "S"],
+          "duration": "Instantaneous",
+          "description": "A creature you touch regains a number of hit points equal to 1d8 + your spellcasting ability modifier."
+        },
+        {
+          "name": "Bless",
+          "school": "Enchantment",
+          "casting_time": "1 action",
+          "range": "30 feet",
+          "components": ["V", "S", "M"],
+          "duration": "Concentration, up to 1 minute",
+          "description": "You bless up to three creatures of your choice within range. Whenever a target makes an attack roll or a saving throw before the spell ends, the target can roll a d4 and add the number rolled to the attack roll or saving throw."
+        },
+        {
+          "name": "Detect Magic",
+          "school": "Divination",
+          "casting_time": "1 action",
+          "range": "Self",
+          "components": ["V", "S"],
+          "duration": "Concentration, up to 10 minutes",
+          "description": "For the duration, you sense the presence of magic within 30 feet of you."
+        },
+        {
+          "name": "Guidance",
+          "school": "Divination",
+          "casting_time": "1 action",
+          "range": "Touch",
+          "components": ["V", "S"],
+          "duration": "Concentration, up to 1 minute",
+          "description": "You touch one willing creature. Once before the spell ends, the target can roll a d4 and add the number rolled to one ability check of its choice."
+        },
+        {
+          "name": "Sacred Flame",
+          "school": "Evocation",
+          "casting_time": "1 action",
+          "range": "60 feet",
+          "components": ["V", "S"],
+          "duration": "Instantaneous",
+          "description": "Flame-like radiance descends on a creature that you can see within range. The target must succeed on a Dexterity saving throw or take 1d8 radiant damage."
+        }
+      ],
+      "Bard": [
+        {
+          "name": "Vicious Mockery",
+          "school": "Enchantment",
+          "casting_time": "1 action",
+          "range": "60 feet",
+          "components": ["V"],
+          "duration": "Instantaneous",
+          "description": "You unleash a string of insults laced with subtle enchantments at a creature you can see within range."
+        },
+        {
+          "name": "Cure Wounds",
+          "school": "Evocation",
+          "casting_time": "1 action",
+          "range": "Touch",
+          "components": ["V", "S"],
+          "duration": "Instantaneous",
+          "description": "A creature you touch regains a number of hit points equal to 1d8 + your spellcasting ability modifier."
+        },
+        {
+          "name": "Disguise Self",
+          "school": "Illusion",
+          "casting_time": "1 action",
+          "range": "Self",
+          "components": ["V", "S"],
+          "duration": "1 hour",
+          "description": "You make yourself appear as a different creature for the duration."
+        },
+        {
+          "name": "Faerie Fire",
+          "school": "Evocation",
+          "casting_time": "1 action",
+          "range": "60 feet",
+          "components": ["V"],
+          "duration": "Concentration, up to 1 minute",
+          "description": "Each object in a 20-foot cube within range is outlined in blue light."
+        },
+        {
+          "name": "Healing Word",
+          "school": "Evocation",
+          "casting_time": "1 bonus action",
+          "range": "60 feet",
+          "components": ["V"],
+          "duration": "Instantaneous",
+          "description": "A creature of your choice that you can see within range regains hit points equal to 1d4 + your spellcasting ability modifier."
+        }
+      ],
+      "Sorcerer": [
+        {
+          "name": "Fire Bolt",
+          "school": "Evocation",
+          "casting_time": "1 action",
+          "range": "120 feet",
+          "components": ["V", "S"],
+          "duration": "Instantaneous",
+          "description": "You hurl a mote of fire at a creature or object within range. Make a ranged spell attack. On a hit, the target takes 1d10 fire damage."
+        },
+        {
+          "name": "Shield",
+          "school": "Abjuration",
+          "casting_time": "1 reaction",
+          "range": "Self",
+          "components": ["V", "S"],
+          "duration": "1 round",
+          "description": "An invisible barrier of magical force appears and protects you. Until the start of your next turn, you have a +5 bonus to AC."
+        },
+        {
+          "name": "Mage Armor",
+          "school": "Abjuration",
+          "casting_time": "1 action",
+          "range": "Touch",
+          "components": ["V", "S", "M"],
+          "duration": "8 hours",
+          "description": "You touch a willing creature who isn't wearing armor, and a protective magical force surrounds it until the spell ends."
+        },
+        {
+          "name": "Burning Hands",
+          "school": "Evocation",
+          "casting_time": "1 action",
+          "range": "Self (15-foot cone)",
+          "components": ["V", "S"],
+          "duration": "Instantaneous",
+          "description": "As you hold your hands with thumbs touching and fingers spread, a thin sheet of flames shoots forth from your outstretched fingertips."
+        },
+        {
+          "name": "Charm Person",
+          "school": "Enchantment",
+          "casting_time": "1 action",
+          "range": "30 feet",
+          "components": ["V", "S"],
+          "duration": "1 hour",
+          "description": "You attempt to charm a humanoid you can see within range. It must make a Wisdom saving throw."
+        }
+      ],
+      "Warlock": [
+        {
+          "name": "Eldritch Blast",
+          "school": "Evocation",
+          "casting_time": "1 action",
+          "range": "120 feet",
+          "components": ["V", "S"],
+          "duration": "Instantaneous",
+          "description": "A beam of crackling energy streaks toward a creature within range. Make a ranged spell attack. On a hit, the target takes 1d10 force damage."
+        },
+        {
+          "name": "Armor of Agathys",
+          "school": "Abjuration",
+          "casting_time": "1 action",
+          "range": "Self",
+          "components": ["V", "S", "M"],
+          "duration": "1 hour",
+          "description": "A protective magical force surrounds you, manifesting as a spectral frost that covers you and your gear."
+        },
+        {
+          "name": "Hex",
+          "school": "Enchantment",
+          "casting_time": "1 bonus action",
+          "range": "90 feet",
+          "components": ["V", "S", "M"],
+          "duration": "Concentration, up to 1 hour",
+          "description": "You place a curse on a creature that you can see within range. Until the spell ends, you deal an extra 1d6 necrotic damage to the target whenever you hit it with an attack."
+        },
+        {
+          "name": "Hellish Rebuke",
+          "school": "Evocation",
+          "casting_time": "1 reaction",
+          "range": "60 feet",
+          "components": ["V", "S"],
+          "duration": "Instantaneous",
+          "description": "You point your finger, and the creature that damaged you is momentarily surrounded by hellish flames."
+        },
+        {
+          "name": "Misty Step",
+          "school": "Conjuration",
+          "casting_time": "1 bonus action",
+          "range": "Self",
+          "components": ["V"],
+          "duration": "Instantaneous",
+          "description": "Briefly surrounded by silvery mist, you teleport up to 30 feet to an unoccupied space that you can see."
+        }
+      ],
+      "Druid": [
+        {
+          "name": "Produce Flame",
+          "school": "Conjuration",
+          "casting_time": "1 action",
+          "range": "Self",
+          "components": ["V", "S"],
+          "duration": "10 minutes",
+          "description": "A flickering flame appears in your hand. The flame remains there for the duration and harms neither you nor your equipment."
+        },
+        {
+          "name": "Cure Wounds",
+          "school": "Evocation",
+          "casting_time": "1 action",
+          "range": "Touch",
+          "components": ["V", "S"],
+          "duration": "Instantaneous",
+          "description": "A creature you touch regains a number of hit points equal to 1d8 + your spellcasting ability modifier."
+        },
+        {
+          "name": "Entangle",
+          "school": "Conjuration",
+          "casting_time": "1 action",
+          "range": "90 feet",
+          "components": ["V", "S"],
+          "duration": "Concentration, up to 1 minute",
+          "description": "Grasping weeds and vines sprout from the ground in a 20-foot square starting from a point within range."
+        },
+        {
+          "name": "Goodberry",
+          "school": "Transmutation",
+          "casting_time": "1 action",
+          "range": "Touch",
+          "components": ["V", "S", "M"],
+          "duration": "Instantaneous",
+          "description": "Up to ten berries appear in your hand and are infused with magic for the duration."
+        },
+        {
+          "name": "Thunderwave",
+          "school": "Evocation",
+          "casting_time": "1 action",
+          "range": "Self (15-foot cube)",
+          "components": ["V", "S"],
+          "duration": "Instantaneous",
+                  "description": "A wave of thunderous sound sweeps out from you. Each creature in a 15-foot cube originating from you must make a Constitution saving throw."
+      }
+    ],
+    "Paladin": [
+      {
+        "name": "Cure Wounds",
+        "school": "Evocation",
+        "casting_time": "1 action",
+        "range": "Touch",
+        "components": ["V", "S"],
+        "duration": "Instantaneous",
+        "description": "A creature you touch regains a number of hit points equal to 1d8 + your spellcasting ability modifier."
+      },
+      {
+        "name": "Divine Favor",
+        "school": "Evocation",
+        "casting_time": "1 bonus action",
+        "range": "Self",
+        "components": ["V", "S"],
+        "duration": "Concentration, up to 1 minute",
+        "description": "Your prayer empowers you with divine radiance. Until the spell ends, your weapon attacks deal an extra 1d4 radiant damage on a hit."
+      },
+      {
+        "name": "Bless",
+        "school": "Enchantment",
+        "casting_time": "1 action",
+        "range": "30 feet",
+        "components": ["V", "S", "M"],
+        "duration": "Concentration, up to 1 minute",
+        "description": "You bless up to three creatures of your choice within range. Whenever a target makes an attack roll or a saving throw before the spell ends, the target can roll a d4 and add the number rolled to the attack roll or saving throw."
+      },
+      {
+        "name": "Detect Evil and Good",
+        "school": "Divination",
+        "casting_time": "1 action",
+        "range": "Self",
+        "components": ["V", "S"],
+        "duration": "Concentration, up to 10 minutes",
+        "description": "For the duration, you know if there is an aberration, celestial, construct, dragon, elemental, fey, fiend, or undead within 30 feet of you."
+      },
+      {
+        "name": "Shield of Faith",
+        "school": "Abjuration",
+        "casting_time": "1 bonus action",
+        "range": "60 feet",
+        "components": ["V", "S", "M"],
+        "duration": "Concentration, up to 10 minutes",
+        "description": "A shimmering field appears and surrounds a creature of your choice within range, granting it a +2 bonus to AC for the duration."
+      }
+    ],
+    "Ranger": [
+      {
+        "name": "Cure Wounds",
+        "school": "Evocation",
+        "casting_time": "1 action",
+        "range": "Touch",
+        "components": ["V", "S"],
+        "duration": "Instantaneous",
+        "description": "A creature you touch regains a number of hit points equal to 1d8 + your spellcasting ability modifier."
+      },
+      {
+        "name": "Hunter's Mark",
+        "school": "Divination",
+        "casting_time": "1 bonus action",
+        "range": "90 feet",
+        "components": ["V"],
+        "duration": "Concentration, up to 1 hour",
+        "description": "You choose a creature you can see within range and mystically mark it as your quarry. Until the spell ends, you deal an extra 1d6 damage to the target whenever you hit it with a weapon attack."
+      },
+      {
+        "name": "Goodberry",
+        "school": "Transmutation",
+        "casting_time": "1 action",
+        "range": "Touch",
+        "components": ["V", "S", "M"],
+        "duration": "Instantaneous",
+        "description": "Up to ten berries appear in your hand and are infused with magic for the duration."
+      },
+      {
+        "name": "Speak with Animals",
+        "school": "Divination",
+        "casting_time": "1 action",
+        "range": "Self",
+        "components": ["V", "S"],
+        "duration": "10 minutes",
+        "description": "You gain the ability to comprehend and verbally communicate with beasts for the duration."
+      },
+      {
+        "name": "Animal Friendship",
+        "school": "Enchantment",
+        "casting_time": "1 action",
+        "range": "30 feet",
+        "components": ["V", "S", "M"],
+        "duration": "24 hours",
+        "description": "This spell lets you convince a beast that you mean it no harm."
+      }
+    ]
+    }
+  },
+  "spellcasting_rules": {
+    "Wizard": {
+      "cantrips_known": 3,
+      "spells_known": 6,
+      "spellcasting_ability": "INT",
+      "spell_slots": {
+        "1": 2,
+        "2": 0,
+        "3": 0,
+        "4": 0,
+        "5": 0,
+        "6": 0,
+        "7": 0,
+        "8": 0,
+        "9": 0
+      }
+    },
+    "Cleric": {
+      "cantrips_known": 3,
+      "spells_known": 0,
+      "spellcasting_ability": "WIS",
+      "spell_slots": {
+        "1": 2,
+        "2": 0,
+        "3": 0,
+        "4": 0,
+        "5": 0,
+        "6": 0,
+        "7": 0,
+        "8": 0,
+        "9": 0
+      }
+    },
+    "Bard": {
+      "cantrips_known": 2,
+      "spells_known": 4,
+      "spellcasting_ability": "CHA",
+      "spell_slots": {
+        "1": 2,
+        "2": 0,
+        "3": 0,
+        "4": 0,
+        "5": 0,
+        "6": 0,
+        "7": 0,
+        "8": 0,
+        "9": 0
+      }
+    },
+    "Sorcerer": {
+      "cantrips_known": 4,
+      "spells_known": 2,
+      "spellcasting_ability": "CHA",
+      "spell_slots": {
+        "1": 2,
+        "2": 0,
+        "3": 0,
+        "4": 0,
+        "5": 0,
+        "6": 0,
+        "7": 0,
+        "8": 0,
+        "9": 0
+      }
+    },
+    "Warlock": {
+      "cantrips_known": 2,
+      "spells_known": 2,
+      "spellcasting_ability": "CHA",
+      "spell_slots": {
+        "1": 1,
+        "2": 0,
+        "3": 0,
+        "4": 0,
+        "5": 0,
+        "6": 0,
+        "7": 0,
+        "8": 0,
+        "9": 0
+      }
+    },
+    "Druid": {
+      "cantrips_known": 2,
+      "spells_known": 0,
+      "spellcasting_ability": "WIS",
+      "spell_slots": {
+        "1": 2,
+        "2": 0,
+        "3": 0,
+        "4": 0,
+        "5": 0,
+        "6": 0,
+        "7": 0,
+        "8": 0,
+        "9": 0
+      }
+    },
+    "Paladin": {
+      "cantrips_known": 0,
+      "spells_known": 2,
+      "spellcasting_ability": "CHA",
+      "spell_slots": {
+        "1": 2,
+        "2": 0,
+        "3": 0,
+        "4": 0,
+        "5": 0,
+        "6": 0,
+        "7": 0,
+        "8": 0,
+        "9": 0
+      }
+    },
+    "Ranger": {
+      "cantrips_known": 0,
+      "spells_known": 2,
+      "spellcasting_ability": "WIS",
+      "spell_slots": {
+        "1": 2,
+        "2": 0,
+        "3": 0,
+        "4": 0,
+        "5": 0,
+        "6": 0,
+        "7": 0,
+        "8": 0,
+        "9": 0
+      }
+    }
+  }
+} 

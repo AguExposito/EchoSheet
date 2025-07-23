@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ character.name }} - EchoSheet</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Crimson+Text:wght@400;600&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <header class="main-header">
+            <h1 class="title">🎲 EchoSheet</h1>
+            <a href="{{ url_for('index') }}" class="back-link">← Back</a>
+        </header>
+
+        <main class="main-content">
+            <div class="character-sheet">
+                <div class="character-header">
+                    <div class="character-info">
+                        <h2 class="character-name">{{ character.name }}</h2>
+                        <div class="character-basics">
+                            <span class="character-level">Level {{ character.level }}</span>
+                            <span class="character-race">{{ character.race }}</span>
+                            <span class="character-class">{{ character.char_class }}</span>
+                            {% if character.background %}
+                                <span class="character-background">{{ character.background }}</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="character-actions">
+                        <a href="{{ url_for('chat_with_character', character_id=character.id) }}" class="btn btn-accent">
+                            💬 Chat with {{ character.name }}
+                        </a>
+                        <button class="btn btn-danger delete-character-btn" 
+                                data-character-id="{{ character.id }}" 
+                                data-character-name="{{ character.name }}">
+                            🗑️ Delete Character
+                        </button>
+                    </div>
+                </div>
+
+                <div class="sheet-content">
+                    <div class="sheet-main">
+                        <section class="attributes-section">
+                            <h3>📊 Attributes</h3>
+                            <div class="attributes-grid">
+                                {% for attr, value in character.attributes.items() %}
+                                <div class="attribute-card">
+                                    <div class="attribute-name">{{ attr }}</div>
+                                    <div class="attribute-value">{{ value }}</div>
+                                    <div class="attribute-modifier">
+                                        {% set modifier = character.get_attribute_modifier(attr) %}
+                                        {% if modifier >= 0 %}+{% endif %}{{ modifier }}
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </section>
+
+                        <section class="skills-section">
+                            <h3>🎯 Skills</h3>
+                            <div class="skills-grid">
+                                {% for skill in character.skills %}
+                                <div class="skill-item">
+                                    <span class="skill-name">{{ skill }}</span>
+                                    <span class="skill-bonus">
+                                        {% set bonus = character.get_skill_bonus(skill) %}
+                                        {% if bonus >= 0 %}+{% endif %}{{ bonus }}
+                                    </span>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </section>
+
+                        {% if character.cantrips or character.spells_known %}
+                        <section class="spells-section">
+                            <h3>✨ Spells</h3>
+                            {% if character.cantrips %}
+                            <div class="cantrips-subsection">
+                                <h4>🔮 Cantrips</h4>
+                                <div class="spells-grid">
+                                    {% for cantrip in character.cantrips %}
+                                    <div class="spell-item cantrip-item">{{ cantrip }}</div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                            {% endif %}
+                            {% if character.spells_known %}
+                            <div class="spells-subsection">
+                                <h4>📚 1st Level Spells</h4>
+                                <div class="spells-grid">
+                                    {% for spell in character.spells_known %}
+                                    <div class="spell-item spell-item">{{ spell }}</div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                            {% endif %}
+                        </section>
+                        {% endif %}
+
+                        {% if character.feats %}
+                        <section class="feats-section">
+                            <h3>🏆 Feats</h3>
+                            <div class="feats-grid">
+                                {% for feat in character.feats %}
+                                <div class="feat-item">{{ feat }}</div>
+                                {% endfor %}
+                            </div>
+                        </section>
+                        {% endif %}
+
+                        {% if character.personality_traits %}
+                        <section class="personality-section">
+                            <h3>💭 Personality Traits</h3>
+                            <p class="personality-traits">{{ character.personality_traits }}</p>
+                        </section>
+                        {% endif %}
+                    </div>
+
+                    <div class="sheet-sidebar">
+                        <section class="recommendations-section">
+                            <h3>💡 Recommendations</h3>
+                            
+                            <div class="recommendation-card">
+                                <h4>🎭 Suggested Subclass</h4>
+                                <p class="recommendation-title">{{ recommendations.subclass.recommended }}</p>
+                                <p class="recommendation-reason">{{ recommendations.subclass.reason }}</p>
+                                <div class="recommendation-options">
+                                    <strong>Other options:</strong>
+                                    {% for subclass in recommendations.subclass.recommendations[:3] %}
+                                        {% if subclass != recommendations.subclass.recommended %}
+                                        <span class="option-tag">{{ subclass }}</span>
+                                        {% endif %}
+                                    {% endfor %}
+                                </div>
+                            </div>
+
+                            {% if recommendations.spells.recommendations %}
+                            <div class="recommendation-card">
+                                <h4>✨ Recommended Spells</h4>
+                                <p class="recommendation-reason">{{ recommendations.spells.reason }}</p>
+                                <div class="recommendation-list">
+                                    {% for spell in recommendations.spells.recommendations %}
+                                    <span class="recommendation-item">{{ spell }}</span>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                            {% endif %}
+
+                            {% if recommendations.skills.recommendations %}
+                            <div class="recommendation-card">
+                                <h4>🎯 Additional Skills</h4>
+                                <p class="recommendation-reason">{{ recommendations.skills.reason }}</p>
+                                <div class="recommendation-list">
+                                    {% for skill in recommendations.skills.recommendations %}
+                                    <span class="recommendation-item">{{ skill }}</span>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                            {% endif %}
+
+                            <div class="recommendation-card">
+                                <h4>🏆 Suggested Feat</h4>
+                                <p class="recommendation-title">{{ recommendations.feats.recommended }}</p>
+                                <p class="recommendation-reason">{{ recommendations.feats.reason }}</p>
+                            </div>
+
+                            <div class="recommendation-card">
+                                <h4>📈 Next Level ({{ recommendations.next_level.level }})</h4>
+                                <p><strong>Proficiency Bonus:</strong> +{{ recommendations.next_level.proficiency_bonus }}</p>
+                                {% if recommendations.next_level.suggestions %}
+                                <div class="level-suggestions">
+                                    {% for suggestion in recommendations.next_level.suggestions %}
+                                    <p class="suggestion-item">💡 {{ suggestion }}</p>
+                                    {% endfor %}
+                                </div>
+                                {% endif %}
+                            </div>
+                        </section>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <footer class="main-footer">
+            <p>&copy; 2024 EchoSheet - Intelligent Character Sheets for D&D</p>
+        </footer>
+    </div>
+
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+</html> 
