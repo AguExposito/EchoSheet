@@ -550,103 +550,103 @@
           "range": "Self (15-foot cube)",
           "components": ["V", "S"],
           "duration": "Instantaneous",
-                  "description": "A wave of thunderous sound sweeps out from you. Each creature in a 15-foot cube originating from you must make a Constitution saving throw."
-      }
-    ],
-    "Paladin": [
-      {
-        "name": "Cure Wounds",
-        "school": "Evocation",
-        "casting_time": "1 action",
-        "range": "Touch",
-        "components": ["V", "S"],
-        "duration": "Instantaneous",
-        "description": "A creature you touch regains a number of hit points equal to 1d8 + your spellcasting ability modifier."
-      },
-      {
-        "name": "Divine Favor",
-        "school": "Evocation",
-        "casting_time": "1 bonus action",
-        "range": "Self",
-        "components": ["V", "S"],
-        "duration": "Concentration, up to 1 minute",
-        "description": "Your prayer empowers you with divine radiance. Until the spell ends, your weapon attacks deal an extra 1d4 radiant damage on a hit."
-      },
-      {
-        "name": "Bless",
-        "school": "Enchantment",
-        "casting_time": "1 action",
-        "range": "30 feet",
-        "components": ["V", "S", "M"],
-        "duration": "Concentration, up to 1 minute",
-        "description": "You bless up to three creatures of your choice within range. Whenever a target makes an attack roll or a saving throw before the spell ends, the target can roll a d4 and add the number rolled to the attack roll or saving throw."
-      },
-      {
-        "name": "Detect Evil and Good",
-        "school": "Divination",
-        "casting_time": "1 action",
-        "range": "Self",
-        "components": ["V", "S"],
-        "duration": "Concentration, up to 10 minutes",
-        "description": "For the duration, you know if there is an aberration, celestial, construct, dragon, elemental, fey, fiend, or undead within 30 feet of you."
-      },
-      {
-        "name": "Shield of Faith",
-        "school": "Abjuration",
-        "casting_time": "1 bonus action",
-        "range": "60 feet",
-        "components": ["V", "S", "M"],
-        "duration": "Concentration, up to 10 minutes",
-        "description": "A shimmering field appears and surrounds a creature of your choice within range, granting it a +2 bonus to AC for the duration."
-      }
-    ],
-    "Ranger": [
-      {
-        "name": "Cure Wounds",
-        "school": "Evocation",
-        "casting_time": "1 action",
-        "range": "Touch",
-        "components": ["V", "S"],
-        "duration": "Instantaneous",
-        "description": "A creature you touch regains a number of hit points equal to 1d8 + your spellcasting ability modifier."
-      },
-      {
-        "name": "Hunter's Mark",
-        "school": "Divination",
-        "casting_time": "1 bonus action",
-        "range": "90 feet",
-        "components": ["V"],
-        "duration": "Concentration, up to 1 hour",
-        "description": "You choose a creature you can see within range and mystically mark it as your quarry. Until the spell ends, you deal an extra 1d6 damage to the target whenever you hit it with a weapon attack."
-      },
-      {
-        "name": "Goodberry",
-        "school": "Transmutation",
-        "casting_time": "1 action",
-        "range": "Touch",
-        "components": ["V", "S", "M"],
-        "duration": "Instantaneous",
-        "description": "Up to ten berries appear in your hand and are infused with magic for the duration."
-      },
-      {
-        "name": "Speak with Animals",
-        "school": "Divination",
-        "casting_time": "1 action",
-        "range": "Self",
-        "components": ["V", "S"],
-        "duration": "10 minutes",
-        "description": "You gain the ability to comprehend and verbally communicate with beasts for the duration."
-      },
-      {
-        "name": "Animal Friendship",
-        "school": "Enchantment",
-        "casting_time": "1 action",
-        "range": "30 feet",
-        "components": ["V", "S", "M"],
-        "duration": "24 hours",
-        "description": "This spell lets you convince a beast that you mean it no harm."
-      }
-    ]
+          "description": "A wave of thunderous sound sweeps out from you. Each creature in a 15-foot cube originating from you must make a Constitution saving throw."
+        }
+      ],
+      "Paladin": [
+        {
+          "name": "Cure Wounds",
+          "school": "Evocation",
+          "casting_time": "1 action",
+          "range": "Touch",
+          "components": ["V", "S"],
+          "duration": "Instantaneous",
+          "description": "A creature you touch regains a number of hit points equal to 1d8 + your spellcasting ability modifier."
+        },
+        {
+          "name": "Divine Favor",
+          "school": "Evocation",
+          "casting_time": "1 bonus action",
+          "range": "Self",
+          "components": ["V", "S"],
+          "duration": "Concentration, up to 1 minute",
+          "description": "Your prayer empowers you with divine radiance. Until the spell ends, your weapon attacks deal an extra 1d4 radiant damage on a hit."
+        },
+        {
+          "name": "Bless",
+          "school": "Enchantment",
+          "casting_time": "1 action",
+          "range": "30 feet",
+          "components": ["V", "S", "M"],
+          "duration": "Concentration, up to 1 minute",
+          "description": "You bless up to three creatures of your choice within range. Whenever a target makes an attack roll or a saving throw before the spell ends, the target can roll a d4 and add the number rolled to the attack roll or saving throw."
+        },
+        {
+          "name": "Detect Evil and Good",
+          "school": "Divination",
+          "casting_time": "1 action",
+          "range": "Self",
+          "components": ["V", "S"],
+          "duration": "Concentration, up to 10 minutes",
+          "description": "For the duration, you know if there is an aberration, celestial, construct, dragon, elemental, fey, fiend, or undead within 30 feet of you."
+        },
+        {
+          "name": "Shield of Faith",
+          "school": "Abjuration",
+          "casting_time": "1 bonus action",
+          "range": "60 feet",
+          "components": ["V", "S", "M"],
+          "duration": "Concentration, up to 10 minutes",
+          "description": "A shimmering field appears and surrounds a creature of your choice within range, granting it a +2 bonus to AC for the duration."
+        }
+      ],
+      "Ranger": [
+        {
+          "name": "Cure Wounds",
+          "school": "Evocation",
+          "casting_time": "1 action",
+          "range": "Touch",
+          "components": ["V", "S"],
+          "duration": "Instantaneous",
+          "description": "A creature you touch regains a number of hit points equal to 1d8 + your spellcasting ability modifier."
+        },
+        {
+          "name": "Hunter's Mark",
+          "school": "Divination",
+          "casting_time": "1 bonus action",
+          "range": "90 feet",
+          "components": ["V"],
+          "duration": "Concentration, up to 1 hour",
+          "description": "You choose a creature you can see within range and mystically mark it as your quarry. Until the spell ends, you deal an extra 1d6 damage to the target whenever you hit it with a weapon attack."
+        },
+        {
+          "name": "Goodberry",
+          "school": "Transmutation",
+          "casting_time": "1 action",
+          "range": "Touch",
+          "components": ["V", "S", "M"],
+          "duration": "Instantaneous",
+          "description": "Up to ten berries appear in your hand and are infused with magic for the duration."
+        },
+        {
+          "name": "Speak with Animals",
+          "school": "Divination",
+          "casting_time": "1 action",
+          "range": "Self",
+          "components": ["V", "S"],
+          "duration": "10 minutes",
+          "description": "You gain the ability to comprehend and verbally communicate with beasts for the duration."
+        },
+        {
+          "name": "Animal Friendship",
+          "school": "Enchantment",
+          "casting_time": "1 action",
+          "range": "30 feet",
+          "components": ["V", "S", "M"],
+          "duration": "24 hours",
+          "description": "This spell lets you convince a beast that you mean it no harm."
+        }
+      ]
     }
   },
   "spellcasting_rules": {

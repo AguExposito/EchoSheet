@@ -9,22 +9,19 @@ from utils.recommender import Recommender
 from utils.chat_engine import ChatEngine
 from utils.spell_manager import SpellManager
 
-app = Flask(__name__)
-app.secret_key = 'echo_sheet_secret_key'
-
-# Inicializar utilidades
-autofill = AutoFill()
-recommender = Recommender()
-chat_engine = ChatEngine()
-spell_manager = SpellManager()
-
 def init_db():
     """Initialize database"""
     conn = sqlite3.connect('db.sqlite')
     cursor = conn.cursor()
     
+    # Check if table exists
+    cursor.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='characters'")
+    table_exists = cursor.fetchone()
+    
+    if not table_exists:
+        # Create new table with optimized columns
     cursor.execute('''
-        CREATE TABLE IF NOT EXISTS characters (
+            CREATE TABLE characters (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             name TEXT NOT NULL,
             race TEXT NOT NULL,
@@ -34,7 +31,6 @@ def init_db():
             attributes TEXT,
             skills TEXT,
             feats TEXT,
-            spells TEXT,
             cantrips TEXT,
             spells_known TEXT,
             personality_traits TEXT,
@@ -43,9 +39,42 @@ def init_db():
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )
     ''')
+        print("Created new characters table")
+    else:
+        # Check existing columns and add missing ones
+        cursor.execute("PRAGMA table_info(characters)")
+        existing_columns = [column[1] for column in cursor.fetchall()]
+        
+        missing_columns = []
+        required_columns = ['cantrips', 'spells_known']
+        
+        for column in required_columns:
+            if column not in existing_columns:
+                missing_columns.append(column)
+        
+        # Add missing columns
+        for column in missing_columns:
+            try:
+                cursor.execute(f'ALTER TABLE characters ADD COLUMN {column} TEXT')
+                print(f"Added missing column: {column}")
+            except sqlite3.OperationalError as e:
+                print(f"Error adding column {column}: {e}")
     
     conn.commit()
     conn.close()
+    print("Database initialization completed")
+
+app = Flask(__name__)
+app.secret_key = 'echo_sheet_secret_key'
+
+# Initialize database
+init_db()
+
+# Inicializar utilidades
+autofill = AutoFill()
+recommender = Recommender()
+chat_engine = ChatEngine()
+spell_manager = SpellManager()
 
 @app.route('/')
 def index():
@@ -62,7 +91,15 @@ def index():
 def create_character():
     """Create new character"""
     if request.method == 'POST':
+        try:
         data = request.get_json()
+            print(f"Received data: {data}")
+            
+            # Validate required fields
+            required_fields = ['name', 'race', 'char_class', 'background']
+            for field in required_fields:
+                if not data.get(field):
+                    return jsonify({'success': False, 'error': f'Missing required field: {field}'})
         
         # Create character with basic data
         character = Character(
@@ -72,6 +109,9 @@ def create_character():
             level=max(1, min(20, data.get('level', 1))),  # Cap level between 1-20
             background=data.get('background', '')
         )
+        except Exception as e:
+            print(f"Error processing request: {e}")
+            return jsonify({'success': False, 'error': f'Error processing request: {str(e)}'})
         
         # Set custom attributes if provided
         if 'attributes' in data:
@@ -152,24 +192,29 @@ def create_character():
             autofill.fill_character(character)
         
         # Save to database
+        try:
         conn = sqlite3.connect('db.sqlite')
         cursor = conn.cursor()
         cursor.execute('''
             INSERT INTO characters (name, race, char_class, level, background, 
-                                 attributes, skills, feats, spells, cantrips, spells_known, personality_traits)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                                     attributes, skills, feats, cantrips, spells_known, personality_traits)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         ''', (
             character.name, character.race, character.char_class, character.level,
             character.background, json.dumps(character.attributes),
             json.dumps(character.skills), json.dumps(character.feats),
-            json.dumps(character.spells), json.dumps(character.cantrips),
-            json.dumps(character.spells_known), character.personality_traits
+                json.dumps(character.cantrips), json.dumps(character.spells_known), 
+                character.personality_traits
         ))
         character_id = cursor.lastrowid
         conn.commit()
         conn.close()
         
+            print(f"Character created successfully with ID: {character_id}")
         return jsonify({'success': True, 'character_id': character_id})
+        except Exception as e:
+            print(f"Database error: {e}")
+            return jsonify({'success': False, 'error': f'Database error: {str(e)}'})
     
     return render_template('create.html')
 
@@ -196,11 +241,13 @@ def view_character(character_id):
         attributes=json.loads(char_data[6]) if char_data[6] else {},
         skills=json.loads(char_data[7]) if char_data[7] else [],
         feats=json.loads(char_data[8]) if char_data[8] else [],
-        spells=json.loads(char_data[9]) if char_data[9] else [],
-        cantrips=json.loads(char_data[10]) if char_data[10] else [],
-        spells_known=json.loads(char_data[11]) if char_data[11] else [],
-        personality_traits=char_data[12] or ''
+        cantrips=json.loads(char_data[9]) if char_data[9] else [],
+        spells_known=json.loads(char_data[10]) if char_data[10] else [],
+        personality_traits=char_data[11] or ''
     )
+    
+    # Combine cantrips and spells_known for backward compatibility
+    character.spells = character.cantrips + character.spells_known
     
     # Get recommendations
     recommendations = recommender.get_recommendations(character)
@@ -229,12 +276,14 @@ def chat_with_character(character_id):
         attributes=json.loads(char_data[6]) if char_data[6] else {},
         skills=json.loads(char_data[7]) if char_data[7] else [],
         feats=json.loads(char_data[8]) if char_data[8] else [],
-        spells=json.loads(char_data[9]) if char_data[9] else [],
-        cantrips=json.loads(char_data[10]) if char_data[10] else [],
-        spells_known=json.loads(char_data[11]) if char_data[11] else [],
-        personality_traits=char_data[12] or '',
-        chat_history=json.loads(char_data[14]) if char_data[14] else []
+        cantrips=json.loads(char_data[9]) if char_data[9] else [],
+        spells_known=json.loads(char_data[10]) if char_data[10] else [],
+        personality_traits=char_data[11] or '',
+        chat_history=json.loads(char_data[13]) if char_data[13] else []
     )
+    
+    # Combine cantrips and spells_known for backward compatibility
+    character.spells = character.cantrips + character.spells_known
     
     if request.method == 'POST':
         data = request.get_json()
@@ -289,6 +338,7 @@ def api_autofill():
     """API to autofill character data"""
     try:
         data = request.get_json()
+        print(f"Received autofill request: {data}")
         
         if not data:
             return jsonify({'success': False, 'error': 'No data provided'})
@@ -296,20 +346,27 @@ def api_autofill():
         char_class = data.get('char_class', '')
         background = data.get('background', '')
         race = data.get('race', '')
+        playstyle = data.get('playstyle', '')
+        
+        print(f"Processing: class={char_class}, background={background}, race={race}, playstyle={playstyle}")
         
         if not char_class or not background:
             return jsonify({'success': False, 'error': 'Class and background are required'})
         
-        # Get suggestions that respect available skills
-        suggestions = autofill.get_suggestions(char_class, background, race)
+        # Get suggestions that respect available skills and playstyle
+        suggestions = autofill.get_suggestions(char_class, background, race, playstyle)
+        print(f"Generated suggestions: {suggestions}")
         
         return jsonify({
             'success': True,
             'attributes': suggestions['attributes'],
             'skills': suggestions['skills'],
-            'spells': suggestions['spells']
+            'spells': suggestions['spells'],
+            'available_playstyles': suggestions['available_playstyles'],
+            'current_playstyle': suggestions['current_playstyle']
         })
     except Exception as e:
+        print(f"Error in autofill: {e}")
         return jsonify({'success': False, 'error': str(e)})
 
 @app.route('/api/spells/<char_class>', methods=['GET'])
@@ -356,6 +413,31 @@ def get_spell_suggestions(char_class):
         return jsonify({
             'success': True,
             'suggestions': suggestions
+        })
+    except Exception as e:
+        return jsonify({'success': False, 'error': str(e)})
+
+@app.route('/api/playstyles/<char_class>', methods=['GET'])
+def get_playstyles(char_class):
+    """Get available playstyles for a class"""
+    try:
+        playstyles = autofill.get_available_playstyles(char_class)
+        playstyle_data = {}
+        
+        for playstyle in playstyles:
+            data = autofill.get_playstyle_data(char_class, playstyle)
+            if data:
+                playstyle_data[playstyle] = {
+                    'description': data.get('description', ''),
+                    'attributes': data.get('attributes', {}),
+                    'skills': data.get('skills', []),
+                    'spells': data.get('spells', []),
+                    'cantrips': data.get('cantrips', [])
+                }
+        
+        return jsonify({
+            'success': True,
+            'playstyles': playstyle_data
         })
     except Exception as e:
         return jsonify({'success': False, 'error': str(e)})

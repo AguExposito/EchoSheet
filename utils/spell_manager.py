@@ -103,61 +103,123 @@ class SpellManager:
         if num_spells is None:
             num_spells = self.get_spells_known_limit(char_class)
         
-        # Select cantrips
+        print(f"Getting spell suggestions for {char_class}: {num_cantrips} cantrips, {num_spells} spells")
+        print(f"Available cantrips: {len(available_cantrips)}, Available spells: {len(available_spells)}")
+        
+        # Debug: Print available cantrip names
+        if available_cantrips:
+            print(f"Available cantrip names: {[c['name'] for c in available_cantrips]}")
+        if available_spells:
+            print(f"Available spell names: {[s['name'] for s in available_spells]}")
+        
+        # Select cantrips - ALWAYS fill to the limit
         suggested_cantrips = []
         if available_cantrips and num_cantrips > 0:
-            # Prioritize damage cantrips for spellcasters
-            damage_cantrips = [c for c in available_cantrips if any(keyword in c["name"].lower() 
-                                                                   for keyword in ["fire", "ray", "bolt", "blast"])]
-            utility_cantrips = [c for c in available_cantrips if c not in damage_cantrips]
+            # Create a copy to avoid modifying the original list
+            available_cantrips_copy = available_cantrips.copy()
             
-            # Select damage cantrips first
-            for cantrip in damage_cantrips[:min(num_cantrips, len(damage_cantrips))]:
-                suggested_cantrips.append(cantrip["name"])
+            # Prioritize damage cantrips for spellcasters
+            damage_cantrips = [c for c in available_cantrips_copy if any(keyword in c["name"].lower() 
+                                                                       for keyword in ["fire", "ray", "bolt", "blast", "vicious"])]
+            utility_cantrips = [c for c in available_cantrips_copy if c not in damage_cantrips]
+            
+            # Select damage cantrips first (up to half the slots)
+            damage_slots = min(num_cantrips // 2, len(damage_cantrips))
+            for i in range(damage_slots):
+                if i < len(damage_cantrips):
+                    suggested_cantrips.append(damage_cantrips[i]["name"])
             
             # Fill remaining slots with utility cantrips
             remaining_slots = num_cantrips - len(suggested_cantrips)
-            if remaining_slots > 0:
-                for cantrip in utility_cantrips[:remaining_slots]:
-                    suggested_cantrips.append(cantrip["name"])
+            for i in range(remaining_slots):
+                if i < len(utility_cantrips):
+                    suggested_cantrips.append(utility_cantrips[i]["name"])
+            
+            # If we still don't have enough, take any available cantrips
+            if len(suggested_cantrips) < num_cantrips:
+                all_cantrips = [c["name"] for c in available_cantrips_copy]
+                for cantrip_name in all_cantrips:
+                    if cantrip_name not in suggested_cantrips and len(suggested_cantrips) < num_cantrips:
+                        suggested_cantrips.append(cantrip_name)
+            
+            # Ensure we have exactly the right number (no duplicates)
+            suggested_cantrips = list(dict.fromkeys(suggested_cantrips))[:num_cantrips]
         
-        # Select spells
+        # Select spells - ALWAYS fill to the limit
         suggested_spells = []
         if available_spells and num_spells > 0:
+            # Create a copy to avoid modifying the original list
+            available_spells_copy = available_spells.copy()
+            
             # Prioritize based on class role
             if char_class in ["Wizard", "Sorcerer"]:
                 # Prioritize damage and utility spells
-                damage_spells = [s for s in available_spells if any(keyword in s["name"].lower() 
-                                                                  for keyword in ["fire", "magic missile", "burning"])]
-                utility_spells = [s for s in available_spells if s not in damage_spells]
+                damage_spells = [s for s in available_spells_copy if any(keyword in s["name"].lower() 
+                                                                      for keyword in ["fire", "magic missile", "burning", "ray"])]
+                utility_spells = [s for s in available_spells_copy if s not in damage_spells]
                 
-                for spell in damage_spells[:min(num_spells//2, len(damage_spells))]:
-                    suggested_spells.append(spell["name"])
+                # Select damage spells first (up to half the slots)
+                damage_slots = min(num_spells // 2, len(damage_spells))
+                for i in range(damage_slots):
+                    if i < len(damage_spells):
+                        suggested_spells.append(damage_spells[i]["name"])
                 
+                # Fill remaining slots with utility spells
                 remaining_slots = num_spells - len(suggested_spells)
-                for spell in utility_spells[:remaining_slots]:
-                    suggested_spells.append(spell["name"])
+                for i in range(remaining_slots):
+                    if i < len(utility_spells):
+                        suggested_spells.append(utility_spells[i]["name"])
                     
             elif char_class in ["Cleric", "Druid"]:
                 # Prioritize healing and support spells
-                healing_spells = [s for s in available_spells if "cure" in s["name"].lower()]
-                support_spells = [s for s in available_spells if s not in healing_spells]
+                healing_spells = [s for s in available_spells_copy if "cure" in s["name"].lower()]
+                support_spells = [s for s in available_spells_copy if s not in healing_spells]
                 
-                for spell in healing_spells[:min(num_spells//2, len(healing_spells))]:
-                    suggested_spells.append(spell["name"])
+                # Select healing spells first (up to half the slots)
+                healing_slots = min(num_spells // 2, len(healing_spells))
+                for i in range(healing_slots):
+                    if i < len(healing_spells):
+                        suggested_spells.append(healing_spells[i]["name"])
                 
+                # Fill remaining slots with support spells
                 remaining_slots = num_spells - len(suggested_spells)
-                for spell in support_spells[:remaining_slots]:
-                    suggested_spells.append(spell["name"])
+                for i in range(remaining_slots):
+                    if i < len(support_spells):
+                        suggested_spells.append(support_spells[i]["name"])
                     
             elif char_class in ["Bard", "Warlock"]:
                 # Balanced selection
-                for spell in available_spells[:num_spells]:
-                    suggested_spells.append(spell["name"])
+                for i in range(min(num_spells, len(available_spells_copy))):
+                    suggested_spells.append(available_spells_copy[i]["name"])
             else:
                 # For other classes, just take the first available
-                for spell in available_spells[:num_spells]:
-                    suggested_spells.append(spell["name"])
+                for i in range(min(num_spells, len(available_spells_copy))):
+                    suggested_spells.append(available_spells_copy[i]["name"])
+            
+            # If we still don't have enough spells, take any available
+            if len(suggested_spells) < num_spells:
+                all_spells = [s["name"] for s in available_spells_copy]
+                for spell_name in all_spells:
+                    if spell_name not in suggested_spells and len(suggested_spells) < num_spells:
+                        suggested_spells.append(spell_name)
+            
+            # Ensure we have exactly the right number (no duplicates)
+            suggested_spells = list(dict.fromkeys(suggested_spells))[:num_spells]
+        
+        print(f"Selected {len(suggested_cantrips)} cantrips: {suggested_cantrips}")
+        print(f"Selected {len(suggested_spells)} spells: {suggested_spells}")
+        
+        # Final validation
+        if len(suggested_cantrips) != num_cantrips:
+            print(f"WARNING: Cantrip count mismatch. Expected {num_cantrips}, got {len(suggested_cantrips)}")
+        if len(suggested_spells) != num_spells:
+            print(f"WARNING: Spell count mismatch. Expected {num_spells}, got {len(suggested_spells)}")
+        
+        # Check for duplicates
+        if len(suggested_cantrips) != len(set(suggested_cantrips)):
+            print(f"WARNING: Duplicate cantrips detected: {suggested_cantrips}")
+        if len(suggested_spells) != len(set(suggested_spells)):
+            print(f"WARNING: Duplicate spells detected: {suggested_spells}")
         
         return {
             'cantrips': suggested_cantrips,

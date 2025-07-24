@@ -23,7 +23,8 @@
                     <div class="form-grid">
                         <div class="form-group">
                             <label for="name">Character Name</label>
-                            <input type="text" id="name" name="name" required placeholder="Ex: Gandalf, Aragorn...">
+                            <input type="text" id="name" name="name" maxlength="50" required placeholder="Ex: Gandalf, Aragorn...">
+                            <small class="char-counter">0/50 characters</small>
                         </div>
 
                         <div class="form-group">
@@ -60,6 +61,8 @@
                                 <option value="Barbarian">Barbarian</option>
                             </select>
                         </div>
+
+
 
                         <div class="form-group">
                             <label for="level">Level</label>
@@ -100,6 +103,50 @@
                         </button>
                     </div>
                 </form>
+
+                <!-- Preview Section -->
+                <div id="preview-section" class="preview-section" style="display: none;">
+                    <h3>👁️ Preview</h3>
+                    <div class="preview-card">
+                        <div class="preview-header">
+                            <h4 id="preview-name">Character Name</h4>
+                            <span id="preview-level">Level 1</span>
+                        </div>
+                        <div class="preview-details">
+                            <p id="preview-race-class">Race • Class</p>
+                            <p id="preview-background">Background</p>
+                            <p id="preview-playstyle" style="display: none; color: #f39c12; font-style: italic;">Playstyle</p>
+                        </div>
+                        <div class="playstyle-selector" style="display: none;">
+                            <label for="preview-playstyle-select">Choose Playstyle:</label>
+                            <select id="preview-playstyle-select">
+                                <option value="">Random / Standard Array</option>
+                            </select>
+                            <button type="button" id="change-playstyle-btn" class="btn btn-secondary btn-small">
+                                <span class="btn-icon">🔄</span>
+                                Change Playstyle
+                            </button>
+                        </div>
+                        <div class="preview-attributes">
+                            <h5>Attributes</h5>
+                            <div id="preview-attributes" class="attributes-grid">
+                                <!-- Will be filled dynamically -->
+                            </div>
+                        </div>
+                        <div class="preview-skills">
+                            <h5>Skills</h5>
+                            <div id="preview-skills" class="skills-list">
+                                <!-- Will be filled dynamically -->
+                            </div>
+                        </div>
+                        <div class="preview-spells" id="preview-spells-section" style="display: none;">
+                            <h5>Spells</h5>
+                            <div id="preview-spells" class="spells-list">
+                                <!-- Will be filled dynamically -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
 
                 <!-- Attribute Assignment Section -->
                 <div class="attributes-section" style="display: none;">
@@ -294,38 +341,6 @@
                         <h4>📚 1st Level Spells</h4>
                         <div class="spells-container" id="spells-container">
                             <!-- Spells will be populated dynamically -->
-                        </div>
-                    </div>
-                </div>
-
-                <div id="preview-section" class="preview-section" style="display: none;">
-                    <h3>👁️ Preview</h3>
-                    <div class="preview-card">
-                        <div class="preview-header">
-                            <h4 id="preview-name">Character Name</h4>
-                            <span id="preview-level">Level 1</span>
-                        </div>
-                        <div class="preview-details">
-                            <p id="preview-race-class">Race • Class</p>
-                            <p id="preview-background">Background</p>
-                        </div>
-                        <div class="preview-attributes">
-                            <h5>Attributes</h5>
-                            <div id="preview-attributes" class="attributes-grid">
-                                <!-- Will be filled dynamically -->
-                            </div>
-                        </div>
-                        <div class="preview-skills">
-                            <h5>Skills</h5>
-                            <div id="preview-skills" class="skills-list">
-                                <!-- Will be filled dynamically -->
-                            </div>
-                        </div>
-                        <div class="preview-spells" id="preview-spells-section" style="display: none;">
-                            <h5>Spells</h5>
-                            <div id="preview-spells" class="spells-list">
-                                <!-- Will be filled dynamically -->
-                            </div>
                         </div>
                     </div>
                 </div>

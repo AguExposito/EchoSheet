@@ -195,6 +195,257 @@ class AutoFill:
             'Ranger': ['Cure Wounds', 'Hunter\'s Mark', 'Goodberry', 'Speak with Animals', 'Animal Friendship']
         }
     
+        # Complete playstyle presets with attributes, skills, and spells
+        # These are BASE scores only - racial bonuses are applied separately
+        self.playstyles = {
+            'Fighter': {
+                'balanced': {
+                    'attributes': {'STR': 15, 'DEX': 14, 'CON': 14, 'INT': 8, 'WIS': 10, 'CHA': 10},  # 9+7+7+0+2+2 = 27
+                    'skills': ['Athletics', 'Perception'],
+                    'description': 'Versatile fighter with good offense and defense'
+                },
+                'strength': {
+                    'attributes': {'STR': 15, 'DEX': 14, 'CON': 14, 'INT': 8, 'WIS': 8, 'CHA': 12},  # 9+7+7+0+0+4 = 27
+                    'skills': ['Athletics', 'Intimidation'],
+                    'description': 'Powerful melee fighter focused on raw strength'
+                },
+                'defensive': {
+                    'attributes': {'STR': 15, 'DEX': 12, 'CON': 15, 'INT': 8, 'WIS': 10, 'CHA': 11},  # 9+4+9+0+2+3 = 27
+                    'skills': ['Athletics', 'Insight'],
+                    'description': 'Tank fighter with high constitution and defensive skills'
+                }
+            },
+            'Wizard': {
+                'balanced': {
+                    'attributes': {'STR': 8, 'DEX': 12, 'CON': 14, 'INT': 15, 'WIS': 12, 'CHA': 11},  # 0+4+7+9+4+3 = 27
+                    'skills': ['Arcana', 'History'],
+                    'spells': ['Magic Missile', 'Shield', 'Mage Armor'],
+                    'cantrips': ['Fire Bolt', 'Prestidigitation'],
+                    'description': 'Versatile wizard with balanced spell selection'
+                },
+                'evoker': {
+                    'attributes': {'STR': 8, 'DEX': 10, 'CON': 14, 'INT': 15, 'WIS': 13, 'CHA': 12},    # 0+2+7+9+5+4 = 27
+                    'skills': ['Arcana', 'Investigation'],
+                    'spells': ['Burning Hands', 'Magic Missile', 'Thunderwave'],
+                    'cantrips': ['Fire Bolt', 'Ray of Frost'],
+                    'description': 'Damage-focused wizard specializing in evocation spells'
+                },
+                'utility': {
+                    'attributes': {'STR': 8, 'DEX': 12, 'CON': 13, 'INT': 15, 'WIS': 12, 'CHA': 13},   # 0+4+5+9+4+5 = 27
+                    'skills': ['Arcana', 'Investigation'],
+                    'spells': ['Detect Magic', 'Comprehend Languages', 'Unseen Servant'],
+                    'cantrips': ['Mage Hand', 'Message'],
+                    'description': 'Utility wizard focused on non-combat spells'
+                }
+            },
+            'Cleric': {
+                'balanced': {
+                    'attributes': {'STR': 12, 'DEX': 10, 'CON': 14, 'INT': 12, 'WIS': 15, 'CHA': 9},  # 4+2+7+4+9+1 = 27
+                    'skills': ['Insight', 'Religion'],
+                    'spells': ['Cure Wounds', 'Bless', 'Shield of Faith'],
+                    'cantrips': ['Sacred Flame', 'Spare the Dying'],
+                    'description': 'Balanced cleric with healing and support spells'
+                },
+                'healer': {
+                    'attributes': {'STR': 12, 'DEX': 10, 'CON': 14, 'INT': 12, 'WIS': 15, 'CHA': 9},    # 4+2+7+4+9+1 = 27
+                    'skills': ['Medicine', 'Religion'],
+                    'spells': ['Cure Wounds', 'Healing Word', 'Prayer of Healing'],
+                    'cantrips': ['Sacred Flame', 'Spare the Dying'],
+                    'description': 'Dedicated healer focused on restoration magic'
+                },
+                'warrior': {
+                    'attributes': {'STR': 14, 'DEX': 10, 'CON': 14, 'INT': 8, 'WIS': 15, 'CHA': 10},     # 7+2+7+0+9+2 = 27
+                    'skills': ['Athletics', 'Religion'],
+                    'spells': ['Divine Favor', 'Shield of Faith', 'Cure Wounds'],
+                    'cantrips': ['Sacred Flame', 'Thaumaturgy'],
+                    'description': 'Warrior cleric combining martial prowess with divine magic'
+                }
+            },
+            'Rogue': {
+                'balanced': {
+                    'attributes': {'STR': 10, 'DEX': 15, 'CON': 13, 'INT': 12, 'WIS': 12, 'CHA': 11},  # 2+9+5+4+4+3 = 27
+                    'skills': ['Stealth', 'Sleight of Hand'],
+                    'description': 'Versatile rogue with stealth and thievery skills'
+                },
+                'assassin': {
+                    'attributes': {'STR': 12, 'DEX': 15, 'CON': 13, 'INT': 13, 'WIS': 8, 'CHA': 12},   # 4+9+5+5+0+4 = 27
+                    'skills': ['Stealth', 'Deception'],
+                    'description': 'Deadly assassin focused on stealth and deception'
+                },
+                'scout': {
+                    'attributes': {'STR': 8, 'DEX': 15, 'CON': 13, 'INT': 12, 'WIS': 12, 'CHA': 13},      # 0+9+5+4+4+5 = 27
+                    'skills': ['Stealth', 'Perception'],
+                    'description': 'Scout rogue with excellent perception and mobility'
+                }
+            },
+            'Ranger': {
+                'balanced': {
+                    'attributes': {'STR': 12, 'DEX': 15, 'CON': 12, 'INT': 10, 'WIS': 13, 'CHA': 11},  # 4+9+4+2+5+3 = 27
+                    'skills': ['Survival', 'Perception'],
+                    'description': 'Balanced ranger with wilderness and tracking skills'
+                },
+                'archer': {
+                    'attributes': {'STR': 8, 'DEX': 15, 'CON': 13, 'INT': 12, 'WIS': 12, 'CHA': 13},    # 0+9+5+4+4+5 = 27
+                    'skills': ['Stealth', 'Perception'],
+                    'description': 'Ranged combat specialist with stealth and perception'
+                },
+                'beastmaster': {
+                    'attributes': {'STR': 12, 'DEX': 12, 'CON': 13, 'INT': 10, 'WIS': 15, 'CHA': 11}, # 4+4+5+2+9+3 = 27
+                    'skills': ['Animal Handling', 'Survival'],
+                    'description': 'Beast master focused on animal companions and nature'
+                }
+            },
+            'Paladin': {
+                'balanced': {
+                    'attributes': {'STR': 15, 'DEX': 10, 'CON': 13, 'INT': 8, 'WIS': 12, 'CHA': 14},  # 9+2+5+0+4+7 = 27
+                    'skills': ['Athletics', 'Persuasion'],
+                    'spells': ['Divine Favor', 'Bless', 'Cure Wounds'],
+                    'cantrips': ['Sacred Flame', 'Thaumaturgy'],
+                    'description': 'Balanced paladin with martial and divine abilities'
+                },
+                'tank': {
+                    'attributes': {'STR': 15, 'DEX': 8, 'CON': 14, 'INT': 10, 'WIS': 12, 'CHA': 13},      # 9+0+7+2+4+5 = 27
+                    'skills': ['Athletics', 'Insight'],
+                    'spells': ['Shield of Faith', 'Divine Favor', 'Cure Wounds'],
+                    'cantrips': ['Sacred Flame', 'Thaumaturgy'],
+                    'description': 'Defensive paladin focused on protection and healing'
+                },
+                'charismatic': {
+                    'attributes': {'STR': 13, 'DEX': 10, 'CON': 13, 'INT': 8, 'WIS': 12, 'CHA': 15}, # 5+2+5+0+4+9 = 25
+                    'skills': ['Persuasion', 'Intimidation'],
+                    'spells': ['Command', 'Bless', 'Cure Wounds'],
+                    'cantrips': ['Sacred Flame', 'Thaumaturgy'],
+                    'description': 'Charismatic paladin with strong social and leadership skills'
+                }
+            },
+            'Bard': {
+                'balanced': {
+                    'attributes': {'STR': 8, 'DEX': 12, 'CON': 13, 'INT': 12, 'WIS': 11, 'CHA': 15},  # 0+4+5+4+3+9 = 25
+                    'skills': ['Performance', 'Persuasion'],
+                    'spells': ['Cure Wounds', 'Charm Person', 'Disguise Self'],
+                    'cantrips': ['Vicious Mockery', 'Prestidigitation'],
+                    'description': 'Versatile bard with healing, charm, and utility spells'
+                },
+                'lore': {
+                    'attributes': {'STR': 8, 'DEX': 12, 'CON': 12, 'INT': 13, 'WIS': 11, 'CHA': 15},      # 0+4+4+5+3+9 = 25 (adjusted)
+                    'skills': ['History', 'Arcana'],
+                    'spells': ['Comprehend Languages', 'Detect Magic', 'Cure Wounds'],
+                    'cantrips': ['Vicious Mockery', 'Message'],
+                    'description': 'Knowledge-focused bard with utility and information gathering'
+                },
+                'valor': {
+                    'attributes': {'STR': 12, 'DEX': 12, 'CON': 13, 'INT': 10, 'WIS': 9, 'CHA': 15},      # 4+4+5+2+1+9 = 25 (adjusted)
+                    'skills': ['Athletics', 'Performance'],
+                    'spells': ['Cure Wounds', 'Heroism', 'Thunderwave'],
+                    'cantrips': ['Vicious Mockery', 'Blade Ward'],
+                    'description': 'Combat-oriented bard with martial and inspiring abilities'
+                }
+            },
+            'Sorcerer': {
+                'balanced': {
+                    'attributes': {'STR': 8, 'DEX': 12, 'CON': 14, 'INT': 12, 'WIS': 11, 'CHA': 15},  # 0+4+7+4+3+9 = 27
+                    'skills': ['Arcana', 'Deception'],
+                    'spells': ['Magic Missile', 'Shield', 'Charm Person'],
+                    'cantrips': ['Fire Bolt', 'Prestidigitation'],
+                    'description': 'Balanced sorcerer with damage and utility spells'
+                },
+                'damage': {
+                    'attributes': {'STR': 8, 'DEX': 12, 'CON': 14, 'INT': 10, 'WIS': 13, 'CHA': 15},    # 0+4+7+2+5+9 = 27
+                    'skills': ['Arcana', 'Intimidation'],
+                    'spells': ['Burning Hands', 'Magic Missile', 'Thunderwave'],
+                    'cantrips': ['Fire Bolt', 'Ray of Frost'],
+                    'description': 'Damage-focused sorcerer specializing in evocation'
+                },
+                'control': {
+                    'attributes': {'STR': 8, 'DEX': 12, 'CON': 13, 'INT': 12, 'WIS': 11, 'CHA': 15},    # 0+4+5+4+3+9 = 25 (adjusted)
+                    'skills': ['Arcana', 'Persuasion'],
+                    'spells': ['Charm Person', 'Sleep', 'Suggestion'],
+                    'cantrips': ['Mage Hand', 'Message'],
+                    'description': 'Control-focused sorcerer with enchantment and illusion'
+                }
+            },
+            'Warlock': {
+                'balanced': {
+                    'attributes': {'STR': 8, 'DEX': 12, 'CON': 14, 'INT': 12, 'WIS': 11, 'CHA': 15},  # 0+4+7+4+3+9 = 27
+                    'skills': ['Arcana', 'Deception'],
+                    'spells': ['Eldritch Blast', 'Hex', 'Charm Person'],
+                    'cantrips': ['Eldritch Blast', 'Prestidigitation'],
+                    'description': 'Balanced warlock with damage and utility abilities'
+                },
+                'blaster': {
+                    'attributes': {'STR': 8, 'DEX': 12, 'CON': 14, 'INT': 10, 'WIS': 13, 'CHA': 15},   # 0+4+7+2+5+9 = 27
+                    'skills': ['Arcana', 'Intimidation'],
+                    'spells': ['Eldritch Blast', 'Hex', 'Armor of Agathys'],
+                    'cantrips': ['Eldritch Blast', 'Ray of Frost'],
+                    'description': 'Damage-focused warlock with powerful blasting abilities'
+                },
+                'utility': {
+                    'attributes': {'STR': 8, 'DEX': 12, 'CON': 13, 'INT': 12, 'WIS': 11, 'CHA': 15},    # 0+4+5+4+3+9 = 25 (adjusted)
+                    'skills': ['Arcana', 'Persuasion'],
+                    'spells': ['Eldritch Blast', 'Unseen Servant', 'Comprehend Languages'],
+                    'cantrips': ['Eldritch Blast', 'Mage Hand'],
+                    'description': 'Utility-focused warlock with information gathering abilities'
+                }
+            },
+            'Monk': {
+                'balanced': {
+                    'attributes': {'STR': 12, 'DEX': 15, 'CON': 13, 'INT': 10, 'WIS': 12, 'CHA': 11},  # 4+9+5+2+4+3 = 27
+                    'skills': ['Acrobatics', 'Stealth'],
+                    'description': 'Balanced monk with mobility and stealth skills'
+                },
+                'striker': {
+                    'attributes': {'STR': 12, 'DEX': 15, 'CON': 13, 'INT': 8, 'WIS': 12, 'CHA': 13},   # 4+9+5+0+4+5 = 27
+                    'skills': ['Athletics', 'Acrobatics'],
+                    'description': 'Offensive monk focused on damage and mobility'
+                },
+                'defensive': {
+                    'attributes': {'STR': 10, 'DEX': 15, 'CON': 13, 'INT': 12, 'WIS': 12, 'CHA': 11},  # 2+9+5+4+4+3 = 27
+                    'skills': ['Insight', 'Perception'],
+                    'description': 'Defensive monk with wisdom-based abilities'
+                }
+            },
+            'Druid': {
+                'balanced': {
+                    'attributes': {'STR': 12, 'DEX': 12, 'CON': 14, 'INT': 10, 'WIS': 15, 'CHA': 9},  # 4+4+7+2+9+1 = 27
+                    'skills': ['Nature', 'Survival'],
+                    'spells': ['Cure Wounds', 'Entangle', 'Goodberry'],
+                    'cantrips': ['Druidcraft', 'Produce Flame'],
+                    'description': 'Balanced druid with healing and nature magic'
+                },
+                'caster': {
+                    'attributes': {'STR': 8, 'DEX': 12, 'CON': 14, 'INT': 12, 'WIS': 15, 'CHA': 11},    # 0+4+7+4+9+3 = 27
+                    'skills': ['Arcana', 'Nature'],
+                    'spells': ['Cure Wounds', 'Detect Magic', 'Comprehend Languages'],
+                    'cantrips': ['Druidcraft', 'Guidance'],
+                    'description': 'Spellcasting-focused druid with utility magic'
+                },
+                'shapeshifter': {
+                    'attributes': {'STR': 12, 'DEX': 12, 'CON': 14, 'INT': 10, 'WIS': 15, 'CHA': 9}, # 4+4+7+2+9+1 = 27
+                    'skills': ['Athletics', 'Survival'],
+                    'spells': ['Cure Wounds', 'Longstrider', 'Jump'],
+                    'cantrips': ['Druidcraft', 'Shillelagh'],
+                    'description': 'Shapeshifting-focused druid with physical enhancement'
+                }
+            },
+            'Barbarian': {
+                'balanced': {
+                    'attributes': {'STR': 15, 'DEX': 14, 'CON': 14, 'INT': 8, 'WIS': 10, 'CHA': 10},  # 9+7+7+0+2+2 = 27
+                    'skills': ['Athletics', 'Survival'],
+                    'description': 'Balanced barbarian with strength and wilderness skills'
+                },
+                'berserker': {
+                    'attributes': {'STR': 15, 'DEX': 14, 'CON': 14, 'INT': 8, 'WIS': 8, 'CHA': 12}, # 9+7+7+0+0+4 = 27
+                    'skills': ['Athletics', 'Intimidation'],
+                    'description': 'Frenzied berserker focused on raw power and intimidation'
+                },
+                'tank': {
+                    'attributes': {'STR': 15, 'DEX': 13, 'CON': 14, 'INT': 8, 'WIS': 10, 'CHA': 12},      # 9+5+7+0+2+4 = 27
+                    'skills': ['Athletics', 'Perception'],
+                    'description': 'Defensive barbarian with high constitution and awareness'
+                }
+            }
+        }
+    
     def roll_attributes(self) -> Dict[str, int]:
         """Generate attributes using 4d6 drop lowest method"""
         attributes = {}
@@ -209,7 +460,7 @@ class AutoFill:
         # Point buy costs: 8=0, 9=1, 10=2, 11=3, 12=4, 13=5, 14=7, 15=9
         point_costs = {8: 0, 9: 1, 10: 2, 11: 3, 12: 4, 13: 5, 14: 7, 15: 9}
         
-        # Standard Arrays from D&D 5e SRD
+        # Standard Arrays from D&D 5e SRD (all using exactly 27 points)
         standard_arrays = [
             {'STR': 15, 'DEX': 14, 'CON': 13, 'INT': 12, 'WIS': 10, 'CHA': 8},   # 9+7+5+4+2+0 = 27
             {'STR': 15, 'DEX': 13, 'CON': 14, 'INT': 12, 'WIS': 10, 'CHA': 8},   # 9+5+7+4+2+0 = 27
@@ -218,83 +469,25 @@ class AutoFill:
             {'STR': 14, 'DEX': 13, 'CON': 15, 'INT': 12, 'WIS': 10, 'CHA': 8},   # 7+5+9+4+2+0 = 27
             {'STR': 13, 'DEX': 15, 'CON': 14, 'INT': 12, 'WIS': 10, 'CHA': 8},   # 5+9+7+4+2+0 = 27
             {'STR': 12, 'DEX': 15, 'CON': 14, 'INT': 13, 'WIS': 10, 'CHA': 8},   # 4+9+7+5+2+0 = 27
-            {'STR': 8, 'DEX': 15, 'CON': 14, 'INT': 15, 'WIS': 12, 'CHA': 10},   # 0+9+7+9+4+2 = 31 (Wizard)
-            {'STR': 8, 'DEX': 12, 'CON': 15, 'INT': 15, 'WIS': 12, 'CHA': 10},   # 0+4+9+9+4+2 = 28 (Wizard)
+            {'STR': 8, 'DEX': 14, 'CON': 14, 'INT': 15, 'WIS': 12, 'CHA': 8},   # 0+7+7+9+4+0 = 27 (Wizard)
+            {'STR': 8, 'DEX': 12, 'CON': 14, 'INT': 15, 'WIS': 12, 'CHA': 11},   # 0+4+7+9+4+3 = 27 (Wizard)
             {'STR': 8, 'DEX': 12, 'CON': 14, 'INT': 15, 'WIS': 13, 'CHA': 10},   # 0+4+7+9+5+2 = 27 (Wizard)
         ]
-        
-        # Standard array presets for different playstyles (all use exactly 27 points)
-        # These are BASE scores only - racial bonuses are applied separately
-        presets = {
-            'Fighter': {
-                'balanced': {'STR': 15, 'DEX': 14, 'CON': 14, 'INT': 8, 'WIS': 10, 'CHA': 10},  # 9+7+7+0+2+2 = 27
-                'strength': {'STR': 15, 'DEX': 14, 'CON': 14, 'INT': 8, 'WIS': 8, 'CHA': 12},  # 9+7+7+0+0+4 = 27
-                'defensive': {'STR': 15, 'DEX': 12, 'CON': 15, 'INT': 8, 'WIS': 10, 'CHA': 11}  # 9+4+9+0+2+3 = 27
-            },
-            'Wizard': {
-                'balanced': {'STR': 8, 'DEX': 12, 'CON': 14, 'INT': 15, 'WIS': 12, 'CHA': 11},  # 0+4+7+9+4+3 = 27
-                'evoker': {'STR': 8, 'DEX': 10, 'CON': 14, 'INT': 15, 'WIS': 13, 'CHA': 12},    # 0+2+7+9+5+4 = 27
-                'utility': {'STR': 8, 'DEX': 12, 'CON': 13, 'INT': 15, 'WIS': 12, 'CHA': 13}   # 0+4+5+9+4+5 = 27
-            },
-            'Cleric': {
-                'balanced': {'STR': 12, 'DEX': 10, 'CON': 14, 'INT': 12, 'WIS': 15, 'CHA': 9},  # 4+2+7+4+9+1 = 27
-                'healer': {'STR': 12, 'DEX': 10, 'CON': 14, 'INT': 12, 'WIS': 15, 'CHA': 9},    # 4+2+7+4+9+1 = 27
-                'warrior': {'STR': 14, 'DEX': 10, 'CON': 14, 'INT': 8, 'WIS': 15, 'CHA': 10}     # 7+2+7+0+9+2 = 27
-            },
-            'Rogue': {
-                'balanced': {'STR': 10, 'DEX': 15, 'CON': 13, 'INT': 12, 'WIS': 12, 'CHA': 11},  # 2+9+5+4+4+3 = 27
-                'assassin': {'STR': 12, 'DEX': 15, 'CON': 13, 'INT': 13, 'WIS': 8, 'CHA': 12},   # 4+9+5+5+0+4 = 27
-                'scout': {'STR': 8, 'DEX': 15, 'CON': 13, 'INT': 12, 'WIS': 12, 'CHA': 13}      # 0+9+5+4+4+5 = 27
-            },
-            'Ranger': {
-                'balanced': {'STR': 12, 'DEX': 15, 'CON': 12, 'INT': 10, 'WIS': 13, 'CHA': 11},  # 4+9+4+2+5+3 = 27
-                'archer': {'STR': 8, 'DEX': 15, 'CON': 13, 'INT': 12, 'WIS': 12, 'CHA': 13},    # 0+9+5+4+4+5 = 27
-                'beastmaster': {'STR': 12, 'DEX': 12, 'CON': 13, 'INT': 10, 'WIS': 15, 'CHA': 11} # 4+4+5+2+9+3 = 27
-            },
-            'Paladin': {
-                'balanced': {'STR': 15, 'DEX': 10, 'CON': 13, 'INT': 8, 'WIS': 12, 'CHA': 14},  # 9+2+5+0+4+7 = 27
-                'tank': {'STR': 15, 'DEX': 8, 'CON': 14, 'INT': 10, 'WIS': 12, 'CHA': 13},      # 9+0+7+2+4+5 = 27
-                'charismatic': {'STR': 13, 'DEX': 10, 'CON': 13, 'INT': 8, 'WIS': 12, 'CHA': 16} # 5+2+5+0+4+11 = 27
-            },
-            'Bard': {
-                'balanced': {'STR': 8, 'DEX': 12, 'CON': 13, 'INT': 12, 'WIS': 11, 'CHA': 16},  # 0+4+5+4+3+11 = 27
-                'lore': {'STR': 8, 'DEX': 12, 'CON': 12, 'INT': 13, 'WIS': 11, 'CHA': 16},      # 0+4+4+5+3+11 = 27
-                'valor': {'STR': 12, 'DEX': 12, 'CON': 13, 'INT': 10, 'WIS': 9, 'CHA': 16}      # 4+4+5+2+1+11 = 27
-            },
-            'Sorcerer': {
-                'balanced': {'STR': 8, 'DEX': 12, 'CON': 14, 'INT': 12, 'WIS': 11, 'CHA': 15},  # 0+4+7+4+3+9 = 27
-                'damage': {'STR': 8, 'DEX': 12, 'CON': 14, 'INT': 10, 'WIS': 13, 'CHA': 15},    # 0+4+7+2+5+9 = 27
-                'control': {'STR': 8, 'DEX': 12, 'CON': 13, 'INT': 12, 'WIS': 11, 'CHA': 16}    # 0+4+5+4+3+11 = 27
-            },
-            'Warlock': {
-                'balanced': {'STR': 8, 'DEX': 12, 'CON': 14, 'INT': 12, 'WIS': 11, 'CHA': 15},  # 0+4+7+4+3+9 = 27
-                'blaster': {'STR': 8, 'DEX': 12, 'CON': 14, 'INT': 10, 'WIS': 13, 'CHA': 15},   # 0+4+7+2+5+9 = 27
-                'utility': {'STR': 8, 'DEX': 12, 'CON': 13, 'INT': 12, 'WIS': 11, 'CHA': 16}    # 0+4+5+4+3+11 = 27
-            },
-            'Monk': {
-                'balanced': {'STR': 12, 'DEX': 15, 'CON': 13, 'INT': 10, 'WIS': 12, 'CHA': 11},  # 4+9+5+2+4+3 = 27
-                'striker': {'STR': 12, 'DEX': 15, 'CON': 13, 'INT': 8, 'WIS': 12, 'CHA': 13},   # 4+9+5+0+4+5 = 27
-                'defensive': {'STR': 10, 'DEX': 15, 'CON': 13, 'INT': 12, 'WIS': 12, 'CHA': 11}  # 2+9+5+4+4+3 = 27
-            },
-            'Druid': {
-                'balanced': {'STR': 12, 'DEX': 12, 'CON': 14, 'INT': 10, 'WIS': 15, 'CHA': 9},  # 4+4+7+2+9+1 = 27
-                'caster': {'STR': 8, 'DEX': 12, 'CON': 14, 'INT': 12, 'WIS': 15, 'CHA': 11},    # 0+4+7+4+9+3 = 27
-                'shapeshifter': {'STR': 12, 'DEX': 12, 'CON': 14, 'INT': 10, 'WIS': 15, 'CHA': 9} # 4+4+7+2+9+1 = 27
-            },
-            'Barbarian': {
-                'balanced': {'STR': 15, 'DEX': 14, 'CON': 14, 'INT': 8, 'WIS': 10, 'CHA': 10},  # 9+7+7+0+2+2 = 27
-                'berserker': {'STR': 15, 'DEX': 14, 'CON': 14, 'INT': 8, 'WIS': 8, 'CHA': 12}, # 9+7+7+0+0+4 = 27
-                'tank': {'STR': 15, 'DEX': 13, 'CON': 14, 'INT': 8, 'WIS': 10, 'CHA': 12}      # 9+5+7+0+2+4 = 27
-            }
-        }
         
         # Choose between standard arrays and presets
         if random.random() < 0.3:  # 30% chance to use standard array
             chosen_array = random.choice(standard_arrays)
-            # Validate that the array uses exactly 27 points
+            
+            # Validate that the array uses exactly 27 points and no value exceeds 15
             total_cost = sum(point_costs.get(value, 0) for value in chosen_array.values())
+            max_value = max(chosen_array.values())
+            
             if total_cost != 27:
                 print(f"Warning: Standard array uses {total_cost} points instead of 27")
+            if max_value > 15:
+                print(f"Warning: Standard array has value {max_value} which exceeds 15")
+                # Fallback to a safe array
+                chosen_array = {'STR': 13, 'DEX': 13, 'CON': 13, 'INT': 12, 'WIS': 12, 'CHA': 12}
             
             return {
                 'STR': chosen_array['STR'],
@@ -305,16 +498,56 @@ class AutoFill:
                 'CHA': chosen_array['CHA']
             }
         
-        if char_class in presets:
-            # Choose a random preset for the class
-            preset_names = list(presets[char_class].keys())
-            chosen_preset = random.choice(preset_names)
-            chosen_attributes = presets[char_class][chosen_preset]
+        if char_class in self.playstyles:
+            # Choose a random playstyle for the class
+            playstyle_names = list(self.playstyles[char_class].keys())
+            chosen_playstyle = random.choice(playstyle_names)
+            chosen_playstyle_data = self.playstyles[char_class][chosen_playstyle]
+            chosen_attributes = chosen_playstyle_data['attributes']
             
-            # Validate that the preset uses exactly 27 points
+            # Validate that the playstyle uses exactly 27 points and no value exceeds 15
             total_cost = sum(point_costs.get(value, 0) for value in chosen_attributes.values())
+            max_value = max(chosen_attributes.values())
+            
             if total_cost != 27:
-                print(f"Warning: {char_class} {chosen_preset} preset uses {total_cost} points instead of 27")
+                print(f"Warning: {char_class} {chosen_playstyle} playstyle uses {total_cost} points instead of 27")
+            if max_value > 15:
+                print(f"Warning: {char_class} {chosen_playstyle} playstyle has value {max_value} which exceeds 15")
+                # Cap any value that exceeds 15 to 15
+                for attr, value in chosen_attributes.items():
+                    if value > 15:
+                        print(f"Capping {attr} from {value} to 15")
+                        chosen_attributes[attr] = 15
+            
+            # Rebalance if total cost is not 27
+            if total_cost != 27:
+                print(f"Rebalancing {char_class} {chosen_playstyle} from {total_cost} to 27 points")
+                # Add points to primary attributes first
+                primary_attrs = self.classes.get(char_class, {}).get('primary_attributes', [])
+                
+                # Calculate how many points we need to add
+                points_needed = 27 - total_cost
+                
+                # Add points to primary attributes first, then others
+                priority_attrs = primary_attrs + [attr for attr in ['STR', 'DEX', 'CON', 'INT', 'WIS', 'CHA'] if attr not in primary_attrs]
+                
+                for attr in priority_attrs:
+                    if points_needed <= 0:
+                        break
+                    current_value = chosen_attributes[attr]
+                    if current_value < 15:  # Don't exceed 15
+                        # Calculate how many points we can add to this attribute
+                        current_cost = point_costs.get(current_value, 0)
+                        # Find the next value that would add points
+                        for new_value in range(current_value + 1, 16):
+                            new_cost = point_costs.get(new_value, 0)
+                            if new_cost > current_cost:
+                                points_to_add = new_cost - current_cost
+                                if points_to_add <= points_needed:
+                                    chosen_attributes[attr] = new_value
+                                    points_needed -= points_to_add
+                                    print(f"Added {points_to_add} points to {attr} (now {new_value})")
+                                    break
             
             # Return attributes in standard order: STR, DEX, CON, INT, WIS, CHA
             # These are BASE scores only - racial bonuses will be applied separately
@@ -333,6 +566,44 @@ class AutoFill:
     def get_base_attributes(self, char_class: str, race: str = None) -> Dict[str, int]:
         """Get base attributes without racial bonuses"""
         return self.get_recommended_attributes(char_class, race)
+    
+    def get_available_playstyles(self, char_class: str) -> List[str]:
+        """Get available playstyles for a class"""
+        if char_class in self.playstyles:
+            return list(self.playstyles[char_class].keys())
+        return []
+    
+    def get_playstyle_data(self, char_class: str, playstyle: str) -> Dict:
+        """Get complete data for a specific playstyle"""
+        if char_class in self.playstyles and playstyle in self.playstyles[char_class]:
+            return self.playstyles[char_class][playstyle]
+        return None
+    
+    def get_attributes_for_playstyle(self, char_class: str, playstyle: str) -> Dict[str, int]:
+        """Get attributes for a specific playstyle"""
+        playstyle_data = self.get_playstyle_data(char_class, playstyle)
+        if playstyle_data:
+            return playstyle_data['attributes']
+        return None
+    
+    def get_skills_for_playstyle(self, char_class: str, playstyle: str) -> List[str]:
+        """Get recommended skills for a specific playstyle"""
+        playstyle_data = self.get_playstyle_data(char_class, playstyle)
+        if playstyle_data and 'skills' in playstyle_data:
+            return playstyle_data['skills']
+        return []
+    
+    def get_spells_for_playstyle(self, char_class: str, playstyle: str) -> Dict[str, List[str]]:
+        """Get recommended spells for a specific playstyle"""
+        playstyle_data = self.get_playstyle_data(char_class, playstyle)
+        if playstyle_data:
+            spells = {}
+            if 'cantrips' in playstyle_data:
+                spells['cantrips'] = playstyle_data['cantrips']
+            if 'spells' in playstyle_data:
+                spells['spells'] = playstyle_data['spells']
+            return spells
+        return {}
     
     def fill_character(self, character: Character):
         """Autofill all character data"""
@@ -484,10 +755,19 @@ class AutoFill:
         
         return primary_attributes.get(char_class, {}) 
 
-    def get_suggestions(self, char_class: str, background: str, race: str = None) -> Dict:
-        """Get autofill suggestions that respect available skills"""
+    def get_suggestions(self, char_class: str, background: str, race: str = None, playstyle: str = None) -> Dict:
+        """Get autofill suggestions that respect available skills and playstyle"""
         # Get base attributes without racial bonuses
+        if playstyle and char_class in self.playstyles and playstyle in self.playstyles[char_class]:
+            # Use specific playstyle
+            base_attributes = self.get_attributes_for_playstyle(char_class, playstyle)
+            playstyle_skills = self.get_skills_for_playstyle(char_class, playstyle)
+            playstyle_spells = self.get_spells_for_playstyle(char_class, playstyle)
+        else:
+            # Use random playstyle or standard array
         base_attributes = self.get_recommended_attributes(char_class, race)
+            playstyle_skills = []
+            playstyle_spells = {}
         
         # Get available skills for the class
         class_skills = []
@@ -499,14 +779,28 @@ class AutoFill:
         if background in self.backgrounds:
             background_skills = self.backgrounds[background]['skill_proficiencies']
         
-        # Select class skills (excluding background skills to avoid duplicates)
+        # Select class skills (prioritizing playstyle skills if available)
         selected_class_skills = []
         if char_class in self.classes:
             class_data = self.classes[char_class]
             skill_choices = class_data['skill_choices']
             available_class_skills = [skill for skill in class_skills if skill not in background_skills]
             
-            # Select skills that are available for the class
+            # If we have playstyle skills, prioritize them
+            if playstyle_skills:
+                # Add playstyle skills that are available for the class
+                for skill in playstyle_skills:
+                    if skill in available_class_skills and len(selected_class_skills) < skill_choices:
+                        selected_class_skills.append(skill)
+                
+                # Fill remaining slots with random skills
+                remaining_slots = skill_choices - len(selected_class_skills)
+                remaining_skills = [skill for skill in available_class_skills if skill not in selected_class_skills]
+                if remaining_slots > 0 and remaining_skills:
+                    additional_skills = random.sample(remaining_skills, min(remaining_slots, len(remaining_skills)))
+                    selected_class_skills.extend(additional_skills)
+            else:
+                # Select skills randomly
             if len(available_class_skills) >= skill_choices:
                 selected_class_skills = random.sample(available_class_skills, skill_choices)
             else:
@@ -518,11 +812,21 @@ class AutoFill:
         # Get spells if applicable
         spells = []
         if self.spell_manager.can_cast_spells(char_class):
+            if playstyle_spells:
+                # Use playstyle spells
+                spells = playstyle_spells.get('cantrips', []) + playstyle_spells.get('spells', [])
+            else:
+                # Use random spell suggestions
             spell_suggestions = self.spell_manager.get_spell_suggestions(char_class)
             spells = spell_suggestions['cantrips'] + spell_suggestions['spells']
+        
+        # Get available playstyles for the class
+        available_playstyles = self.get_available_playstyles(char_class)
         
         return {
             'attributes': base_attributes,
             'skills': all_skills,
-            'spells': spells
+            'spells': spells,
+            'available_playstyles': available_playstyles,
+            'current_playstyle': playstyle
         } 

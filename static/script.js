@@ -22,10 +22,46 @@ function initCharacterCreation() {
     const form = document.getElementById('character-form');
     const autofillBtn = document.getElementById('autofill-btn');
     const applyBtn = document.getElementById('apply-btn');
-    const previewSection = document.getElementById('preview-section');
+    
+    // Initialize character counter
+    const nameInput = document.getElementById('name');
+    const charCounter = document.querySelector('.char-counter');
+    
+    if (nameInput && charCounter) {
+        nameInput.addEventListener('input', function() {
+            const currentLength = this.value.length;
+            const maxLength = this.maxLength;
+            charCounter.textContent = `${currentLength}/${maxLength} characters`;
+            
+            // Change color when approaching limit
+            if (currentLength >= maxLength * 0.9) {
+                charCounter.style.color = '#e74c3c';
+            } else if (currentLength >= maxLength * 0.7) {
+                charCounter.style.color = '#f39c12';
+            } else {
+                charCounter.style.color = '#95a5a6';
+            }
+            
+            // Hide suggestions when name changes to avoid page movement
+            const previewSection = document.getElementById('preview-section');
+            if (previewSection && previewSection.style.display !== 'none') {
+                previewSection.style.display = 'none';
+            }
+            
+            // Hide apply button when name changes
+            const applyBtn = document.getElementById('apply-btn');
+            if (applyBtn) {
+                applyBtn.style.display = 'none';
+            }
+        });
+    }
+    
+
     
     // Track if suggestions are valid
     let suggestionsValid = false;
+    
+
     let lastFormData = null;
     
     // Function to check if form data has changed (excluding name)
@@ -55,15 +91,7 @@ function initCharacterCreation() {
     }
     
     // Function to show suggestions
-    function showSuggestions() {
-        if (previewSection) {
-            previewSection.style.display = 'block';
-        }
-        if (applyBtn) {
-            applyBtn.style.display = 'block';
-        }
-        suggestionsValid = true;
-    }
+
     
     // Monitor form changes
     form.addEventListener('change', function(e) {
@@ -102,10 +130,20 @@ function initCharacterCreation() {
     // Apply suggestions button
     if (applyBtn) {
         applyBtn.addEventListener('click', function() {
-            if (!suggestionsValid) {
-                showNotification('Suggestions are no longer valid. Please regenerate them.', 'error');
+            // Check if preview section is visible and has data
+            const previewSection = document.getElementById('preview-section');
+            if (!previewSection || previewSection.style.display === 'none') {
+                showNotification('No suggestions available. Please generate suggestions first.', 'error');
                 return;
             }
+            
+            // Check if there are attributes in the preview
+            const previewAttributes = document.querySelectorAll('#preview-attributes .attribute-card');
+            if (previewAttributes.length === 0) {
+                showNotification('No attribute suggestions found. Please regenerate suggestions.', 'error');
+                return;
+            }
+            
             applyAutofillSuggestions();
         });
     }
@@ -180,46 +218,199 @@ function initCharacterCreation() {
             }
         });
     }
+    
+    // Hide preview section initially
+    const previewSection = document.getElementById('preview-section');
+    if (previewSection) {
+        previewSection.style.display = 'none';
+    }
+}
+
+// Function to show suggestions (global scope)
+function showSuggestions() {
+    const previewSection = document.getElementById('preview-section');
+    const applyBtn = document.getElementById('apply-btn');
+    
+    // Only show suggestions if we have valid data
+    if (suggestionsValid && previewSection) {
+        previewSection.style.display = 'block';
+    }
+    if (applyBtn) {
+        applyBtn.style.display = 'block';
+    }
+}
+
+// Function to show playstyle selector in preview
+function showPlaystyleSelector(availablePlaystyles, currentPlaystyle) {
+    const playstyleSelector = document.querySelector('.playstyle-selector');
+    const playstyleSelect = document.getElementById('preview-playstyle-select');
+    const changePlaystyleBtn = document.getElementById('change-playstyle-btn');
+    
+    if (!playstyleSelector || !playstyleSelect) return;
+    
+    // Clear current options
+    playstyleSelect.innerHTML = '<option value="">Random / Standard Array</option>';
+    
+    // Add playstyle options
+    availablePlaystyles.forEach(playstyle => {
+        const option = document.createElement('option');
+        option.value = playstyle;
+        option.textContent = playstyle.charAt(0).toUpperCase() + playstyle.slice(1);
+        playstyleSelect.appendChild(option);
+    });
+    
+    // Set current playstyle if available
+    if (currentPlaystyle) {
+        playstyleSelect.value = currentPlaystyle;
+    }
+    
+    // Show the selector
+    playstyleSelector.style.display = 'block';
+    
+    // Add event listener for change playstyle button
+    if (changePlaystyleBtn) {
+        // Ensure the button has the correct content
+        if (!changePlaystyleBtn.innerHTML.includes('🔄')) {
+            changePlaystyleBtn.innerHTML = '<span class="btn-icon">🔄</span>Change Playstyle';
+        }
+        
+        // Store the original content
+        const originalContent = changePlaystyleBtn.innerHTML;
+        
+        // Remove existing event listeners by cloning
+        const newBtn = changePlaystyleBtn.cloneNode(true);
+        changePlaystyleBtn.parentNode.replaceChild(newBtn, changePlaystyleBtn);
+        
+        // Restore the original content
+        newBtn.innerHTML = originalContent;
+        
+        // Add new event listener
+        newBtn.onclick = function() {
+            const selectedPlaystyle = playstyleSelect.value;
+            if (selectedPlaystyle) {
+                regenerateWithPlaystyle(selectedPlaystyle);
+            }
+        };
+    }
+}
+
+// Function to regenerate suggestions with specific playstyle
+async function regenerateWithPlaystyle(playstyle) {
+    const formData = getFormData();
+    if (!formData) return;
+    
+    try {
+        showLoading(document.getElementById('change-playstyle-btn'));
+        
+        const response = await fetch('/api/autofill', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                ...formData,
+                playstyle: playstyle
+            })
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            updatePreviewWithData(data);
+            suggestionsValid = true;
+            showNotification(`Regenerated with ${playstyle} playstyle!`, 'success');
+            
+            // Update the playstyle selector without re-initializing
+            const playstyleSelect = document.getElementById('preview-playstyle-select');
+            if (playstyleSelect && data.current_playstyle) {
+                playstyleSelect.value = data.current_playstyle;
+            }
+            
+            // Ensure the button has correct content after regeneration
+            const changePlaystyleBtn = document.getElementById('change-playstyle-btn');
+            if (changePlaystyleBtn && !changePlaystyleBtn.innerHTML.includes('🔄')) {
+                changePlaystyleBtn.innerHTML = '<span class="btn-icon">🔄</span>Change Playstyle';
+            }
+        } else {
+            showNotification('Error regenerating suggestions: ' + data.error, 'error');
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        showNotification('Error regenerating suggestions: ' + error.message, 'error');
+    } finally {
+        hideLoading(document.getElementById('change-playstyle-btn'));
+    }
 }
 
 function getFormData() {
-    return {
+    const formData = {
         name: document.getElementById('name').value,
         race: document.getElementById('race').value,
         char_class: document.getElementById('char_class').value,
         level: parseInt(document.getElementById('level').value) || 1,
         background: document.getElementById('background').value,
+
         attributes: getAttributes(),
         skills: getSelectedSkills(),
         spells: getSelectedSpells()
     };
+    
+    console.log('Form data collected:', formData);
+    
+    // Validate required fields
+    if (!formData.name || !formData.race || !formData.char_class || !formData.background) {
+        console.error('Missing required fields:', {
+            name: !!formData.name,
+            race: !!formData.race,
+            char_class: !!formData.char_class,
+            background: !!formData.background
+        });
+        return null;
+    }
+    
+    // Validate attributes
+    if (!formData.attributes || Object.keys(formData.attributes).length === 0) {
+        console.error('No attributes found');
+        return null;
+    }
+    
+    // Validate skills
+    if (!formData.skills || formData.skills.length === 0) {
+        console.error('No skills selected');
+        return null;
+    }
+    
+    return formData;
 }
 
 function getAttributes() {
     return {
-        name: document.getElementById('name').value,
-        race: document.getElementById('race').value,
-        char_class: document.getElementById('char_class').value,
-        level: parseInt(document.getElementById('level').value) || 1,
-        background: document.getElementById('background').value,
-        attributes: {
-            STR: parseInt(document.getElementById('str').value) || 8,
-            DEX: parseInt(document.getElementById('dex').value) || 8,
-            CON: parseInt(document.getElementById('con').value) || 8,
-            INT: parseInt(document.getElementById('int').value) || 8,
-            WIS: parseInt(document.getElementById('wis').value) || 8,
-            CHA: parseInt(document.getElementById('cha').value) || 8
-        },
-        skills: getSelectedSkills()
+        STR: parseInt(document.getElementById('str').value) || 8,
+        DEX: parseInt(document.getElementById('dex').value) || 8,
+        CON: parseInt(document.getElementById('con').value) || 8,
+        INT: parseInt(document.getElementById('int').value) || 8,
+        WIS: parseInt(document.getElementById('wis').value) || 8,
+        CHA: parseInt(document.getElementById('cha').value) || 8
     };
 }
 
 function getSelectedSkills() {
     const selectedSkills = [];
     const selectedSkillItems = document.querySelectorAll('.skill-item.selected');
+    
+    console.log('Found selected skill items:', selectedSkillItems.length);
+    
     selectedSkillItems.forEach(skillItem => {
-        selectedSkills.push(skillItem.getAttribute('data-skill'));
+        const skillName = skillItem.getAttribute('data-skill');
+        if (skillName) {
+            selectedSkills.push(skillName);
+            console.log('Selected skill:', skillName);
+        } else {
+            console.warn('Skill item without data-skill attribute:', skillItem);
+        }
     });
+    
+    console.log('Total selected skills:', selectedSkills);
     return selectedSkills;
 }
 
@@ -281,22 +472,18 @@ function changeAttribute(attr, change) {
     const currentValue = parseInt(input.value);
     const newValue = currentValue + change;
     
-    // Check if new value would exceed 15
+    // Check if base value would exceed 15 (point buy limit)
     if (newValue >= 8 && newValue <= 15) {
-        // Check if total (base + racial) would exceed 15
-        const racialBonus = getRacialBonus(attr);
-        const totalValue = newValue + racialBonus;
-        
-        if (totalValue <= 15) {
-            input.value = newValue;
-            updateAttributeModifier(attr);
-            updatePointCost(attr);
-            updatePointBuy();
-            updateButtons();
-            updateTotalScore(attr);
-        } else {
-            showNotification(`Cannot increase ${attr.toUpperCase()}: total would exceed 15 (${newValue} + ${racialBonus} = ${totalValue})`, 'error');
-        }
+        input.value = newValue;
+        updateAttributeModifier(attr);
+        updatePointCost(attr);
+        updatePointBuy();
+        updateButtons();
+        updateTotalScore(attr);
+    } else if (newValue < 8) {
+        showNotification(`Cannot decrease ${attr.toUpperCase()}: minimum base score is 8`, 'error');
+    } else if (newValue > 15) {
+        showNotification(`Cannot increase ${attr.toUpperCase()}: maximum base score is 15`, 'error');
     }
 }
 
@@ -609,6 +796,8 @@ function validateSpells() {
 }
 
 function autofillCharacter(formData) {
+    console.log('Starting autofill with data:', formData);
+    
     fetch('/api/autofill', {
         method: 'POST',
         headers: {
@@ -616,10 +805,20 @@ function autofillCharacter(formData) {
         },
         body: JSON.stringify(formData)
     })
-    .then(response => response.json())
+    .then(response => {
+        console.log('Response status:', response.status);
+        return response.json();
+    })
     .then(data => {
+        console.log('Autofill response:', data);
         if (data.success) {
             updatePreviewWithData(data);
+            
+            // Mark suggestions as valid
+            suggestionsValid = true;
+            
+            // Show suggestions and preview
+            showSuggestions();
             showPreview();
             
             // Show apply button after autofill
@@ -627,6 +826,17 @@ function autofillCharacter(formData) {
             if (applyBtn) {
                 applyBtn.style.display = 'inline-block';
             }
+            
+                // Show playstyle selector if playstyles are available
+    if (data.available_playstyles && data.available_playstyles.length > 0) {
+        showPlaystyleSelector(data.available_playstyles, data.current_playstyle);
+    } else {
+        // Hide playstyle selector if no playstyles available
+        const playstyleSelector = document.querySelector('.playstyle-selector');
+        if (playstyleSelector) {
+            playstyleSelector.style.display = 'none';
+        }
+    }
         } else {
             const errorMessage = data.error || 'Unknown error occurred';
             showNotification('Error generating suggestions: ' + errorMessage, 'error');
@@ -645,6 +855,11 @@ function applyAutofillSuggestions() {
         return;
     }
     
+    // Clear any previous application state to prevent inconsistencies
+    console.log('=== CLEARING PREVIOUS STATE ===');
+    const previousSelectedSkills = document.querySelectorAll('.skill-item.selected');
+    console.log(`Clearing ${previousSelectedSkills.length} previously selected skills`);
+    
     // Get the current preview data instead of making a new API call
     const previewSection = document.getElementById('preview-section');
     if (!previewSection || previewSection.style.display === 'none') {
@@ -652,7 +867,14 @@ function applyAutofillSuggestions() {
         return;
     }
     
-    // Extract attributes from the preview
+    // Check if there are attributes in the preview
+    const previewAttributeElements = document.querySelectorAll('#preview-attributes .attribute-card');
+    if (previewAttributeElements.length === 0) {
+        showNotification('No attribute suggestions found. Please regenerate suggestions.', 'error');
+        return;
+    }
+    
+    // Extract attributes from the preview (now showing base values)
     const previewAttributes = {};
     const attributeElements = document.querySelectorAll('#preview-attributes .attribute-card');
     attributeElements.forEach(element => {
@@ -661,10 +883,8 @@ function applyAutofillSuggestions() {
         if (attrName && !isNaN(attrValue)) {
             // Convert attribute name to uppercase for consistency
             const attrKey = attrName.toUpperCase();
-            // Subtract racial bonus to get base value
-            const racialBonus = getRacialBonus(attrKey.toLowerCase());
-            const baseValue = attrValue - racialBonus;
-            previewAttributes[attrKey] = baseValue;
+            // The preview now shows base values directly
+            previewAttributes[attrKey] = attrValue;
         }
     });
     
@@ -685,7 +905,7 @@ function applyAutofillSuggestions() {
         Object.keys(previewAttributes).forEach(attr => {
             const input = document.getElementById(attr.toLowerCase());
             if (input) {
-                // Apply the base value (without racial bonuses)
+                // Apply the base value directly from preview
                 const baseValue = previewAttributes[attr];
                 input.value = baseValue;
                 updateAttributeModifier(attr.toLowerCase());
@@ -700,8 +920,14 @@ function applyAutofillSuggestions() {
     
             // Apply suggested skills exactly as shown in the preview
         if (previewSkills.length > 0) {
+            console.log('=== SKILL APPLICATION DEBUG ===');
+            console.log('Preview skills received:', previewSkills);
+            
             // First, deselect ALL skills (including background skills)
-            document.querySelectorAll('.skill-item').forEach(item => {
+            const allSkillItems = document.querySelectorAll('.skill-item');
+            console.log(`Found ${allSkillItems.length} total skill items`);
+            
+            allSkillItems.forEach(item => {
                 item.classList.remove('selected');
                 const indicator = item.querySelector('.skill-indicator');
                 if (indicator) {
@@ -722,6 +948,8 @@ function applyAutofillSuggestions() {
                 remainingSkillsElement.textContent = totalChoices;
             }
             
+            console.log(`Class: ${charClass}, Total choices: ${totalChoices}`);
+            
             // Get background skills that should always be selected
             const backgroundSkills = getBackgroundSkills();
             
@@ -737,8 +965,14 @@ function applyAutofillSuggestions() {
             
             // Apply suggested spells
             if (previewSpells.length > 0) {
+                console.log('=== SPELL APPLICATION DEBUG ===');
+                console.log('Preview spells received:', previewSpells);
+                
                 // First, deselect ALL spells
-                document.querySelectorAll('.spell-item').forEach(item => {
+                const allSpellItems = document.querySelectorAll('.spell-item');
+                console.log(`Found ${allSpellItems.length} total spell items`);
+                
+                allSpellItems.forEach(item => {
                     item.classList.remove('selected');
                     const indicator = item.querySelector('.spell-indicator');
                     if (indicator) {
@@ -747,17 +981,39 @@ function applyAutofillSuggestions() {
                 });
                 
                 // Select suggested spells
+                let spellsSelected = 0;
                 previewSpells.forEach(spellName => {
-                    const spellItem = document.querySelector(`.spell-item[data-spell="${spellName}"]`);
+                    // Try multiple selectors to find the spell
+                    let spellItem = document.querySelector(`.spell-item[data-spell="${spellName}"]`);
+                    if (!spellItem) {
+                        // Try case-insensitive search
+                        spellItem = document.querySelector(`.spell-item[data-spell*="${spellName.toLowerCase()}" i]`);
+                    }
+                    if (!spellItem) {
+                        // Try finding by text content
+                        const allSpellItems = document.querySelectorAll('.spell-item');
+                        spellItem = Array.from(allSpellItems).find(item => 
+                            item.textContent.trim().toLowerCase() === spellName.toLowerCase()
+                        );
+                    }
+                    
                     if (spellItem) {
                         spellItem.classList.add('selected');
                         const indicator = spellItem.querySelector('.spell-indicator');
                         if (indicator) {
                             indicator.classList.add('selected');
                         }
+                        spellsSelected++;
+                        console.log(`Selected spell: ${spellName}`);
+                    } else {
+                        console.log(`Spell not found: ${spellName}`);
+                        // Try to find similar spells
+                        const allSpells = Array.from(document.querySelectorAll('.spell-item')).map(item => item.textContent.trim());
+                        console.log('Available spells:', allSpells);
                     }
                 });
                 
+                console.log(`Successfully selected ${spellsSelected} out of ${previewSpells.length} suggested spells`);
                 updateSpellCounts();
             }
         
@@ -786,6 +1042,7 @@ function applyAutofillSuggestions() {
         // Create a list of skills to select (excluding background skills)
         const skillsToSelect = previewSkills.filter(skill => !backgroundSkills.includes(skill));
         console.log('Skills to select (excluding background):', skillsToSelect);
+        console.log('Background skills that will be auto-selected:', backgroundSkills);
         
         for (let index = 0; index < skillsToSelect.length && remainingSkills > 0; index++) {
             const skillName = skillsToSelect[index];
@@ -865,6 +1122,20 @@ function applyAutofillSuggestions() {
         
         // Update skill selection logic
         updateSkillSelectionLogic(remainingSkills);
+        
+        // Final validation - check if all skills were applied correctly
+        const finalSelectedSkills = document.querySelectorAll('.skill-item.selected');
+        const expectedTotalSkills = backgroundSkills.length + skillsToSelect.length;
+        
+        console.log('=== FINAL VALIDATION ===');
+        console.log(`Expected total skills: ${expectedTotalSkills} (${backgroundSkills.length} background + ${skillsToSelect.length} class)`);
+        console.log(`Actually selected: ${finalSelectedSkills.length}`);
+        
+        if (finalSelectedSkills.length !== expectedTotalSkills) {
+            console.warn('⚠️ SKILL COUNT MISMATCH DETECTED!');
+            console.warn('Selected skills:', Array.from(finalSelectedSkills).map(item => item.getAttribute('data-skill')));
+            console.warn('Expected skills:', [...backgroundSkills, ...skillsToSelect]);
+        }
     }
     
     showNotification('Suggestions applied successfully!', 'success');
@@ -879,6 +1150,18 @@ function updatePreviewWithData(data) {
     document.getElementById('preview-race-class').textContent = 
         `${formData.race || 'Raza'} • ${formData.char_class || 'Clase'}`;
     document.getElementById('preview-background').textContent = formData.background || 'Sin trasfondo';
+    
+    // Mostrar información del playstyle si está disponible
+    const playstyleInfo = document.getElementById('preview-playstyle');
+    if (playstyleInfo) {
+        if (data.current_playstyle) {
+            playstyleInfo.textContent = `Playstyle: ${data.current_playstyle.charAt(0).toUpperCase() + data.current_playstyle.slice(1)}`;
+            playstyleInfo.style.display = 'block';
+        } else {
+            playstyleInfo.textContent = 'Playstyle: Random / Standard Array';
+            playstyleInfo.style.display = 'block';
+        }
+    }
     
     // Actualizar atributos en orden estándar
     const attributesGrid = document.getElementById('preview-attributes');
@@ -896,11 +1179,13 @@ function updatePreviewWithData(data) {
                 const modifier = Math.floor((totalValue - 10) / 2);
                 const modifierText = modifier >= 0 ? `+${modifier}` : `${modifier}`;
                 
+                // Show base value in preview (not total) to be consistent with point buy system
                 attributesGrid.innerHTML += `
                     <div class="attribute-card">
                         <div class="attribute-name">${attr}</div>
-                        <div class="attribute-value">${totalValue}</div>
+                        <div class="attribute-value">${baseValue}</div>
                         <div class="attribute-modifier">${modifierText}</div>
+                        ${racialBonus > 0 ? `<div class="attribute-racial">+${racialBonus}</div>` : ''}
                     </div>
                 `;
             }
@@ -953,6 +1238,14 @@ function showPreview() {
 }
 
 function createCharacter(formData) {
+    console.log('Creating character with data:', formData);
+    
+    // Validate form data before sending
+    if (!validateForm(formData)) {
+        console.error('Form validation failed');
+        return;
+    }
+    
     fetch('/create', {
         method: 'POST',
         headers: {
@@ -960,18 +1253,27 @@ function createCharacter(formData) {
         },
         body: JSON.stringify(formData)
     })
-    .then(response => response.json())
+    .then(response => {
+        console.log('Response status:', response.status);
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        return response.json();
+    })
     .then(data => {
+        console.log('Server response:', data);
         if (data.success) {
-            alert('¡Personaje creado exitosamente!');
+            showNotification('¡Personaje creado exitosamente!', 'success');
             window.location.href = `/character/${data.character_id}`;
         } else {
-            alert('Error al crear el personaje.');
+            const errorMessage = data.error || 'Error desconocido al crear el personaje';
+            console.error('Server error:', errorMessage);
+            showNotification('Error al crear el personaje: ' + errorMessage, 'error');
         }
     })
     .catch(error => {
-        console.error('Error:', error);
-        alert('Error al crear el personaje.');
+        console.error('Network or parsing error:', error);
+        showNotification('Error de conexión al crear el personaje: ' + error.message, 'error');
     });
 }
 
@@ -1111,6 +1413,8 @@ function deleteCharacter(characterId, characterName) {
 
 // Funcionalidades adicionales
 function showLoading(element) {
+    // Store original content before showing loading
+    element.setAttribute('data-original-content', element.innerHTML);
     element.innerHTML = '<div class="loading">Cargando...</div>';
 }
 
@@ -1118,6 +1422,13 @@ function hideLoading(element) {
     const loading = element.querySelector('.loading');
     if (loading) {
         loading.remove();
+    }
+    
+    // Restore original content
+    const originalContent = element.getAttribute('data-original-content');
+    if (originalContent) {
+        element.innerHTML = originalContent;
+        element.removeAttribute('data-original-content');
     }
 }
 
@@ -1332,18 +1643,35 @@ function getSelectedSpells() {
     const selectedCantrips = [];
     const selectedSpells = [];
     
-    document.querySelectorAll('.spell-item.selected[data-type="cantrip"]').forEach(item => {
-        selectedCantrips.push(item.getAttribute('data-spell'));
+    const cantripItems = document.querySelectorAll('.spell-item.selected[data-type="cantrip"]');
+    const spellItems = document.querySelectorAll('.spell-item.selected[data-type="spell"]');
+    
+    console.log('Found selected cantrips:', cantripItems.length);
+    console.log('Found selected spells:', spellItems.length);
+    
+    cantripItems.forEach(item => {
+        const spellName = item.getAttribute('data-spell');
+        if (spellName) {
+            selectedCantrips.push(spellName);
+            console.log('Selected cantrip:', spellName);
+        }
     });
     
-    document.querySelectorAll('.spell-item.selected[data-type="spell"]').forEach(item => {
-        selectedSpells.push(item.getAttribute('data-spell'));
+    spellItems.forEach(item => {
+        const spellName = item.getAttribute('data-spell');
+        if (spellName) {
+            selectedSpells.push(spellName);
+            console.log('Selected spell:', spellName);
+        }
     });
     
-    return {
+    const result = {
         cantrips: selectedCantrips,
         spells: selectedSpells
     };
+    
+    console.log('Total selected spells:', result);
+    return result;
 }
 
 function showSpellInfo(spell) {
