@@ -20,7 +20,7 @@ def init_db():
     
     if not table_exists:
         # Create new table with optimized columns
-    cursor.execute('''
+        cursor.execute('''
             CREATE TABLE characters (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             name TEXT NOT NULL,
@@ -92,7 +92,7 @@ def create_character():
     """Create new character"""
     if request.method == 'POST':
         try:
-        data = request.get_json()
+            data = request.get_json()
             print(f"Received data: {data}")
             
             # Validate required fields
@@ -102,13 +102,13 @@ def create_character():
                     return jsonify({'success': False, 'error': f'Missing required field: {field}'})
         
         # Create character with basic data
-        character = Character(
-            name=data['name'],
-            race=data['race'],
-            char_class=data['char_class'],
-            level=max(1, min(20, data.get('level', 1))),  # Cap level between 1-20
-            background=data.get('background', '')
-        )
+            character = Character(
+                name=data['name'],
+                race=data['race'],
+                char_class=data['char_class'],
+                level=max(1, min(20, data.get('level', 1))),  # Cap level between 1-20
+                background=data.get('background', '')
+            )
         except Exception as e:
             print(f"Error processing request: {e}")
             return jsonify({'success': False, 'error': f'Error processing request: {str(e)}'})
@@ -193,25 +193,25 @@ def create_character():
         
         # Save to database
         try:
-        conn = sqlite3.connect('db.sqlite')
-        cursor = conn.cursor()
-        cursor.execute('''
-            INSERT INTO characters (name, race, char_class, level, background, 
-                                     attributes, skills, feats, cantrips, spells_known, personality_traits)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-        ''', (
-            character.name, character.race, character.char_class, character.level,
-            character.background, json.dumps(character.attributes),
-            json.dumps(character.skills), json.dumps(character.feats),
-                json.dumps(character.cantrips), json.dumps(character.spells_known), 
-                character.personality_traits
-        ))
-        character_id = cursor.lastrowid
-        conn.commit()
-        conn.close()
-        
+            conn = sqlite3.connect('db.sqlite')
+            cursor = conn.cursor()
+            cursor.execute('''
+                INSERT INTO characters (name, race, char_class, level, background, 
+                                        attributes, skills, feats, cantrips, spells_known, personality_traits)
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            ''', (
+                character.name, character.race, character.char_class, character.level,
+                character.background, json.dumps(character.attributes),
+                json.dumps(character.skills), json.dumps(character.feats),
+                    json.dumps(character.cantrips), json.dumps(character.spells_known), 
+                    character.personality_traits
+            ))
+            character_id = cursor.lastrowid
+            conn.commit()
+            conn.close()
+            
             print(f"Character created successfully with ID: {character_id}")
-        return jsonify({'success': True, 'character_id': character_id})
+            return jsonify({'success': True, 'character_id': character_id})
         except Exception as e:
             print(f"Database error: {e}")
             return jsonify({'success': False, 'error': f'Database error: {str(e)}'})

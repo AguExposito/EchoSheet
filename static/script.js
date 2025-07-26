@@ -42,17 +42,14 @@ function initCharacterCreation() {
                 charCounter.style.color = '#95a5a6';
             }
             
-            // Hide suggestions when name changes to avoid page movement
-            const previewSection = document.getElementById('preview-section');
-            if (previewSection && previewSection.style.display !== 'none') {
-                previewSection.style.display = 'none';
-            }
-            
-            // Hide apply button when name changes
+            // Only hide suggestions when name changes, not the preview
             const applyBtn = document.getElementById('apply-btn');
             if (applyBtn) {
                 applyBtn.style.display = 'none';
             }
+            
+            // Update preview with new name
+            updatePreview();
         });
     }
     
@@ -100,6 +97,15 @@ function initCharacterCreation() {
             if (suggestionsValid) {
                 hideSuggestions();
                 showNotification('Suggestions hidden - form data has changed', 'info');
+            }
+            
+            // Check if we should show spells section
+            const charClass = document.getElementById('char_class').value;
+            const background = document.getElementById('background').value;
+            
+            if (charClass && background) {
+                // Check if class can cast spells
+                checkSpellcasting();
             }
         }
     });
@@ -213,16 +219,20 @@ function initCharacterCreation() {
     if (classSelect) {
         classSelect.addEventListener('change', function() {
             if (this.value && document.getElementById('background').value) {
-                // Refresh spells when class changes
+                // Show skills section
+                document.getElementById('skills-section').style.display = 'block';
+                updateSkillSelection();
+                
+                // Check if class can cast spells
                 checkSpellcasting();
             }
         });
     }
     
-    // Hide preview section initially
-    const previewSection = document.getElementById('preview-section');
-    if (previewSection) {
-        previewSection.style.display = 'none';
+    // Initialize preview if basic info is already present
+    const formData = getFormData();
+    if (formData && formData.race && formData.char_class && formData.background) {
+        updatePreview();
     }
 }
 
@@ -874,6 +884,10 @@ function applyAutofillSuggestions() {
         return;
     }
     
+    // Store current playstyle for debugging
+    const currentPlaystyle = document.getElementById('preview-playstyle')?.textContent || 'Unknown';
+    console.log(`Applying suggestions for playstyle: ${currentPlaystyle}`);
+    
     // Extract attributes from the preview (now showing base values)
     const previewAttributes = {};
     const attributeElements = document.querySelectorAll('#preview-attributes .attribute-card');
@@ -996,6 +1010,14 @@ function applyAutofillSuggestions() {
                             item.textContent.trim().toLowerCase() === spellName.toLowerCase()
                         );
                     }
+                    if (!spellItem) {
+                        // Try partial match
+                        const allSpellItems = document.querySelectorAll('.spell-item');
+                        spellItem = Array.from(allSpellItems).find(item => 
+                            item.textContent.trim().toLowerCase().includes(spellName.toLowerCase()) ||
+                            spellName.toLowerCase().includes(item.textContent.trim().toLowerCase())
+                        );
+                    }
                     
                     if (spellItem) {
                         spellItem.classList.add('selected');
@@ -1006,7 +1028,7 @@ function applyAutofillSuggestions() {
                         spellsSelected++;
                         console.log(`Selected spell: ${spellName}`);
                     } else {
-                        console.log(`Spell not found: ${spellName}`);
+                        console.warn(`Spell not found: ${spellName}`);
                         // Try to find similar spells
                         const allSpells = Array.from(document.querySelectorAll('.spell-item')).map(item => item.textContent.trim());
                         console.log('Available spells:', allSpells);
@@ -1028,6 +1050,8 @@ function applyAutofillSuggestions() {
                     indicator.classList.add('selected');
                 }
                 console.log(`Selected background skill: ${skillName} (disabled)`);
+            } else {
+                console.warn(`Background skill not found: ${skillName}`);
             }
         });
         
@@ -1044,6 +1068,7 @@ function applyAutofillSuggestions() {
         console.log('Skills to select (excluding background):', skillsToSelect);
         console.log('Background skills that will be auto-selected:', backgroundSkills);
         
+        // More robust skill selection
         for (let index = 0; index < skillsToSelect.length && remainingSkills > 0; index++) {
             const skillName = skillsToSelect[index];
             
@@ -1058,6 +1083,14 @@ function applyAutofillSuggestions() {
                 const allSkillItems = document.querySelectorAll('.skill-item');
                 skillItem = Array.from(allSkillItems).find(item => 
                     item.textContent.trim().toLowerCase() === skillName.toLowerCase()
+                );
+            }
+            if (!skillItem) {
+                // Try partial match
+                const allSkillItems = document.querySelectorAll('.skill-item');
+                skillItem = Array.from(allSkillItems).find(item => 
+                    item.textContent.trim().toLowerCase().includes(skillName.toLowerCase()) ||
+                    skillName.toLowerCase().includes(item.textContent.trim().toLowerCase())
                 );
             }
             
@@ -1080,7 +1113,7 @@ function applyAutofillSuggestions() {
             } else if (skillItem) {
                 console.log(`No skill points remaining, cannot select ${skillName}`);
             } else {
-                console.log(`Skill not found: ${skillName}`);
+                console.warn(`Skill not found: ${skillName}`);
                 // Try to find similar skills
                 const allSkills = Array.from(document.querySelectorAll('.skill-item')).map(item => item.textContent.trim());
                 console.log('Available skills:', allSkills);
@@ -1226,7 +1259,8 @@ function updatePreview() {
         `${formData.race || 'Raza'} • ${formData.char_class || 'Clase'}`;
     document.getElementById('preview-background').textContent = formData.background || 'Sin trasfondo';
     
-    if (formData.name && formData.race && formData.char_class) {
+    // Show preview if we have basic info (except name)
+    if (formData.race && formData.char_class && formData.background) {
         showPreview();
     }
 }
@@ -1518,7 +1552,9 @@ function initSpellSelection() {
 
 function checkSpellcasting() {
     const charClass = document.getElementById('char_class').value;
-    if (!charClass) return;
+    const background = document.getElementById('background').value;
+    
+    if (!charClass || !background) return;
     
     fetch(`/api/spells/${charClass}`)
         .then(response => response.json())
@@ -1573,6 +1609,9 @@ function createSpellItem(spell, type) {
     spellItem.setAttribute('data-spell', spell.name);
     spellItem.setAttribute('data-type', type);
     
+    // Create source badge if available
+    const sourceBadge = spell.source ? `<span class="spell-source ${spell.source.toLowerCase()}">${spell.source}</span>` : '';
+    
     spellItem.innerHTML = `
         <div class="spell-indicator"></div>
         <div class="spell-info">
@@ -1584,6 +1623,7 @@ function createSpellItem(spell, type) {
             <span class="spell-range">Range: ${spell.range}</span>
         </div>
         <button class="spell-info-btn" title="View spell details">📖</button>
+        ${sourceBadge}
     `;
     
     spellItem.addEventListener('click', (e) => {
@@ -1689,11 +1729,17 @@ function showSpellInfo(spell) {
     // Format components
     const components = spell.components.join(', ');
     
+    // Create source badge for modal if available
+    const sourceBadge = spell.source ? `<span class="spell-source ${spell.source.toLowerCase()}">${spell.source}</span>` : '';
+    
     // Create modal content
     modal.innerHTML = `
         <div class="spell-info-content">
             <div class="spell-info-header">
-                <h3 class="spell-info-title">${spell.name}</h3>
+                <h3 class="spell-info-title">
+                    ${spell.name}
+                    ${sourceBadge}
+                </h3>
                 <button class="spell-info-close" onclick="closeSpellInfo()">×</button>
             </div>
             <div class="spell-info-body">
@@ -1713,6 +1759,9 @@ function showSpellInfo(spell) {
                     <div class="spell-info-item">
                         <strong>Duration:</strong> ${spell.duration}
                     </div>
+                    ${spell.source ? `<div class="spell-info-item">
+                        <strong>Source:</strong> ${spell.source}
+                    </div>` : ''}
                 </div>
                 <div class="spell-info-description">
                     <strong>Description:</strong>

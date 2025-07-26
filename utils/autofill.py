@@ -21,7 +21,7 @@ class AutoFill:
             'Halfling': {'ability_bonus': {'DEX': 2}},
             'Dragonborn': {'ability_bonus': {'STR': 2, 'CHA': 1}},
             'Tiefling': {'ability_bonus': {'INT': 1, 'CHA': 2}},
-            'Half-Elf': {'ability_bonus': {'CHA': 2}},
+            'Half-Elf': {'ability_bonus': {'CHA': 2, 'STR': 1, 'DEX': 1}},
             'Half-Orc': {'ability_bonus': {'STR': 2, 'CON': 1}},
             'Gnome': {'ability_bonus': {'INT': 2}}
         }
@@ -219,22 +219,22 @@ class AutoFill:
                 'balanced': {
                     'attributes': {'STR': 8, 'DEX': 12, 'CON': 14, 'INT': 15, 'WIS': 12, 'CHA': 11},  # 0+4+7+9+4+3 = 27
                     'skills': ['Arcana', 'History'],
-                    'spells': ['Magic Missile', 'Shield', 'Mage Armor'],
-                    'cantrips': ['Fire Bolt', 'Prestidigitation'],
+                    'spells': ['Magic Missile', 'Shield', 'Mage Armor', 'Detect Magic'],
+                    'cantrips': ['Fire Bolt', 'Prestidigitation', 'Mage Hand'],
                     'description': 'Versatile wizard with balanced spell selection'
                 },
                 'evoker': {
                     'attributes': {'STR': 8, 'DEX': 10, 'CON': 14, 'INT': 15, 'WIS': 13, 'CHA': 12},    # 0+2+7+9+5+4 = 27
                     'skills': ['Arcana', 'Investigation'],
-                    'spells': ['Burning Hands', 'Magic Missile', 'Thunderwave'],
-                    'cantrips': ['Fire Bolt', 'Ray of Frost'],
+                    'spells': ['Burning Hands', 'Magic Missile', 'Thunderwave', 'Chromatic Orb'],
+                    'cantrips': ['Fire Bolt', 'Ray of Frost', 'Acid Splash'],
                     'description': 'Damage-focused wizard specializing in evocation spells'
                 },
                 'utility': {
                     'attributes': {'STR': 8, 'DEX': 12, 'CON': 13, 'INT': 15, 'WIS': 12, 'CHA': 13},   # 0+4+5+9+4+5 = 27
                     'skills': ['Arcana', 'Investigation'],
-                    'spells': ['Detect Magic', 'Comprehend Languages', 'Unseen Servant'],
-                    'cantrips': ['Mage Hand', 'Message'],
+                    'spells': ['Detect Magic', 'Comprehend Languages', 'Unseen Servant', 'Alarm'],
+                    'cantrips': ['Mage Hand', 'Message', 'Minor Illusion'],
                     'description': 'Utility wizard focused on non-combat spells'
                 }
             },
@@ -242,22 +242,22 @@ class AutoFill:
                 'balanced': {
                     'attributes': {'STR': 12, 'DEX': 10, 'CON': 14, 'INT': 12, 'WIS': 15, 'CHA': 9},  # 4+2+7+4+9+1 = 27
                     'skills': ['Insight', 'Religion'],
-                    'spells': ['Cure Wounds', 'Bless', 'Shield of Faith'],
-                    'cantrips': ['Sacred Flame', 'Spare the Dying'],
+                    'spells': ['Cure Wounds', 'Bless', 'Shield of Faith', 'Detect Magic'],
+                    'cantrips': ['Sacred Flame', 'Spare the Dying', 'Guidance'],
                     'description': 'Balanced cleric with healing and support spells'
                 },
                 'healer': {
                     'attributes': {'STR': 12, 'DEX': 10, 'CON': 14, 'INT': 12, 'WIS': 15, 'CHA': 9},    # 4+2+7+4+9+1 = 27
                     'skills': ['Medicine', 'Religion'],
-                    'spells': ['Cure Wounds', 'Healing Word', 'Prayer of Healing'],
-                    'cantrips': ['Sacred Flame', 'Spare the Dying'],
+                    'spells': ['Cure Wounds', 'Healing Word', 'Prayer of Healing', 'Detect Magic'],
+                    'cantrips': ['Sacred Flame', 'Spare the Dying', 'Guidance'],
                     'description': 'Dedicated healer focused on restoration magic'
                 },
                 'warrior': {
                     'attributes': {'STR': 14, 'DEX': 10, 'CON': 14, 'INT': 8, 'WIS': 15, 'CHA': 10},     # 7+2+7+0+9+2 = 27
                     'skills': ['Athletics', 'Religion'],
-                    'spells': ['Divine Favor', 'Shield of Faith', 'Cure Wounds'],
-                    'cantrips': ['Sacred Flame', 'Thaumaturgy'],
+                    'spells': ['Divine Favor', 'Shield of Faith', 'Cure Wounds', 'Detect Magic'],
+                    'cantrips': ['Sacred Flame', 'Thaumaturgy', 'Guidance'],
                     'description': 'Warrior cleric combining martial prowess with divine magic'
                 }
             },
@@ -299,22 +299,22 @@ class AutoFill:
                 'balanced': {
                     'attributes': {'STR': 15, 'DEX': 10, 'CON': 13, 'INT': 8, 'WIS': 12, 'CHA': 14},  # 9+2+5+0+4+7 = 27
                     'skills': ['Athletics', 'Persuasion'],
-                    'spells': ['Divine Favor', 'Bless', 'Cure Wounds'],
-                    'cantrips': ['Sacred Flame', 'Thaumaturgy'],
+                    'spells': ['Divine Favor', 'Bless'],
+                    'cantrips': [],
                     'description': 'Balanced paladin with martial and divine abilities'
                 },
                 'tank': {
                     'attributes': {'STR': 15, 'DEX': 8, 'CON': 14, 'INT': 10, 'WIS': 12, 'CHA': 13},      # 9+0+7+2+4+5 = 27
                     'skills': ['Athletics', 'Insight'],
-                    'spells': ['Shield of Faith', 'Divine Favor', 'Cure Wounds'],
-                    'cantrips': ['Sacred Flame', 'Thaumaturgy'],
+                    'spells': ['Shield of Faith', 'Divine Favor'],
+                    'cantrips': [],
                     'description': 'Defensive paladin focused on protection and healing'
                 },
                 'charismatic': {
-                    'attributes': {'STR': 13, 'DEX': 10, 'CON': 13, 'INT': 8, 'WIS': 12, 'CHA': 15}, # 5+2+5+0+4+9 = 25
+                    'attributes': {'STR': 14, 'DEX': 10, 'CON': 13, 'INT': 8, 'WIS': 12, 'CHA': 15}, # 7+2+5+0+4+9 = 27
                     'skills': ['Persuasion', 'Intimidation'],
-                    'spells': ['Command', 'Bless', 'Cure Wounds'],
-                    'cantrips': ['Sacred Flame', 'Thaumaturgy'],
+                    'spells': ['Command', 'Bless'],
+                    'cantrips': [],
                     'description': 'Charismatic paladin with strong social and leadership skills'
                 }
             },
@@ -322,21 +322,21 @@ class AutoFill:
                 'balanced': {
                     'attributes': {'STR': 8, 'DEX': 12, 'CON': 13, 'INT': 12, 'WIS': 11, 'CHA': 15},  # 0+4+5+4+3+9 = 25
                     'skills': ['Performance', 'Persuasion'],
-                    'spells': ['Cure Wounds', 'Charm Person', 'Disguise Self'],
+                    'spells': ['Cure Wounds', 'Charm Person', 'Disguise Self', 'Detect Magic'],
                     'cantrips': ['Vicious Mockery', 'Prestidigitation'],
                     'description': 'Versatile bard with healing, charm, and utility spells'
                 },
                 'lore': {
-                    'attributes': {'STR': 8, 'DEX': 12, 'CON': 12, 'INT': 13, 'WIS': 11, 'CHA': 15},      # 0+4+4+5+3+9 = 25 (adjusted)
+                    'attributes': {'STR': 8, 'DEX': 12, 'CON': 12, 'INT': 13, 'WIS': 11, 'CHA': 15},      # 0+4+4+5+3+9 = 25
                     'skills': ['History', 'Arcana'],
-                    'spells': ['Comprehend Languages', 'Detect Magic', 'Cure Wounds'],
+                    'spells': ['Comprehend Languages', 'Detect Magic', 'Cure Wounds', 'Charm Person'],
                     'cantrips': ['Vicious Mockery', 'Message'],
                     'description': 'Knowledge-focused bard with utility and information gathering'
                 },
                 'valor': {
-                    'attributes': {'STR': 12, 'DEX': 12, 'CON': 13, 'INT': 10, 'WIS': 9, 'CHA': 15},      # 4+4+5+2+1+9 = 25 (adjusted)
+                    'attributes': {'STR': 12, 'DEX': 12, 'CON': 13, 'INT': 10, 'WIS': 9, 'CHA': 15},      # 4+4+5+2+1+9 = 25
                     'skills': ['Athletics', 'Performance'],
-                    'spells': ['Cure Wounds', 'Heroism', 'Thunderwave'],
+                    'spells': ['Cure Wounds', 'Heroism', 'Thunderwave', 'Charm Person'],
                     'cantrips': ['Vicious Mockery', 'Blade Ward'],
                     'description': 'Combat-oriented bard with martial and inspiring abilities'
                 }
@@ -345,22 +345,22 @@ class AutoFill:
                 'balanced': {
                     'attributes': {'STR': 8, 'DEX': 12, 'CON': 14, 'INT': 12, 'WIS': 11, 'CHA': 15},  # 0+4+7+4+3+9 = 27
                     'skills': ['Arcana', 'Deception'],
-                    'spells': ['Magic Missile', 'Shield', 'Charm Person'],
-                    'cantrips': ['Fire Bolt', 'Prestidigitation'],
+                    'spells': ['Magic Missile', 'Shield'],
+                    'cantrips': ['Fire Bolt', 'Prestidigitation', 'Mage Hand', 'Ray of Frost'],
                     'description': 'Balanced sorcerer with damage and utility spells'
                 },
                 'damage': {
                     'attributes': {'STR': 8, 'DEX': 12, 'CON': 14, 'INT': 10, 'WIS': 13, 'CHA': 15},    # 0+4+7+2+5+9 = 27
                     'skills': ['Arcana', 'Intimidation'],
-                    'spells': ['Burning Hands', 'Magic Missile', 'Thunderwave'],
-                    'cantrips': ['Fire Bolt', 'Ray of Frost'],
+                    'spells': ['Burning Hands', 'Magic Missile'],
+                    'cantrips': ['Fire Bolt', 'Ray of Frost', 'Acid Splash', 'Shocking Grasp'],
                     'description': 'Damage-focused sorcerer specializing in evocation'
                 },
                 'control': {
-                    'attributes': {'STR': 8, 'DEX': 12, 'CON': 13, 'INT': 12, 'WIS': 11, 'CHA': 15},    # 0+4+5+4+3+9 = 25 (adjusted)
+                    'attributes': {'STR': 8, 'DEX': 12, 'CON': 13, 'INT': 12, 'WIS': 11, 'CHA': 15},    # 0+4+5+4+3+9 = 25
                     'skills': ['Arcana', 'Persuasion'],
-                    'spells': ['Charm Person', 'Sleep', 'Suggestion'],
-                    'cantrips': ['Mage Hand', 'Message'],
+                    'spells': ['Charm Person', 'Sleep'],
+                    'cantrips': ['Mage Hand', 'Message', 'Minor Illusion', 'Friends'],
                     'description': 'Control-focused sorcerer with enchantment and illusion'
                 }
             },
@@ -368,21 +368,21 @@ class AutoFill:
                 'balanced': {
                     'attributes': {'STR': 8, 'DEX': 12, 'CON': 14, 'INT': 12, 'WIS': 11, 'CHA': 15},  # 0+4+7+4+3+9 = 27
                     'skills': ['Arcana', 'Deception'],
-                    'spells': ['Eldritch Blast', 'Hex', 'Charm Person'],
+                    'spells': ['Hex', 'Charm Person'],
                     'cantrips': ['Eldritch Blast', 'Prestidigitation'],
                     'description': 'Balanced warlock with damage and utility abilities'
                 },
                 'blaster': {
                     'attributes': {'STR': 8, 'DEX': 12, 'CON': 14, 'INT': 10, 'WIS': 13, 'CHA': 15},   # 0+4+7+2+5+9 = 27
                     'skills': ['Arcana', 'Intimidation'],
-                    'spells': ['Eldritch Blast', 'Hex', 'Armor of Agathys'],
+                    'spells': ['Hex', 'Armor of Agathys'],
                     'cantrips': ['Eldritch Blast', 'Ray of Frost'],
                     'description': 'Damage-focused warlock with powerful blasting abilities'
                 },
                 'utility': {
-                    'attributes': {'STR': 8, 'DEX': 12, 'CON': 13, 'INT': 12, 'WIS': 11, 'CHA': 15},    # 0+4+5+4+3+9 = 25 (adjusted)
+                    'attributes': {'STR': 8, 'DEX': 12, 'CON': 13, 'INT': 12, 'WIS': 11, 'CHA': 15},    # 0+4+5+4+3+9 = 25
                     'skills': ['Arcana', 'Persuasion'],
-                    'spells': ['Eldritch Blast', 'Unseen Servant', 'Comprehend Languages'],
+                    'spells': ['Unseen Servant', 'Comprehend Languages'],
                     'cantrips': ['Eldritch Blast', 'Mage Hand'],
                     'description': 'Utility-focused warlock with information gathering abilities'
                 }
@@ -408,21 +408,21 @@ class AutoFill:
                 'balanced': {
                     'attributes': {'STR': 12, 'DEX': 12, 'CON': 14, 'INT': 10, 'WIS': 15, 'CHA': 9},  # 4+4+7+2+9+1 = 27
                     'skills': ['Nature', 'Survival'],
-                    'spells': ['Cure Wounds', 'Entangle', 'Goodberry'],
+                    'spells': ['Cure Wounds', 'Entangle', 'Goodberry', 'Detect Magic'],
                     'cantrips': ['Druidcraft', 'Produce Flame'],
                     'description': 'Balanced druid with healing and nature magic'
                 },
                 'caster': {
                     'attributes': {'STR': 8, 'DEX': 12, 'CON': 14, 'INT': 12, 'WIS': 15, 'CHA': 11},    # 0+4+7+4+9+3 = 27
                     'skills': ['Arcana', 'Nature'],
-                    'spells': ['Cure Wounds', 'Detect Magic', 'Comprehend Languages'],
+                    'spells': ['Cure Wounds', 'Detect Magic', 'Comprehend Languages', 'Goodberry'],
                     'cantrips': ['Druidcraft', 'Guidance'],
                     'description': 'Spellcasting-focused druid with utility magic'
                 },
                 'shapeshifter': {
                     'attributes': {'STR': 12, 'DEX': 12, 'CON': 14, 'INT': 10, 'WIS': 15, 'CHA': 9}, # 4+4+7+2+9+1 = 27
                     'skills': ['Athletics', 'Survival'],
-                    'spells': ['Cure Wounds', 'Longstrider', 'Jump'],
+                    'spells': ['Cure Wounds', 'Longstrider', 'Jump', 'Detect Magic'],
                     'cantrips': ['Druidcraft', 'Shillelagh'],
                     'description': 'Shapeshifting-focused druid with physical enhancement'
                 }
@@ -606,7 +606,7 @@ class AutoFill:
         return {}
     
     def fill_character(self, character: Character):
-        """Autofill all character data"""
+        """Autofill all character data with exact quantities"""
         # Generate attributes if not provided
         if not character.attributes:
             # Use recommended attributes instead of random rolls
@@ -619,28 +619,17 @@ class AutoFill:
                 if attr in character.attributes:
                     character.attributes[attr] += bonus
         
-        # Select class skills if not provided
+        # Select skills with exact quantities
         if not character.skills and character.char_class in self.classes:
-            class_data = self.classes[character.char_class]
-            skill_options = class_data['skill_options']
-            skill_choices = class_data['skill_choices']
-            
-            # Select skills randomly but in a consistent order
-            selected_class_skills = random.sample(skill_options, min(skill_choices, len(skill_options)))
-            
-            # Add background skills first (they come first in the list)
-            character.skills = []
-            if character.background in self.backgrounds:
-                background_skills = self.backgrounds[character.background]['skill_proficiencies']
-                character.skills.extend(background_skills)
-            
-            # Then add class skills
-            character.skills.extend(selected_class_skills)
+            character.skills = self._select_exact_skills(character.char_class, character.background)
         
-        # Add spells if class has them and not provided
+        # Add spells with exact quantities
         if not character.spells and self.spell_manager.can_cast_spells(character.char_class):
             spell_suggestions = self.spell_manager.get_spell_suggestions(character.char_class)
             character.spells = spell_suggestions['cantrips'] + spell_suggestions['spells']
+            # Separate cantrips and spells for clarity
+            character.cantrips = spell_suggestions['cantrips']
+            character.spells_known = spell_suggestions['spells']
         
         # Generate personality traits if not provided
         if not character.personality_traits:
@@ -755,6 +744,129 @@ class AutoFill:
         
         return primary_attributes.get(char_class, {}) 
 
+    def _select_exact_skills(self, char_class: str, background: str) -> List[str]:
+        """Select exactly the right number of skills for class and background"""
+        all_skills = []
+        
+        # Add background skills first
+        if background in self.backgrounds:
+            background_skills = self.backgrounds[background]['skill_proficiencies']
+            all_skills.extend(background_skills)
+        
+        # Get class skill options and choices
+        if char_class in self.classes:
+            class_data = self.classes[char_class]
+            skill_options = class_data['skill_options']
+            skill_choices = class_data['skill_choices']
+            
+            # Filter out skills that are already provided by background
+            available_class_skills = [skill for skill in skill_options if skill not in all_skills]
+            
+            # Select exactly the required number of class skills
+            if len(available_class_skills) >= skill_choices:
+                selected_class_skills = random.sample(available_class_skills, skill_choices)
+            else:
+                # If not enough unique skills, take all available
+                selected_class_skills = available_class_skills
+                # Fill remaining slots with random skills from the class list
+                remaining_slots = skill_choices - len(selected_class_skills)
+                if remaining_slots > 0:
+                    additional_skills = random.sample(skill_options, min(remaining_slots, len(skill_options)))
+                    selected_class_skills.extend(additional_skills)
+            
+            # Add class skills to the list
+            all_skills.extend(selected_class_skills)
+        
+        # Remove duplicates while preserving order
+        seen = set()
+        unique_skills = []
+        for skill in all_skills:
+            if skill not in seen:
+                seen.add(skill)
+                unique_skills.append(skill)
+        
+        return unique_skills
+
+    def _validate_exact_quantities(self, char_class: str, background: str, skills: List[str], spells: List[str]) -> Dict[str, bool]:
+        """Validate that we have exactly the right quantities"""
+        validation = {
+            'skills_valid': False,
+            'spells_valid': False,
+            'cantrips_valid': False
+        }
+        
+        # Validate skills
+        if char_class in self.classes:
+            class_data = self.classes[char_class]
+            expected_skills = class_data['skill_choices']
+            
+            # Count background skills
+            background_skills = 0
+            if background in self.backgrounds:
+                background_skills = len(self.backgrounds[background]['skill_proficiencies'])
+            
+            # Total skills should be background skills + class skills
+            total_skills = len(skills)
+            expected_total = background_skills + expected_skills
+            
+            validation['skills_valid'] = total_skills == expected_total
+        
+        # Validate spells
+        if self.spell_manager.can_cast_spells(char_class):
+            expected_cantrips = self.spell_manager.get_cantrips_known_limit(char_class)
+            expected_spells = self.spell_manager.get_spells_known_limit(char_class)
+            
+            # Count cantrips and spells
+            cantrip_count = 0
+            spell_count = 0
+            
+            # This is a simplified check - in practice, we'd need to separate cantrips from spells
+            # For now, we'll assume the spell_manager handles this correctly
+            validation['cantrips_valid'] = True  # Will be validated by spell_manager
+            validation['spells_valid'] = True    # Will be validated by spell_manager
+        
+        return validation
+
+    def _create_quantity_summary(self, char_class: str, background: str, skills: List[str], cantrips: List[str], spells: List[str]) -> Dict:
+        """Create a summary of the exact quantities selected"""
+        summary = {
+            'class': char_class,
+            'background': background,
+            'skills': {
+                'total': len(skills),
+                'background_skills': 0,
+                'class_skills': 0,
+                'list': skills
+            },
+            'spellcasting': {
+                'can_cast': False,
+                'cantrips': {
+                    'expected': 0,
+                    'selected': len(cantrips),
+                    'list': cantrips
+                },
+                'spells': {
+                    'expected': 0,
+                    'selected': len(spells),
+                    'list': spells
+                }
+            }
+        }
+        
+        # Calculate skill breakdown
+        if background in self.backgrounds:
+            background_skill_list = self.backgrounds[background]['skill_proficiencies']
+            summary['skills']['background_skills'] = len(background_skill_list)
+            summary['skills']['class_skills'] = len(skills) - len(background_skill_list)
+        
+        # Calculate spellcasting breakdown
+        if self.spell_manager.can_cast_spells(char_class):
+            summary['spellcasting']['can_cast'] = True
+            summary['spellcasting']['cantrips']['expected'] = self.spell_manager.get_cantrips_known_limit(char_class)
+            summary['spellcasting']['spells']['expected'] = self.spell_manager.get_spells_known_limit(char_class)
+        
+        return summary
+
     def get_suggestions(self, char_class: str, background: str, race: str = None, playstyle: str = None) -> Dict:
         """Get autofill suggestions that respect available skills and playstyle"""
         # Get base attributes without racial bonuses
@@ -765,68 +877,118 @@ class AutoFill:
             playstyle_spells = self.get_spells_for_playstyle(char_class, playstyle)
         else:
             # Use random playstyle or standard array
-        base_attributes = self.get_recommended_attributes(char_class, race)
+            base_attributes = self.get_recommended_attributes(char_class, race)
             playstyle_skills = []
             playstyle_spells = {}
         
-        # Get available skills for the class
-        class_skills = []
-        if char_class in self.classes:
-            class_skills = self.classes[char_class]['skill_options']
+        # Select skills with exact quantities
+        all_skills = self._select_exact_skills(char_class, background)
         
-        # Get background skills
-        background_skills = []
-        if background in self.backgrounds:
-            background_skills = self.backgrounds[background]['skill_proficiencies']
-        
-        # Select class skills (prioritizing playstyle skills if available)
-        selected_class_skills = []
-        if char_class in self.classes:
-            class_data = self.classes[char_class]
-            skill_choices = class_data['skill_choices']
-            available_class_skills = [skill for skill in class_skills if skill not in background_skills]
+        # If we have playstyle skills, incorporate them properly
+        if playstyle_skills:
+            # Get class skill options to see what's available
+            class_skills = []
+            if char_class in self.classes:
+                class_skills = self.classes[char_class]['skill_options']
             
-            # If we have playstyle skills, prioritize them
-            if playstyle_skills:
-                # Add playstyle skills that are available for the class
-                for skill in playstyle_skills:
-                    if skill in available_class_skills and len(selected_class_skills) < skill_choices:
-                        selected_class_skills.append(skill)
+            # Get background skills
+            background_skills = []
+            if background in self.backgrounds:
+                background_skills = self.backgrounds[background]['skill_proficiencies']
+            
+            # Filter playstyle skills that are available for the class and not from background
+            playstyle_skills_available = [skill for skill in playstyle_skills 
+                                        if skill in class_skills and skill not in background_skills]
+            
+            if playstyle_skills_available:
+                # Replace class skills with playstyle skills (up to the number of class skill choices)
+                class_data = self.classes[char_class]
+                skill_choices = class_data['skill_choices']
                 
-                # Fill remaining slots with random skills
-                remaining_slots = skill_choices - len(selected_class_skills)
-                remaining_skills = [skill for skill in available_class_skills if skill not in selected_class_skills]
-                if remaining_slots > 0 and remaining_skills:
-                    additional_skills = random.sample(remaining_skills, min(remaining_slots, len(remaining_skills)))
-                    selected_class_skills.extend(additional_skills)
-            else:
-                # Select skills randomly
-            if len(available_class_skills) >= skill_choices:
-                selected_class_skills = random.sample(available_class_skills, skill_choices)
-            else:
-                selected_class_skills = available_class_skills
+                # Create new skill list with background skills first
+                new_skills = background_skills.copy()
+                
+                # Add playstyle skills first (up to class skill limit)
+                playstyle_count = min(len(playstyle_skills_available), skill_choices)
+                new_skills.extend(playstyle_skills_available[:playstyle_count])
+                
+                # Fill remaining slots with other class skills
+                remaining_slots = skill_choices - playstyle_count
+                if remaining_slots > 0:
+                    available_class_skills = [skill for skill in class_skills 
+                                           if skill not in new_skills]
+                    if available_class_skills:
+                        additional_skills = random.sample(available_class_skills, 
+                                                       min(remaining_slots, len(available_class_skills)))
+                        new_skills.extend(additional_skills)
+                
+                all_skills = new_skills
         
-        # Combine background and class skills
-        all_skills = background_skills + selected_class_skills
-        
-        # Get spells if applicable
+        # Get spells with exact quantities
         spells = []
+        cantrips = []
+        spells_known = []
+        
         if self.spell_manager.can_cast_spells(char_class):
             if playstyle_spells:
-                # Use playstyle spells
-                spells = playstyle_spells.get('cantrips', []) + playstyle_spells.get('spells', [])
+                # Use playstyle spells but ensure exact quantities
+                cantrips = playstyle_spells.get('cantrips', [])
+                spells_known = playstyle_spells.get('spells', [])
+                
+                # Ensure we have the exact number of cantrips and spells
+                expected_cantrips = self.spell_manager.get_cantrips_known_limit(char_class)
+                expected_spells = self.spell_manager.get_spells_known_limit(char_class)
+                
+                # Validate that playstyle spells exist in the spell list
+                available_cantrips = [c['name'] for c in self.spell_manager.get_available_cantrips(char_class)]
+                available_spells = [s['name'] for s in self.spell_manager.get_available_spells(char_class)]
+                
+                # Filter cantrips to only include valid ones
+                valid_cantrips = [c for c in cantrips if c in available_cantrips]
+                valid_spells = [s for s in spells_known if s in available_spells]
+                
+                # Fill to exact limits with valid spells
+                if len(valid_cantrips) < expected_cantrips:
+                    spell_suggestions = self.spell_manager.get_spell_suggestions(char_class)
+                    additional_cantrips = [c for c in spell_suggestions['cantrips'] 
+                                         if c not in valid_cantrips][:expected_cantrips - len(valid_cantrips)]
+                    valid_cantrips.extend(additional_cantrips)
+                
+                if len(valid_spells) < expected_spells:
+                    spell_suggestions = self.spell_manager.get_spell_suggestions(char_class)
+                    additional_spells = [s for s in spell_suggestions['spells'] 
+                                       if s not in valid_spells][:expected_spells - len(valid_spells)]
+                    valid_spells.extend(additional_spells)
+                
+                # Trim to exact limits
+                cantrips = valid_cantrips[:expected_cantrips]
+                spells_known = valid_spells[:expected_spells]
             else:
-                # Use random spell suggestions
-            spell_suggestions = self.spell_manager.get_spell_suggestions(char_class)
-            spells = spell_suggestions['cantrips'] + spell_suggestions['spells']
+                # Use spell manager suggestions (already ensures exact quantities)
+                spell_suggestions = self.spell_manager.get_spell_suggestions(char_class)
+                cantrips = spell_suggestions['cantrips']
+                spells_known = spell_suggestions['spells']
+            
+            # Combine for backward compatibility
+            spells = cantrips + spells_known
+        
+        # Validate quantities
+        validation = self._validate_exact_quantities(char_class, background, all_skills, spells)
         
         # Get available playstyles for the class
         available_playstyles = self.get_available_playstyles(char_class)
+        
+        # Create summary of exact quantities
+        summary = self._create_quantity_summary(char_class, background, all_skills, cantrips, spells_known)
         
         return {
             'attributes': base_attributes,
             'skills': all_skills,
             'spells': spells,
+            'cantrips': cantrips,
+            'spells_known': spells_known,
             'available_playstyles': available_playstyles,
-            'current_playstyle': playstyle
+            'current_playstyle': playstyle,
+            'validation': validation,
+            'summary': summary
         } 

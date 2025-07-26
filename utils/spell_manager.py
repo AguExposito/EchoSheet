@@ -18,16 +18,28 @@ class SpellManager:
             self.spell_data = {"cantrips": {}, "spells": {}, "spellcasting_rules": {}}
     
     def get_available_cantrips(self, char_class: str) -> List[Dict]:
-        """Get available cantrips for a class"""
-        return self.spell_data.get("cantrips", {}).get(char_class, [])
+        """Get available cantrips for a class (case-insensitive)"""
+        cantrips_dict = self.spell_data.get("cantrips", {})
+        for key in cantrips_dict:
+            if key.lower() == char_class.lower():
+                return cantrips_dict[key]
+        return []
     
     def get_available_spells(self, char_class: str, spell_level: str = "1st") -> List[Dict]:
-        """Get available spells for a class at a specific level"""
-        return self.spell_data.get("spells", {}).get(spell_level, {}).get(char_class, [])
+        """Get available spells for a class at a specific level (case-insensitive)"""
+        spells_by_level = self.spell_data.get("spells", {}).get(spell_level, {})
+        for key in spells_by_level:
+            if key.lower() == char_class.lower():
+                return spells_by_level[key]
+        return []
     
     def get_spellcasting_rules(self, char_class: str) -> Dict:
-        """Get spellcasting rules for a class"""
-        return self.spell_data.get("spellcasting_rules", {}).get(char_class, {})
+        """Get spellcasting rules for a class (case-insensitive)"""
+        rules_dict = self.spell_data.get("spellcasting_rules", {})
+        for key in rules_dict:
+            if key.lower() == char_class.lower():
+                return rules_dict[key]
+        return {}
     
     def get_cantrips_known_limit(self, char_class: str) -> int:
         """Get the number of cantrips a class can know at level 1"""
@@ -103,14 +115,15 @@ class SpellManager:
         if num_spells is None:
             num_spells = self.get_spells_known_limit(char_class)
         
-        print(f"Getting spell suggestions for {char_class}: {num_cantrips} cantrips, {num_spells} spells")
-        print(f"Available cantrips: {len(available_cantrips)}, Available spells: {len(available_spells)}")
+        # Ensure we have the exact limits
+        cantrip_limit = self.get_cantrips_known_limit(char_class)
+        spell_limit = self.get_spells_known_limit(char_class)
         
-        # Debug: Print available cantrip names
-        if available_cantrips:
-            print(f"Available cantrip names: {[c['name'] for c in available_cantrips]}")
-        if available_spells:
-            print(f"Available spell names: {[s['name'] for s in available_spells]}")
+        # Use the actual limits if not specified
+        if num_cantrips is None:
+            num_cantrips = cantrip_limit
+        if num_spells is None:
+            num_spells = spell_limit
         
         # Select cantrips - ALWAYS fill to the limit
         suggested_cantrips = []
@@ -203,23 +216,27 @@ class SpellManager:
                     if spell_name not in suggested_spells and len(suggested_spells) < num_spells:
                         suggested_spells.append(spell_name)
             
-            # Ensure we have exactly the right number (no duplicates)
-            suggested_spells = list(dict.fromkeys(suggested_spells))[:num_spells]
+                    # Ensure we have exactly the right number (no duplicates)
+        suggested_spells = list(dict.fromkeys(suggested_spells))[:num_spells]
         
-        print(f"Selected {len(suggested_cantrips)} cantrips: {suggested_cantrips}")
-        print(f"Selected {len(suggested_spells)} spells: {suggested_spells}")
+        # Final validation and adjustment
+        if len(suggested_cantrips) < num_cantrips and available_cantrips:
+            # Fill remaining cantrip slots
+            remaining_cantrips = [c["name"] for c in available_cantrips if c["name"] not in suggested_cantrips]
+            needed_cantrips = num_cantrips - len(suggested_cantrips)
+            additional_cantrips = remaining_cantrips[:needed_cantrips]
+            suggested_cantrips.extend(additional_cantrips)
         
-        # Final validation
-        if len(suggested_cantrips) != num_cantrips:
-            print(f"WARNING: Cantrip count mismatch. Expected {num_cantrips}, got {len(suggested_cantrips)}")
-        if len(suggested_spells) != num_spells:
-            print(f"WARNING: Spell count mismatch. Expected {num_spells}, got {len(suggested_spells)}")
+        if len(suggested_spells) < num_spells and available_spells:
+            # Fill remaining spell slots
+            remaining_spells = [s["name"] for s in available_spells if s["name"] not in suggested_spells]
+            needed_spells = num_spells - len(suggested_spells)
+            additional_spells = remaining_spells[:needed_spells]
+            suggested_spells.extend(additional_spells)
         
-        # Check for duplicates
-        if len(suggested_cantrips) != len(set(suggested_cantrips)):
-            print(f"WARNING: Duplicate cantrips detected: {suggested_cantrips}")
-        if len(suggested_spells) != len(set(suggested_spells)):
-            print(f"WARNING: Duplicate spells detected: {suggested_spells}")
+        # Final trim to exact limits
+        suggested_cantrips = suggested_cantrips[:num_cantrips]
+        suggested_spells = suggested_spells[:num_spells]
         
         return {
             'cantrips': suggested_cantrips,
