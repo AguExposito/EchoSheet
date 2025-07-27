@@ -1,224 +1,210 @@
-# 🎲 EchoSheet - Intelligent Character Sheets for D&D
+# EchoSheet - Intelligent D&D Character Management
 
-A modern web application for creating and managing Dungeons & Dragons 5e characters with integrated artificial intelligence.
+A modern web application that brings your Dungeons & Dragons 5e characters to life through intelligent automation and interactive features. Built with Flask and designed for both new players and experienced dungeon masters.
 
-## ✨ Features
+## Overview
 
-- **🤖 Auto-Fill**: Generates attributes, skills and spells automatically based on class and race
-- **💡 Intelligent Recommendations**: Receive suggestions for improvements, spells and optimized skills
-- **💬 Interactive Chat**: Chat with your character as if they had their own consciousness
-- **🎨 Modern Interface**: Attractive design with D&D theme
-- **📱 Responsive**: Works perfectly on mobile and desktop devices
+EchoSheet transforms the traditional character creation process by combining the rules of D&D 5e with smart automation. Whether you're a first-time player or a veteran adventurer, the application helps you create compelling characters while ensuring they follow the game's rules and best practices.
 
-## 🚀 Installation
+## Key Features
+
+- **Smart Auto-Fill**: Automatically generates attributes, skills, and spell selections based on your character's class and race
+- **Intelligent Recommendations**: Get personalized suggestions for spell choices, skill improvements, and character optimization
+- **Interactive Character Chat**: Engage in conversations with your character to develop their personality and backstory
+- **Modern, Responsive Design**: Clean interface that works seamlessly on desktop and mobile devices
+- **SRD Compliance**: Uses only content from the System Reference Document to ensure legal compliance
+
+## Architecture
+
+```mermaid
+graph TB
+    A[User Interface] --> B[Flask Application]
+    B --> C[Character Management]
+    B --> D[Spell System]
+    B --> E[AI Chat Engine]
+    B --> F[Recommendation Engine]
+    
+    C --> G[SQLite Database]
+    D --> H[Spell Database]
+    E --> I[Character Personality]
+    F --> J[Class-based Logic]
+    
+    subgraph "Data Layer"
+        G
+        H
+    end
+    
+    subgraph "AI Components"
+        I
+        J
+    end
+    
+    subgraph "Core Features"
+        C
+        D
+        E
+        F
+    end
+```
+
+## Technology Stack
+
+- **Backend**: Python Flask with SQLite database
+- **Frontend**: HTML5, CSS3, Vanilla JavaScript
+- **Testing**: pytest with coverage reporting
+- **Deployment**: GitHub Actions CI/CD with Render hosting
+- **Design**: Responsive CSS Grid and Flexbox
+
+## Getting Started
 
 ### Prerequisites
+
 - Python 3.8 or higher
-- pip (Python package manager)
+- pip package manager
 
-### Installation Steps
+### Local Development
 
-1. **Clone or download the project**
+1. Clone the repository
    ```bash
    git clone <repository-url>
    cd EchoSheet
    ```
 
-2. **Install dependencies**
+2. Install dependencies
    ```bash
    pip install -r requirements.txt
    ```
 
-3. **Run the application**
+3. Run the application
    ```bash
    python app.py
    ```
 
-4. **Open in browser**
-   ```
-   http://localhost:5000
-   ```
+4. Open your browser and navigate to `http://localhost:5000`
 
-## 🧪 Testing
+### Testing
 
-### Run Tests Locally
+Run the test suite to ensure everything is working correctly:
+
 ```bash
-# Install test dependencies
-pip install -r requirements.txt
-
 # Run all tests
 pytest
 
-# Run tests with coverage
-pytest --cov=app --cov-report=html
+# Run with coverage report
+pytest --cov=app --cov-report=term-missing
 
 # Run specific test file
 pytest tests/test_app.py -v
 ```
 
-### Continuous Integration
-This project uses GitHub Actions for automated testing and deployment:
+## Deployment
 
-- **CI Pipeline**: Runs on every push and pull request
-- **Test Matrix**: Tests against Python 3.10 and 3.11
-- **Coverage Reports**: Uploads coverage to Codecov
-- **Auto Deployment**: Deploys to Render when tests pass on main branch
+This project includes automated deployment through GitHub Actions. When you push to the main branch:
 
-## 🚀 Deployment
+1. **Continuous Integration**: Tests run automatically on Python 3.11
+2. **Quality Checks**: Code coverage and test results are reported
+3. **Automatic Deployment**: If tests pass, the application deploys to Render
 
-### GitHub Actions Setup
+### Manual Deployment
 
-1. **Fork/Clone the repository**
-
-2. **Set up Render Secrets** (for auto-deployment):
-   - Go to your GitHub repository → Settings → Secrets and variables → Actions
-   - Add the following secrets:
-     - `RENDER_SERVICE_ID`: Your Render service ID
-     - `RENDER_API_KEY`: Your Render API key
-
-3. **Get Render Credentials**:
-   - Service ID: Go to your Render dashboard → Service → Settings → General → Service ID
-   - API Key: Go to Account Settings → API Keys → Create new API key
-
-4. **Push to main branch**:
-   - The CI will run automatically
-   - If tests pass, it will deploy to Render
-
-### Manual Deployment to Render
+To deploy manually to Render:
 
 1. Connect your GitHub repository to Render
 2. Configure the service with:
-   - **Build Command**: `pip install -r requirements.txt`
-   - **Start Command**: `gunicorn app:app --bind 0.0.0.0:$PORT`
-   - **Environment**: Python 3.11.7
+   - Build Command: `pip install -r requirements.txt`
+   - Start Command: `gunicorn app:app --bind 0.0.0.0:$PORT`
+   - Environment: Python 3.11.7
 
-## 🎮 How to Use
+## Usage Guide
 
-### Create a Character
-1. Go to the main page and click "Create New Character"
-2. Complete the basic information (name, race, class, level)
-3. Click "Auto-Fill" to generate attributes and skills automatically
-4. Review the preview and click "Create Character"
+### Creating Your First Character
 
-### View Character Sheet
-- Access the character list on the main page
-- Click "View Sheet" to see all details
-- Review intelligent recommendations in the sidebar
+1. Navigate to the main page and click "Create New Character"
+2. Fill in basic information: name, race, class, and level
+3. Use the "Auto-Fill" feature to generate optimized attributes and skills
+4. Review the character preview and click "Create Character"
 
-### Chat with your Character
-- From the character sheet, click "Chat with [Name]"
-- Use suggested questions or write your own questions
-- The character will respond based on their class, race and personality
+### Managing Your Characters
 
-## 🏗️ Architecture
+- **View Character Sheets**: Access detailed character information from the main page
+- **Interactive Recommendations**: Get personalized suggestions for improvements
+- **Character Development**: Use the chat feature to develop your character's personality
 
-```
-EchoSheet/
-├── app.py                 # Main Flask server
-├── models.py              # Character data model
-├── requirements.txt       # Python dependencies
-├── pytest.ini            # Pytest configuration
-├── README.md             # This file
-├── AppDesignDocument.md  # Design document
-├── .github/workflows/    # GitHub Actions
-│   ├── ci.yml           # Continuous Integration
-│   └── deploy-render.yml# Deployment to Render
-├── tests/               # Test suite
-│   ├── __init__.py
-│   └── test_app.py     # Application tests
-├── templates/            # HTML templates
-│   ├── index.html       # Main page
-│   ├── create.html      # Character creation
-│   ├── character.html   # Character sheet view
-│   └── chat.html        # Interactive chat
-├── static/              # Static files
-│   ├── styles.css       # CSS styles
-│   └── script.js        # JavaScript
-├── utils/               # Utility modules
-│   ├── autofill.py     # Character auto-fill
-│   ├── recommender.py  # Recommendation system
-│   ├── chat_engine.py  # Chat engine
-│   └── spell_manager.py# Spell management
-└── data/               # Game data
-    └── spells.json     # Spell database
-```
+### Spell Management
 
-## 🎯 MVP Features
+- Browse available spells by class and level
+- Get intelligent suggestions based on your character's build
+- Validate spell selections against D&D 5e rules
 
-### ✅ Implemented
-- [x] Character creation with basic data
-- [x] Automatic auto-fill of attributes and skills
-- [x] Complete character sheet view with attributes, skills and spells
-- [x] Intelligent recommendation system
-- [x] Interactive chat with class-based personality
-- [x] Modern and responsive interface
-- [x] SQLite database for persistence
-- [x] Character deletion with confirmation
-- [x] Legal compliance with SRD (System Reference Document)
-- [x] Automated testing with pytest
-- [x] Continuous Integration with GitHub Actions
-- [x] Automated deployment to Render
+## Supported Content
 
-### 🔮 Future Improvements
-- [ ] User authentication
-- [ ] PDF export
-- [ ] D&D API integration
-- [ ] Modo campaña multijugador
-- [ ] WebSockets para chat en tiempo real
-- [ ] Más razas, clases y subclases
-- [ ] Sistema de inventario
-- [ ] Historial de aventuras
+### Races
+Human, Elf, Dwarf, Halfling, Dragonborn, Tiefling, Half-Elf, Half-Orc, Gnome
 
-## 🛠️ Tecnologías Utilizadas
+### Classes
+Fighter, Wizard, Cleric, Rogue, Ranger, Paladin, Bard, Sorcerer, Warlock, Monk, Druid, Barbarian
 
-- **Backend**: Python Flask
-- **Base de Datos**: SQLite
-- **Frontend**: HTML5, CSS3, JavaScript (Vanilla)
-- **Diseño**: CSS Grid, Flexbox, Gradientes
-- **Fuentes**: Google Fonts (Cinzel, Crimson Text)
-- **Testing**: pytest, pytest-cov
-- **CI/CD**: GitHub Actions
-- **Deployment**: Render
+### Backgrounds
+Acolyte, Criminal, Folk Hero, Noble, Sage, Soldier
 
-## 📝 Clases y Razas Soportadas (SRD Only)
+*Note: All content is sourced from the D&D 5e System Reference Document (SRD) to ensure legal compliance.*
 
-### Razas
-- Humano, Elfo, Enano, Mediano, Dracónido, Tiefling, Semielfo, Semiorco, Gnomo
+## Development Workflow
 
-### Clases
-- Guerrero, Mago, Clérigo, Pícaro, Explorador, Paladín, Bardo, Hechicero, Brujo, Monje, Druida, Bárbaro
+1. **Feature Development**: Create feature branches for new functionality
+2. **Local Testing**: Run tests before committing changes
+3. **Pull Requests**: Submit PRs for review and automated testing
+4. **Continuous Integration**: GitHub Actions validates your changes
+5. **Automatic Deployment**: Successful merges to main trigger deployment
 
-### Trasfondos
-- Acólito, Criminal, Héroe del Pueblo, Noble, Sabio, Soldado
+## Contributing
 
-### ⚖️ Cumplimiento Legal
-Esta aplicación utiliza únicamente contenido del **System Reference Document (SRD)** de D&D 5e, que está disponible bajo la licencia Open Game License. No se incluye contenido propietario de Wizards of the Coast para evitar problemas legales.
+We welcome contributions from the community! Here's how you can help:
 
-## 🤝 Contribuir
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/amazing-feature`)
+3. Make your changes and test thoroughly
+4. Commit your changes (`git commit -m 'Add amazing feature'`)
+5. Push to the branch (`git push origin feature/amazing-feature`)
+6. Open a Pull Request
 
-1. Fork el proyecto
-2. Crea una rama para tu feature (`git checkout -b feature/AmazingFeature`)
-3. Commit tus cambios (`git commit -m 'Add some AmazingFeature'`)
-4. Push a la rama (`git push origin feature/AmazingFeature`)
-5. Abre un Pull Request
+### Development Guidelines
 
-### Development Workflow
-1. **Create a feature branch**: `git checkout -b feature/new-feature`
-2. **Make changes and test locally**: `pytest`
-3. **Commit changes**: `git commit -m "Add new feature"`
-4. **Push and create PR**: GitHub Actions will run tests automatically
-5. **Merge when tests pass**: Auto-deployment will trigger
+- Write tests for new functionality
+- Ensure all tests pass before submitting PRs
+- Follow the existing code style and structure
+- Update documentation for significant changes
 
-## 📄 Licencia
+## Project Status
 
-Este proyecto está bajo la Licencia MIT. Ver el archivo `LICENSE` para más detalles.
+### Completed Features
+- Character creation and management system
+- Automated attribute and skill generation
+- Intelligent spell recommendations
+- Interactive character chat system
+- Modern, responsive user interface
+- Comprehensive test suite
+- Automated CI/CD pipeline
 
-## 🙏 Agradecimientos
+### Planned Enhancements
+- User authentication and account management
+- PDF export functionality
+- Campaign management features
+- Real-time multiplayer features
+- Additional races, classes, and subclasses
+- Inventory management system
+- Adventure history tracking
 
-- Wizards of the Coast por Dungeons & Dragons
-- La comunidad de D&D por la inspiración
-- Los desarrolladores de Flask y las librerías utilizadas
+## License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## Acknowledgments
+
+- Wizards of the Coast for creating Dungeons & Dragons
+- The D&D community for inspiration and feedback
+- Contributors to Flask and other open-source libraries used in this project
 
 ---
 
-**¡Que tus aventuras sean épicas! 🐉⚔️** 
+*May your adventures be epic and your dice rolls be fortunate!* 
