@@ -34,20 +34,27 @@
                         {% for char in characters %}
                         <div class="character-card">
                             <div class="character-header">
-                                <h4 class="character-name">{{ char[1] }}</h4>
-                                <span class="character-level">Level {{ char[4] }}</span>
-                            </div>
-                            <div class="character-details">
-                                <p class="character-race">{{ char[2] }}</p>
-                                <p class="character-class">{{ char[3] }}</p>
-                            </div>
-                            <div class="character-actions">
-                                <a href="{{ url_for('view_character', character_id=char[0]) }}" class="btn btn-secondary">
-                                    View Sheet
-                                </a>
-                                <a href="{{ url_for('chat_with_character', character_id=char[0]) }}" class="btn btn-accent">
-                                    💬 Chat
-                                </a>
+                                <div class="character-info">
+                                    <h4 class="character-name">{{ char[1] }}</h4>
+                                    <div class="character-basics">
+                                        <span class="character-race">{{ char[2] }}</span>
+                                        <span class="character-class">{{ char[3] }}</span>
+                                        <span class="character-level">Level {{ char[4] }}</span>
+                                    </div>
+                                </div>
+                                <div class="character-actions">
+                                    <a href="{{ url_for('view_character', character_id=char[0]) }}" class="btn btn-secondary">
+                                        📋 View
+                                    </a>
+                                    <a href="{{ url_for('chat_with_character', character_id=char[0]) }}" class="btn btn-accent">
+                                        💬 Chat
+                                    </a>
+                                                                    <button class="btn btn-danger delete-character-btn" 
+                                        data-character-id="{{ char[0] }}" 
+                                        data-character-name="{{ char[1] }}">
+                                    🗑️ Delete
+                                </button>
+                                </div>
                             </div>
                         </div>
                         {% endfor %}

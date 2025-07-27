@@ -15,6 +15,9 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Inicializar funcionalidad de eliminación de personajes
     initCharacterDeletion();
+    
+    // Inicializar botones de descarga PDF
+    initPdfDownload();
 });
 
 // Character creation functionality
@@ -1798,6 +1801,25 @@ function closeSpellInfo() {
     if (modal) {
         modal.remove();
     }
+}
+
+// PDF Download functionality
+function initPdfDownload() {
+    const downloadButtons = document.querySelectorAll('.download-pdf-btn');
+    
+    downloadButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            const characterId = this.getAttribute('data-character-id');
+            const characterName = this.getAttribute('data-character-name');
+            
+            // Show notification that PDF download is coming soon
+            showNotification('PDF download feature coming soon!', 'info');
+            
+            // TODO: Implement PDF generation and download
+            // This will be implemented in a future update
+            console.log('PDF download requested for character:', characterName, 'ID:', characterId);
+        });
+    });
 }
 
 // Agregar estilos de notificaciones si no existen

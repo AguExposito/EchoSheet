@@ -243,19 +243,22 @@ class SpellManager:
             'spells': suggested_spells
         }
     
-    def get_spell_info(self, spell_name: str, char_class: str) -> Optional[Dict]:
-        """Get detailed information about a specific spell"""
-        # Search in cantrips first
-        available_cantrips = self.get_available_cantrips(char_class)
-        for cantrip in available_cantrips:
-            if cantrip["name"] == spell_name:
-                return cantrip
+    def get_spell_info(self, spell_name: str) -> Optional[Dict]:
+        """Get detailed information about a specific spell from all available spells"""
+        # Search in all cantrips
+        cantrips_dict = self.spell_data.get("cantrips", {})
+        for class_name, cantrips in cantrips_dict.items():
+            for cantrip in cantrips:
+                if cantrip["name"] == spell_name:
+                    return cantrip
         
-        # Search in spells
-        available_spells = self.get_available_spells(char_class)
-        for spell in available_spells:
-            if spell["name"] == spell_name:
-                return spell
+        # Search in all spells
+        spells_dict = self.spell_data.get("spells", {})
+        for level, level_spells in spells_dict.items():
+            for class_name, spells in level_spells.items():
+                for spell in spells:
+                    if spell["name"] == spell_name:
+                        return spell
         
         return None
     

@@ -147,13 +147,13 @@ class Recommender:
         elif character.char_class == 'Wizard':
             if character.attributes.get('INT', 0) >= 16:
                 recommended = 'Evocation'
-                reason = 'Tu alta Inteligencia maximiza el daño de hechizos ofensivos'
+                reason = 'Your high Intelligence maximizes offensive spell damage'
             else:
                 recommended = 'Abjuration'
-                reason = 'Protección y defensa para complementar tus atributos'
+                reason = 'Protection and defense to complement your attributes'
         else:
             recommended = available_subclasses[0]
-            reason = f'Subclase estándar para {character.char_class}'
+            reason = f'Standard subclass for {character.char_class}'
         
         return {
             'recommendations': available_subclasses,
@@ -162,69 +162,69 @@ class Recommender:
         }
     
     def get_spell_recommendations(self, character: Character) -> Dict:
-        """Recomendar hechizos según nivel y clase"""
+        """Recommend spells based on level and class"""
         if character.char_class not in self.spell_recommendations:
-            return {'recommendations': [], 'reason': 'Clase no lanza hechizos'}
+            return {'recommendations': [], 'reason': 'Class does not cast spells'}
         
         spell_data = self.spell_recommendations[character.char_class]
         current_level = character.level
         
-        # Encontrar hechizos para el nivel actual
+        # Find spells for current level
         available_spells = []
         for level, spells in spell_data.items():
             if level <= current_level:
                 available_spells.extend(spells)
         
-        # Filtrar hechizos que ya tiene
-        new_spells = [spell for spell in available_spells if spell not in character.spells]
+        # Filter spells already known
+        new_spells = [spell for spell in available_spells if spell not in character.spells_known]
         
-        # Recomendar 2-3 hechizos
+        # Recommend 2-3 spells
         recommended = new_spells[:3] if len(new_spells) >= 3 else new_spells
         
         return {
             'recommendations': recommended,
-            'reason': f'Hechizos apropiados para nivel {current_level}',
+            'reason': f'Appropriate spells for level {current_level}',
             'all_available': available_spells
         }
     
     def get_skill_recommendations(self, character: Character) -> Dict:
-        """Recomendar habilidades adicionales"""
+        """Recommend additional skills"""
         if character.char_class not in self.skill_recommendations:
-            return {'recommendations': [], 'reason': 'No hay recomendaciones disponibles'}
+            return {'recommendations': [], 'reason': 'No recommendations available'}
         
         available_skills = self.skill_recommendations[character.char_class]
         current_skills = set(character.skills)
         
-        # Encontrar habilidades que no tiene
+        # Find skills not already known
         new_skills = [skill for skill in available_skills if skill not in current_skills]
         
         return {
-            'recommendations': new_skills[:2],  # Recomendar 2 habilidades
-            'reason': f'Habilidades complementarias para {character.char_class}',
+            'recommendations': new_skills[:2],  # Recommend 2 skills
+            'reason': f'Complementary skills for {character.char_class}',
             'all_available': available_skills
         }
     
     def get_feat_recommendations(self, character: Character) -> Dict:
-        """Recomendar feats según la clase"""
+        """Recommend feats based on class"""
         if character.char_class not in self.feat_recommendations:
-            return {'recommendations': [], 'reason': 'No hay feats recomendados'}
+            return {'recommendations': [], 'reason': 'No feats recommended'}
         
         available_feats = self.feat_recommendations[character.char_class]
         
-        # Lógica simple: recomendar basado en clase
+        # Simple logic: recommend based on class
         if character.char_class == 'Fighter':
             if character.attributes.get('STR', 0) > 14:
                 recommended = 'Great Weapon Master'
-                reason = 'Tu alta Fuerza maximiza el daño con armas pesadas'
+                reason = 'Your high Strength maximizes damage with heavy weapons'
             else:
                 recommended = 'Alert'
-                reason = 'Iniciativa mejorada para combate táctico'
+                reason = 'Improved initiative for tactical combat'
         elif character.char_class in ['Wizard', 'Sorcerer', 'Warlock']:
             recommended = 'War Caster'
-            reason = 'Ventajas para lanzar hechizos en combate'
+            reason = 'Advantages for casting spells in combat'
         else:
             recommended = available_feats[0]
-            reason = f'Feat estándar para {character.char_class}'
+            reason = f'Standard feat for {character.char_class}'
         
         return {
             'recommendations': available_feats,
@@ -233,7 +233,7 @@ class Recommender:
         }
     
     def get_next_level_recommendations(self, character: Character) -> Dict:
-        """Recomendaciones para el próximo nivel"""
+        """Recommendations for the next level"""
         next_level = character.level + 1
         
         recommendations = {
@@ -242,14 +242,14 @@ class Recommender:
             'suggestions': []
         }
         
-        # Sugerencias específicas por nivel
+        # Level-specific suggestions
         if next_level == 4:
-            recommendations['suggestions'].append('Considera tomar un feat o mejorar tus atributos principales')
+            recommendations['suggestions'].append('Consider taking a feat or improving your primary attributes')
         elif next_level == 5:
-            recommendations['suggestions'].append('Obtienes un ataque extra (Extra Attack) si eres luchador, paladín o ranger')
+            recommendations['suggestions'].append('You gain an extra attack (Extra Attack) if you are a fighter, paladin, or ranger')
         elif next_level == 6:
-            recommendations['suggestions'].append('Muchas clases obtienen características importantes en este nivel')
+            recommendations['suggestions'].append('Many classes gain important features at this level')
         elif next_level == 8:
-            recommendations['suggestions'].append('Nivel ideal para mejorar atributos o tomar feats poderosos')
+            recommendations['suggestions'].append('Ideal level for improving attributes or taking powerful feats')
         
         return recommendations 

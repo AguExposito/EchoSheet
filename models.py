@@ -171,7 +171,167 @@ class Character:
             skills=data.get('skills', []),
             feats=data.get('feats', []),
             spells=data.get('spells', []),
+            cantrips=data.get('cantrips', []),
+            spells_known=data.get('spells_known', []),
             personality_traits=data.get('personality_traits', ''),
             history_log=data.get('history_log', []),
             chat_history=data.get('chat_history', [])
-        ) 
+        )
+    
+    def get_spellcasting_ability(self) -> str:
+        """Get the spellcasting ability for the character's class"""
+        spellcasting_abilities = {
+            'Wizard': 'Intelligence',
+            'Cleric': 'Wisdom',
+            'Bard': 'Charisma',
+            'Sorcerer': 'Charisma',
+            'Warlock': 'Charisma',
+            'Druid': 'Wisdom',
+            'Paladin': 'Charisma',
+            'Ranger': 'Wisdom'
+        }
+        return spellcasting_abilities.get(self.char_class, 'None')
+    
+    def get_spell_save_dc(self) -> str:
+        """Calculate spell save DC"""
+        if not self.get_spellcasting_ability():
+            return 'N/A'
+        
+        ability_modifier = self.get_attribute_modifier(self.get_spellcasting_ability()[:3])
+        proficiency_bonus = self.get_proficiency_bonus()
+        base_dc = 8 + ability_modifier + proficiency_bonus
+        
+        return f"{base_dc}"
+    
+    def get_spell_attack_bonus(self) -> str:
+        """Calculate spell attack bonus"""
+        if not self.get_spellcasting_ability():
+            return 'N/A'
+        
+        ability_modifier = self.get_attribute_modifier(self.get_spellcasting_ability()[:3])
+        proficiency_bonus = self.get_proficiency_bonus()
+        attack_bonus = ability_modifier + proficiency_bonus
+        
+        return f"{'+' if attack_bonus >= 0 else ''}{attack_bonus}"
+    
+    def get_spell_slots(self, level: int) -> int:
+        """Get number of spell slots for a given level"""
+        if not self.get_spellcasting_ability():
+            return 0
+        
+        # Spell slots by level for full casters (simplified for level 1)
+        spell_slots = {
+            1: {1: 2},  # Level 1 character has 2 1st-level slots
+            2: {1: 3},
+            3: {1: 4, 2: 2},
+            4: {1: 4, 2: 3},
+            5: {1: 4, 2: 3, 3: 2},
+            6: {1: 4, 2: 3, 3: 3},
+            7: {1: 4, 2: 3, 3: 3, 4: 1},
+            8: {1: 4, 2: 3, 3: 3, 4: 2},
+            9: {1: 4, 2: 3, 3: 3, 4: 3, 5: 1},
+            10: {1: 4, 2: 3, 3: 3, 4: 3, 5: 2}
+        }
+        
+        return spell_slots.get(self.level, {}).get(level, 0)
+    
+    def get_armor_class(self) -> int:
+        """Calculate base armor class"""
+        # Base AC calculation (simplified)
+        dex_modifier = self.get_attribute_modifier('Dexterity')
+        
+        # Different base AC based on class
+        if self.char_class in ['Monk', 'Barbarian']:
+            # Unarmored Defense
+            if self.char_class == 'Monk':
+                wis_modifier = self.get_attribute_modifier('Wisdom')
+                return 10 + dex_modifier + wis_modifier
+            else:  # Barbarian
+                con_modifier = self.get_attribute_modifier('Constitution')
+                return 10 + dex_modifier + con_modifier
+        else:
+            # Standard armor (assuming light armor for most classes)
+            return 11 + min(dex_modifier, 2)  # Light armor + Dex (max +2)
+    
+    def get_hit_points(self) -> int:
+        """Calculate hit points"""
+        con_modifier = self.get_attribute_modifier('Constitution')
+        
+        # Hit die by class
+        hit_dice = {
+            'Barbarian': 12, 'Fighter': 10, 'Paladin': 10, 'Ranger': 10,
+            'Bard': 8, 'Cleric': 8, 'Druid': 8, 'Monk': 8, 'Rogue': 8,
+            'Sorcerer': 6, 'Warlock': 8, 'Wizard': 6
+        }
+        
+        hit_die = hit_dice.get(self.char_class, 8)
+        base_hp = hit_die + con_modifier
+        
+        # Add HP for levels beyond 1st
+        if self.level > 1:
+            # Average HP per level (simplified)
+            avg_hp_per_level = (hit_die // 2) + 1 + con_modifier
+            additional_hp = avg_hp_per_level * (self.level - 1)
+            base_hp += additional_hp
+        
+        return max(1, base_hp)  # Minimum 1 HP
+    
+    def get_speed(self) -> int:
+        """Get movement speed"""
+        # Base speed by race (simplified)
+        race_speeds = {
+            'Human': 30, 'Elf': 30, 'Dwarf': 25, 'Halfling': 25,
+            'Dragonborn': 30, 'Tiefling': 30, 'Half-Elf': 30, 'Half-Orc': 30,
+            'Gnome': 25, 'Aarakocra': 25, 'Genasi': 30, 'Goliath': 30
+        }
+        
+        return race_speeds.get(self.race, 30)
+    
+    def get_saving_throw_bonus(self, attribute: str) -> int:
+        """Calculate saving throw bonus"""
+        modifier = self.get_attribute_modifier(attribute)
+        
+        # Check if proficient in this saving throw
+        saving_throw_proficiencies = {
+            'Fighter': ['Strength', 'Constitution'],
+            'Wizard': ['Intelligence', 'Wisdom'],
+            'Cleric': ['Wisdom', 'Charisma'],
+            'Rogue': ['Dexterity', 'Intelligence'],
+            'Ranger': ['Strength', 'Dexterity'],
+            'Paladin': ['Wisdom', 'Charisma'],
+            'Bard': ['Dexterity', 'Charisma'],
+            'Sorcerer': ['Constitution', 'Charisma'],
+            'Warlock': ['Wisdom', 'Charisma'],
+            'Monk': ['Strength', 'Dexterity'],
+            'Druid': ['Intelligence', 'Wisdom'],
+            'Barbarian': ['Strength', 'Constitution']
+        }
+        
+        proficiencies = saving_throw_proficiencies.get(self.char_class, [])
+        if attribute in proficiencies:
+            modifier += self.get_proficiency_bonus()
+        
+        return modifier
+    
+    def get_combat_role(self) -> str:
+        """Determine the character's primary combat role"""
+        if not self.char_class:
+            return "Undefined"
+        
+        # Combat roles by class
+        combat_roles = {
+            'Fighter': 'Frontline Defender',
+            'Paladin': 'Frontline Defender',
+            'Barbarian': 'Frontline Striker',
+            'Ranger': 'Ranged Striker',
+            'Rogue': 'Skirmisher',
+            'Monk': 'Mobile Striker',
+            'Wizard': 'Control Caster',
+            'Sorcerer': 'Blaster Caster',
+            'Warlock': 'Blaster Caster',
+            'Cleric': 'Support Caster',
+            'Druid': 'Control Caster',
+            'Bard': 'Support Caster'
+        }
+        
+        return combat_roles.get(self.char_class, "Versatile") 

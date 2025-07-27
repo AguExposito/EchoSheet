@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -11,11 +11,12 @@
     <div class="container">
         <header class="main-header">
             <h1 class="title">🎲 EchoSheet</h1>
-            <a href="{{ url_for('index') }}" class="back-link">← Back</a>
+            <a href="{{ url_for('index') }}" class="back-link">← Back to Characters</a>
         </header>
 
         <main class="main-content">
             <div class="character-sheet">
+                <!-- Character Header -->
                 <div class="character-header">
                     <div class="character-info">
                         <h2 class="character-name">{{ character.name }}</h2>
@@ -32,6 +33,12 @@
                         <a href="{{ url_for('chat_with_character', character_id=character.id) }}" class="btn btn-accent">
                             💬 Chat with {{ character.name }}
                         </a>
+                        <button class="btn btn-success download-pdf-btn" 
+                                data-character-id="{{ character.id }}" 
+                                data-character-name="{{ character.name }}"
+                                title="Download PDF">
+                            📄 Download PDF
+                        </button>
                         <button class="btn btn-danger delete-character-btn" 
                                 data-character-id="{{ character.id }}" 
                                 data-character-name="{{ character.name }}">
@@ -40,148 +47,483 @@
                     </div>
                 </div>
 
-                <div class="sheet-content">
-                    <div class="sheet-main">
-                        <section class="attributes-section">
-                            <h3>📊 Attributes</h3>
-                            <div class="attributes-grid">
-                                {% for attr, value in character.attributes.items() %}
-                                <div class="attribute-card">
-                                    <div class="attribute-name">{{ attr }}</div>
-                                    <div class="attribute-value">{{ value }}</div>
-                                    <div class="attribute-modifier">
-                                        {% set modifier = character.get_attribute_modifier(attr) %}
-                                        {% if modifier >= 0 %}+{% endif %}{{ modifier }}
+                <!-- Tab Navigation -->
+                <div class="tab-navigation">
+                    <button class="tab-btn active" data-tab="overview">
+                        📊 Overview
+                    </button>
+                    <button class="tab-btn" data-tab="spells">
+                        ✨ Spells
+                    </button>
+                    <button class="tab-btn" data-tab="combat">
+                        ⚔️ Combat
+                    </button>
+                    <button class="tab-btn" data-tab="personality">
+                        💭 Personality
+                    </button>
+                </div>
+
+                <!-- Tab Content -->
+                <div class="tab-content">
+                    <!-- Overview Tab -->
+                    <div class="tab-pane active" id="overview-tab">
+                        <div class="sheet-content">
+                            <div class="sheet-main">
+                                <!-- Attributes Section -->
+                                <section class="attributes-section">
+                                    <h3>📊 Core Attributes</h3>
+                                    <div class="attributes-grid">
+                                        {% for attr, value in character.attributes.items() %}
+                                        <div class="attribute-card">
+                                            <div class="attribute-name">{{ attr }}</div>
+                                            <div class="attribute-value">{{ value }}</div>
+                                            <div class="attribute-modifier">
+                                                {% set modifier = character.get_attribute_modifier(attr) %}
+                                                {% if modifier >= 0 %}+{% endif %}{{ modifier }}
+                                            </div>
+                                        </div>
+                                        {% endfor %}
                                     </div>
-                                </div>
-                                {% endfor %}
-                            </div>
-                        </section>
+                                </section>
 
-                        <section class="skills-section">
-                            <h3>🎯 Skills</h3>
-                            <div class="skills-grid">
-                                {% for skill in character.skills %}
-                                <div class="skill-item">
-                                    <span class="skill-name">{{ skill }}</span>
-                                    <span class="skill-bonus">
-                                        {% set bonus = character.get_skill_bonus(skill) %}
-                                        {% if bonus >= 0 %}+{% endif %}{{ bonus }}
-                                    </span>
-                                </div>
-                                {% endfor %}
-                            </div>
-                        </section>
+                                <!-- Skills Section -->
+                                <section class="skills-section">
+                                    <h3>🎯 Proficient Skills</h3>
+                                    <div class="skills-grid">
+                                        {% for skill in character.skills %}
+                                        <div class="skill-item">
+                                            <span class="skill-name">{{ skill }}</span>
+                                            <span class="skill-bonus">
+                                                {% set bonus = character.get_skill_bonus(skill) %}
+                                                {% if bonus >= 0 %}+{% endif %}{{ bonus }}
+                                            </span>
+                                        </div>
+                                        {% endfor %}
+                                    </div>
+                                </section>
 
-                        {% if character.cantrips or character.spells_known %}
-                        <section class="spells-section">
-                            <h3>✨ Spells</h3>
-                            {% if character.cantrips %}
-                            <div class="cantrips-subsection">
-                                <h4>🔮 Cantrips</h4>
-                                <div class="spells-grid">
-                                    {% for cantrip in character.cantrips %}
-                                    <div class="spell-item cantrip-item">{{ cantrip }}</div>
-                                    {% endfor %}
-                                </div>
+                                <!-- Feats Section -->
+                                {% if character.feats %}
+                                <section class="feats-section">
+                                    <h3>🏆 Feats & Abilities</h3>
+                                    <div class="feats-grid">
+                                        {% for feat in character.feats %}
+                                        <div class="feat-item">{{ feat }}</div>
+                                        {% endfor %}
+                                    </div>
+                                </section>
+                                {% endif %}
                             </div>
-                            {% endif %}
-                            {% if character.spells_known %}
-                            <div class="spells-subsection">
-                                <h4>📚 1st Level Spells</h4>
-                                <div class="spells-grid">
-                                    {% for spell in character.spells_known %}
-                                    <div class="spell-item spell-item">{{ spell }}</div>
-                                    {% endfor %}
-                                </div>
-                            </div>
-                            {% endif %}
-                        </section>
-                        {% endif %}
 
-                        {% if character.feats %}
-                        <section class="feats-section">
-                            <h3>🏆 Feats</h3>
-                            <div class="feats-grid">
-                                {% for feat in character.feats %}
-                                <div class="feat-item">{{ feat }}</div>
-                                {% endfor %}
-                            </div>
-                        </section>
-                        {% endif %}
+                            <!-- Sidebar with Overview Recommendations -->
+                            <div class="sheet-sidebar">
+                                <section class="recommendations-section">
+                                    <h3>💡 Character Development</h3>
+                                    
+                                    <!-- Subclass Recommendation -->
+                                    <div class="recommendation-card">
+                                        <h4>🎭 Recommended Subclass</h4>
+                                        <p class="recommendation-title">{{ recommendations.subclass.recommended }}</p>
+                                        <p class="recommendation-reason">{{ recommendations.subclass.reason }}</p>
+                                        <div class="recommendation-options">
+                                            <strong>Other options:</strong>
+                                            {% for subclass in recommendations.subclass.recommendations[:3] %}
+                                                {% if subclass != recommendations.subclass.recommended %}
+                                                <span class="option-tag">{{ subclass }}</span>
+                                                {% endif %}
+                                            {% endfor %}
+                                        </div>
+                                    </div>
 
-                        {% if character.personality_traits %}
-                        <section class="personality-section">
-                            <h3>💭 Personality Traits</h3>
-                            <p class="personality-traits">{{ character.personality_traits }}</p>
-                        </section>
-                        {% endif %}
+                                    <!-- Skill Recommendations -->
+                                    {% if recommendations.skills.recommendations %}
+                                    <div class="recommendation-card">
+                                        <h4>🎯 Additional Skills</h4>
+                                        <p class="recommendation-reason">{{ recommendations.skills.reason }}</p>
+                                        <div class="recommendation-list">
+                                            {% for skill in recommendations.skills.recommendations %}
+                                            <span class="recommendation-item">{{ skill }}</span>
+                                            {% endfor %}
+                                        </div>
+                                    </div>
+                                    {% endif %}
+
+                                    <!-- Feat Recommendation -->
+                                    <div class="recommendation-card">
+                                        <h4>🏆 Recommended Feat</h4>
+                                        <p class="recommendation-title">{{ recommendations.feats.recommended }}</p>
+                                        <p class="recommendation-reason">{{ recommendations.feats.reason }}</p>
+                                    </div>
+
+                                    <!-- Next Level Planning -->
+                                    <div class="recommendation-card">
+                                        <h4>📈 Next Level ({{ recommendations.next_level.level }})</h4>
+                                        <p><strong>Proficiency Bonus:</strong> +{{ recommendations.next_level.proficiency_bonus }}</p>
+                                        {% if recommendations.next_level.suggestions %}
+                                        <div class="level-suggestions">
+                                            {% for suggestion in recommendations.next_level.suggestions %}
+                                            <p class="suggestion-item">💡 {{ suggestion }}</p>
+                                            {% endfor %}
+                                        </div>
+                                        {% endif %}
+                                    </div>
+                                </section>
+                            </div>
+                        </div>
                     </div>
 
-                    <div class="sheet-sidebar">
-                        <section class="recommendations-section">
-                            <h3>💡 Recommendations</h3>
-                            
-                            <div class="recommendation-card">
-                                <h4>🎭 Suggested Subclass</h4>
-                                <p class="recommendation-title">{{ recommendations.subclass.recommended }}</p>
-                                <p class="recommendation-reason">{{ recommendations.subclass.reason }}</p>
-                                <div class="recommendation-options">
-                                    <strong>Other options:</strong>
-                                    {% for subclass in recommendations.subclass.recommendations[:3] %}
-                                        {% if subclass != recommendations.subclass.recommended %}
-                                        <span class="option-tag">{{ subclass }}</span>
-                                        {% endif %}
-                                    {% endfor %}
-                                </div>
-                            </div>
-
-                            {% if recommendations.spells.recommendations %}
-                            <div class="recommendation-card">
-                                <h4>✨ Recommended Spells</h4>
-                                <p class="recommendation-reason">{{ recommendations.spells.reason }}</p>
-                                <div class="recommendation-list">
-                                    {% for spell in recommendations.spells.recommendations %}
-                                    <span class="recommendation-item">{{ spell }}</span>
-                                    {% endfor %}
-                                </div>
-                            </div>
-                            {% endif %}
-
-                            {% if recommendations.skills.recommendations %}
-                            <div class="recommendation-card">
-                                <h4>🎯 Additional Skills</h4>
-                                <p class="recommendation-reason">{{ recommendations.skills.reason }}</p>
-                                <div class="recommendation-list">
-                                    {% for skill in recommendations.skills.recommendations %}
-                                    <span class="recommendation-item">{{ skill }}</span>
-                                    {% endfor %}
-                                </div>
-                            </div>
-                            {% endif %}
-
-                            <div class="recommendation-card">
-                                <h4>🏆 Suggested Feat</h4>
-                                <p class="recommendation-title">{{ recommendations.feats.recommended }}</p>
-                                <p class="recommendation-reason">{{ recommendations.feats.reason }}</p>
-                            </div>
-
-                            <div class="recommendation-card">
-                                <h4>📈 Next Level ({{ recommendations.next_level.level }})</h4>
-                                <p><strong>Proficiency Bonus:</strong> +{{ recommendations.next_level.proficiency_bonus }}</p>
-                                {% if recommendations.next_level.suggestions %}
-                                <div class="level-suggestions">
-                                    {% for suggestion in recommendations.next_level.suggestions %}
-                                    <p class="suggestion-item">💡 {{ suggestion }}</p>
-                                    {% endfor %}
+                    <!-- Spells Tab -->
+                    <div class="tab-pane" id="spells-tab">
+                        <div class="sheet-content">
+                            <div class="sheet-main">
+                                {% if character.cantrips or character.spells_known or character.spells %}
+                                <section class="spells-section">
+                                    <h3>✨ Spellcasting</h3>
+                                    
+                                    <!-- Spellcasting Summary -->
+                                    <div class="spellcasting-summary">
+                                        <div class="summary-item">
+                                            <span class="summary-label">Spellcasting Ability:</span>
+                                            <span class="summary-value">{{ character.get_spellcasting_ability() }}</span>
+                                        </div>
+                                        <div class="summary-item">
+                                            <span class="summary-label">Spell Save DC:</span>
+                                            <span class="summary-value">{{ character.get_spell_save_dc() }}</span>
+                                        </div>
+                                        <div class="summary-item">
+                                            <span class="summary-label">Spell Attack Bonus:</span>
+                                            <span class="summary-value">{{ character.get_spell_attack_bonus() }}</span>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Spell Slots -->
+                                    <div class="spell-slots-section">
+                                        <h4>📖 Spell Slots</h4>
+                                        <div class="spell-slots-grid">
+                                            {% for level in range(1, 10) %}
+                                                {% set slots = character.get_spell_slots(level) %}
+                                                {% if slots > 0 %}
+                                                <div class="spell-slot-item">
+                                                    <span class="slot-level">{{ level }}{% if level == 1 %}st{% elif level == 2 %}nd{% elif level == 3 %}rd{% else %}th{% endif %}</span>
+                                                    <span class="slot-count">{{ slots }}</span>
+                                                </div>
+                                                {% endif %}
+                                            {% endfor %}
+                                        </div>
+                                    </div>
+                                    
+                                    {% if cantrips_info %}
+                                    <div class="cantrips-subsection">
+                                        <h4>🔮 Cantrips ({{ cantrips_info|length }})</h4>
+                                        <div class="spells-grid">
+                                            {% for spell in cantrips_info %}
+                                            <div class="spell-card" data-spell-name="{{ spell.name }}" data-type="cantrip">
+                                                <div class="spell-header">
+                                                    <div class="spell-title">
+                                                        <h5 class="spell-name">{{ spell.name }}</h5>
+                                                        <span class="spell-school">{{ spell.school }}</span>
+                                                    </div>
+                                                    {% if spell.source %}
+                                                    <div class="spell-header-right">
+                                                        <div class="spell-source-badge {{ spell.source.lower() }}">{{ spell.source }}</div>
+                                                        <button class="spell-info-btn" onclick="showSpellInfo('{{ spell.name }}')" title="View spell details">📖</button>
+                                                    </div>
+                                                    {% else %}
+                                                    <button class="spell-info-btn" onclick="showSpellInfo('{{ spell.name }}')" title="View spell details">📖</button>
+                                                    {% endif %}
+                                                </div>
+                                                <div class="spell-content">
+                                                    <div class="spell-stat">
+                                                        <span class="stat-label">Casting Time:</span>
+                                                        <span class="stat-value">{{ spell.casting_time }}</span>
+                                                    </div>
+                                                    <div class="spell-stat">
+                                                        <span class="stat-label">Range:</span>
+                                                        <span class="stat-value">{{ spell.range }}</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            {% endfor %}
+                                        </div>
+                                    </div>
+                                    {% endif %}
+                                    
+                                    {% if spells_info %}
+                                    <div class="spells-subsection">
+                                        <h4>📚 1st Level Spells ({{ spells_info|length }})</h4>
+                                        <div class="spells-grid">
+                                            {% for spell in spells_info %}
+                                            <div class="spell-card" data-spell-name="{{ spell.name }}" data-type="spell">
+                                                <div class="spell-header">
+                                                    <div class="spell-title">
+                                                        <h5 class="spell-name">{{ spell.name }}</h5>
+                                                        <span class="spell-school">{{ spell.school }}</span>
+                                                    </div>
+                                                    {% if spell.source %}
+                                                    <div class="spell-header-right">
+                                                        <div class="spell-source-badge {{ spell.source.lower() }}">{{ spell.source }}</div>
+                                                        <button class="spell-info-btn" onclick="showSpellInfo('{{ spell.name }}')" title="View spell details">📖</button>
+                                                    </div>
+                                                    {% else %}
+                                                    <button class="spell-info-btn" onclick="showSpellInfo('{{ spell.name }}')" title="View spell details">📖</button>
+                                                    {% endif %}
+                                                </div>
+                                                <div class="spell-content">
+                                                    <div class="spell-stat">
+                                                        <span class="stat-label">Casting Time:</span>
+                                                        <span class="stat-value">{{ spell.casting_time }}</span>
+                                                    </div>
+                                                    <div class="spell-stat">
+                                                        <span class="stat-label">Range:</span>
+                                                        <span class="stat-value">{{ spell.range }}</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            {% endfor %}
+                                        </div>
+                                    </div>
+                                    {% endif %}
+                                </section>
+                                {% else %}
+                                <div class="empty-spells">
+                                    <div class="empty-icon">🔮</div>
+                                    <h3>No Spells Available</h3>
+                                    <p>This character doesn't have access to spellcasting abilities.</p>
                                 </div>
                                 {% endif %}
                             </div>
-                        </section>
+
+                            <!-- Sidebar with Spell Recommendations -->
+                            <div class="sheet-sidebar">
+                                <section class="recommendations-section">
+                                    <h3>✨ Spell Recommendations</h3>
+                                    
+                                    {% if recommendations.spells.recommendations %}
+                                    <div class="recommendation-card">
+                                        <h4>🔮 Recommended Spells</h4>
+                                        <p class="recommendation-reason">{{ recommendations.spells.reason }}</p>
+                                        <div class="recommendation-list">
+                                            {% for spell in recommendations.spells.recommendations %}
+                                            <span class="recommendation-item">{{ spell }}</span>
+                                            {% endfor %}
+                                        </div>
+                                    </div>
+                                    {% endif %}
+
+                                    <!-- Spellcasting Tips -->
+                                    <div class="recommendation-card">
+                                        <h4>💡 Spellcasting Tips</h4>
+                                        <div class="tips-list">
+                                            <p class="tip-item">🎯 Use your highest spellcasting modifier for attack rolls</p>
+                                            <p class="tip-item">🛡️ Save DC = 8 + proficiency bonus + spellcasting modifier</p>
+                                            <p class="tip-item">⚡ Cantrips scale with character level, not class level</p>
+                                            <p class="tip-item">📚 Consider spells that complement your party's abilities</p>
+                                        </div>
+                                    </div>
+
+                                    <!-- Spell School Distribution -->
+                                    {% if character.cantrips or character.spells_known or character.spells %}
+                                    <div class="recommendation-card">
+                                        <h4>🎓 Spell School Analysis</h4>
+                                        <div class="school-analysis">
+                                            <p class="analysis-text">Your spell selection shows a preference for utility and versatility.</p>
+                                            <div class="school-tags">
+                                                <span class="school-tag evocation">Evocation</span>
+                                                <span class="school-tag abjuration">Abjuration</span>
+                                                <span class="school-tag transmutation">Transmutation</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    {% endif %}
+                                </section>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Combat Tab -->
+                    <div class="tab-pane" id="combat-tab">
+                        <div class="sheet-content">
+                            <div class="sheet-main">
+                                <section class="combat-section">
+                                    <h3>⚔️ Combat Statistics</h3>
+                                    
+                                    <!-- Combat Stats Grid -->
+                                    <div class="combat-stats-grid">
+                                        <div class="combat-stat-card">
+                                            <div class="stat-icon">🛡️</div>
+                                            <div class="stat-info">
+                                                <div class="stat-label">Armor Class</div>
+                                                <div class="stat-value">{{ character.get_armor_class() }}</div>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="combat-stat-card">
+                                            <div class="stat-icon">❤️</div>
+                                            <div class="stat-info">
+                                                <div class="stat-label">Hit Points</div>
+                                                <div class="stat-value">{{ character.get_hit_points() }}</div>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="combat-stat-card">
+                                            <div class="stat-icon">🎯</div>
+                                            <div class="stat-info">
+                                                <div class="stat-label">Initiative</div>
+                                                <div class="stat-value">
+                                                    {% set modifier = character.get_attribute_modifier('Dexterity') %}
+                                                    {% if modifier >= 0 %}+{% endif %}{{ modifier }}
+                                                </div>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="combat-stat-card">
+                                            <div class="stat-icon">⚡</div>
+                                            <div class="stat-info">
+                                                <div class="stat-label">Speed</div>
+                                                <div class="stat-value">{{ character.get_speed() }} ft</div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Saving Throws -->
+                                    <div class="saving-throws-section">
+                                        <h4>🛡️ Saving Throws</h4>
+                                        <div class="saving-throws-grid">
+                                            {% for attr in ['Strength', 'Dexterity', 'Constitution', 'Intelligence', 'Wisdom', 'Charisma'] %}
+                                            <div class="saving-throw-item">
+                                                <span class="throw-name">{{ attr[:3] }}</span>
+                                                <span class="throw-bonus">
+                                                    {% set bonus = character.get_saving_throw_bonus(attr) %}
+                                                    {% if bonus >= 0 %}+{% endif %}{{ bonus }}
+                                                </span>
+                                            </div>
+                                            {% endfor %}
+                                        </div>
+                                    </div>
+                                </section>
+                            </div>
+
+                            <!-- Sidebar with Combat Recommendations -->
+                            <div class="sheet-sidebar">
+                                <section class="recommendations-section">
+                                    <h3>⚔️ Combat Strategy</h3>
+                                    
+                                    <div class="recommendation-card">
+                                        <h4>🎯 Combat Role</h4>
+                                        <p class="recommendation-title">{{ character.get_combat_role() }}</p>
+                                        <p class="recommendation-reason">Based on your class and abilities, you excel in this combat role.</p>
+                                    </div>
+
+                                    <div class="recommendation-card">
+                                        <h4>💡 Tactical Tips</h4>
+                                        <div class="tips-list">
+                                            <p class="tip-item">🎯 Position yourself strategically for maximum effectiveness</p>
+                                            <p class="tip-item">🛡️ Use cover and terrain to your advantage</p>
+                                            <p class="tip-item">⚡ Coordinate with your party for optimal tactics</p>
+                                            <p class="tip-item">📚 Know your spell ranges and areas of effect</p>
+                                        </div>
+                                    </div>
+                                </section>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Personality Tab -->
+                    <div class="tab-pane" id="personality-tab">
+                        <div class="sheet-content">
+                            <div class="sheet-main">
+                                {% if character.personality_traits %}
+                                <section class="personality-section">
+                                    <h3>💭 Personality & Background</h3>
+                                    <div class="personality-content">
+                                        <p class="personality-traits">{{ character.personality_traits }}</p>
+                                    </div>
+                                </section>
+                                {% endif %}
+
+                                <!-- Character Development -->
+                                <section class="development-section">
+                                    <h3>📈 Character Development</h3>
+                                    <div class="development-grid">
+                                        <div class="development-card">
+                                            <h4>🎭 Character Arc</h4>
+                                            <p>Your character's journey from level {{ character.level }} to higher levels will reveal new depths and abilities.</p>
+                                        </div>
+                                        
+                                        <div class="development-card">
+                                            <h4>🌟 Growth Opportunities</h4>
+                                            <p>Focus on developing your character's unique strengths and addressing their weaknesses.</p>
+                                        </div>
+                                    </div>
+                                </section>
+                            </div>
+
+                            <!-- Sidebar with Personality Recommendations -->
+                            <div class="sheet-sidebar">
+                                <section class="recommendations-section">
+                                    <h3>💭 Roleplay Guidance</h3>
+                                    
+                                    <div class="recommendation-card">
+                                        <h4>🎭 Character Voice</h4>
+                                        <p class="recommendation-reason">Develop a unique voice and mannerisms that reflect your character's background and personality.</p>
+                                    </div>
+
+                                    <div class="recommendation-card">
+                                        <h4>🌟 Character Goals</h4>
+                                        <div class="goals-list">
+                                            <p class="goal-item">🎯 Short-term: Establish your character's immediate objectives</p>
+                                            <p class="goal-item">🌟 Long-term: Define your character's ultimate aspirations</p>
+                                            <p class="goal-item">💫 Personal: Consider what drives your character internally</p>
+                                        </div>
+                                    </div>
+                                </section>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
         </main>
+
+        <!-- Spell Info Modal -->
+        <div id="spell-modal" class="spell-info-modal" style="display: none;">
+            <div class="spell-info-content">
+                <div class="spell-info-header">
+                    <h3 class="spell-info-title">
+                        <span id="modal-spell-name"></span>
+                        <span id="modal-spell-source" class="spell-source"></span>
+                    </h3>
+                    <button class="spell-info-close" onclick="closeSpellModal()">&times;</button>
+                </div>
+                <div class="spell-info-body">
+                    <div class="spell-info-grid">
+                        <div class="spell-info-item">
+                            <strong>School</strong>
+                            <span id="modal-spell-school"></span>
+                        </div>
+                        <div class="spell-info-item">
+                            <strong>Casting Time</strong>
+                            <span id="modal-spell-casting-time"></span>
+                        </div>
+                        <div class="spell-info-item">
+                            <strong>Range</strong>
+                            <span id="modal-spell-range"></span>
+                        </div>
+                        <div class="spell-info-item">
+                            <strong>Components</strong>
+                            <span id="modal-spell-components"></span>
+                        </div>
+                        <div class="spell-info-item">
+                            <strong>Duration</strong>
+                            <span id="modal-spell-duration"></span>
+                        </div>
+                    </div>
+                    <div class="spell-info-description">
+                        <strong>Description</strong>
+                        <p id="modal-spell-description"></p>
+                    </div>
+                </div>
+            </div>
+        </div>
 
         <footer class="main-footer">
             <p>&copy; 2024 EchoSheet - Intelligent Character Sheets for D&D</p>
@@ -189,5 +531,65 @@
     </div>
 
     <script src="{{ url_for('static', filename='script.js') }}"></script>
+    <script>
+        // Tab functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            const tabBtns = document.querySelectorAll('.tab-btn');
+            const tabPanes = document.querySelectorAll('.tab-pane');
+
+            tabBtns.forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const targetTab = this.getAttribute('data-tab');
+                    
+                    // Remove active class from all buttons and panes
+                    tabBtns.forEach(b => b.classList.remove('active'));
+                    tabPanes.forEach(p => p.classList.remove('active'));
+                    
+                    // Add active class to clicked button and corresponding pane
+                    this.classList.add('active');
+                    document.getElementById(targetTab + '-tab').classList.add('active');
+                });
+            });
+        });
+
+        // Spell modal functionality
+        function showSpellInfo(spellName) {
+            // Fetch spell data from the server
+            fetch(`/api/spell/${encodeURIComponent(spellName)}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        const spell = data.spell;
+                        document.getElementById('modal-spell-name').textContent = spell.name;
+                        document.getElementById('modal-spell-school').textContent = spell.school;
+                        document.getElementById('modal-spell-casting-time').textContent = spell.casting_time;
+                        document.getElementById('modal-spell-range').textContent = spell.range;
+                        document.getElementById('modal-spell-components').textContent = spell.components.join(', ');
+                        document.getElementById('modal-spell-duration').textContent = spell.duration;
+                        document.getElementById('modal-spell-description').textContent = spell.description;
+                        document.getElementById('modal-spell-source').textContent = spell.source;
+                        document.getElementById('modal-spell-source').className = `spell-source ${spell.source.toLowerCase()}`;
+                        document.getElementById('spell-modal').style.display = 'flex';
+                    } else {
+                        alert('Spell information not found');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error fetching spell info:', error);
+                    alert('Error loading spell information');
+                });
+        }
+
+        function closeSpellModal() {
+            document.getElementById('spell-modal').style.display = 'none';
+        }
+
+        // Close modal when clicking outside
+        document.getElementById('spell-modal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeSpellModal();
+            }
+        });
+    </script>
 </body>
 </html> 

@@ -187,9 +187,17 @@ def create_character():
             character.cantrips = cantrips
             character.spells_known = spells_known
             character.spells = cantrips + spells_known  # Combined list for compatibility
-        elif not character.spells:
-            # Generate spells if not provided
-            autofill.fill_character(character)
+        else:
+            # Always generate spells for spellcasters if not provided
+            if spell_manager.can_cast_spells(character.char_class):
+                autofill.fill_character(character)
+                
+                # If autofill didn't work, try direct spell generation
+                if not character.cantrips and not character.spells_known:
+                    suggestions = spell_manager.get_spell_suggestions(character.char_class)
+                    character.cantrips = suggestions['cantrips']
+                    character.spells_known = suggestions['spells']
+                    character.spells = character.cantrips + character.spells_known
         
         # Save to database
         try:
@@ -238,21 +246,39 @@ def view_character(character_id):
         char_class=char_data[3],
         level=char_data[4],
         background=char_data[5],
-        attributes=json.loads(char_data[6]) if char_data[6] else {},
-        skills=json.loads(char_data[7]) if char_data[7] else [],
-        feats=json.loads(char_data[8]) if char_data[8] else [],
-        cantrips=json.loads(char_data[9]) if char_data[9] else [],
-        spells_known=json.loads(char_data[10]) if char_data[10] else [],
-        personality_traits=char_data[11] or ''
+        attributes=json.loads(char_data[6]) if char_data[6] and char_data[6].strip() else {},
+        skills=json.loads(char_data[7]) if char_data[7] and char_data[7].strip() else [],
+        feats=json.loads(char_data[8]) if char_data[8] and char_data[8].strip() else [],
+        cantrips=json.loads(char_data[14]) if char_data[14] and char_data[14].strip() else [],
+        spells_known=json.loads(char_data[15]) if char_data[15] and char_data[15].strip() else [],
+        personality_traits=char_data[10] or ''
     )
     
     # Combine cantrips and spells_known for backward compatibility
     character.spells = character.cantrips + character.spells_known
     
+    # Get detailed spell information for display
+    cantrips_info = []
+    spells_info = []
+    
+    for cantrip_name in character.cantrips:
+        spell_info = spell_manager.get_spell_info(cantrip_name)
+        if spell_info:
+            cantrips_info.append(spell_info)
+    
+    for spell_name in character.spells_known:
+        spell_info = spell_manager.get_spell_info(spell_name)
+        if spell_info:
+            spells_info.append(spell_info)
+    
     # Get recommendations
     recommendations = recommender.get_recommendations(character)
     
-    return render_template('character.html', character=character, recommendations=recommendations)
+    return render_template('character.html', 
+                         character=character, 
+                         recommendations=recommendations,
+                         cantrips_info=cantrips_info,
+                         spells_info=spells_info)
 
 @app.route('/character/<int:character_id>/chat', methods=['GET', 'POST'])
 def chat_with_character(character_id):
@@ -273,13 +299,13 @@ def chat_with_character(character_id):
         char_class=char_data[3],
         level=char_data[4],
         background=char_data[5],
-        attributes=json.loads(char_data[6]) if char_data[6] else {},
-        skills=json.loads(char_data[7]) if char_data[7] else [],
-        feats=json.loads(char_data[8]) if char_data[8] else [],
-        cantrips=json.loads(char_data[9]) if char_data[9] else [],
-        spells_known=json.loads(char_data[10]) if char_data[10] else [],
-        personality_traits=char_data[11] or '',
-        chat_history=json.loads(char_data[13]) if char_data[13] else []
+        attributes=json.loads(char_data[6]) if char_data[6] and char_data[6].strip() else {},
+        skills=json.loads(char_data[7]) if char_data[7] and char_data[7].strip() else [],
+        feats=json.loads(char_data[8]) if char_data[8] and char_data[8].strip() else [],
+        cantrips=json.loads(char_data[14]) if char_data[14] and char_data[14].strip() else [],
+        spells_known=json.loads(char_data[15]) if char_data[15] and char_data[15].strip() else [],
+        personality_traits=char_data[10] or '',
+        chat_history=json.loads(char_data[12]) if char_data[12] and char_data[12].strip() else []
     )
     
     # Combine cantrips and spells_known for backward compatibility
@@ -441,6 +467,27 @@ def get_playstyles(char_class):
         })
     except Exception as e:
         return jsonify({'success': False, 'error': str(e)})
+
+@app.route('/api/spell/<spell_name>', methods=['GET'])
+def get_spell_info(spell_name):
+    """Get detailed information for a specific spell"""
+    try:
+        spell_info = spell_manager.get_spell_info(spell_name)
+        if spell_info:
+            return jsonify({
+                'success': True,
+                'spell': spell_info
+            })
+        else:
+            return jsonify({
+                'success': False,
+                'error': 'Spell not found'
+            }), 404
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        }), 500
 
 if __name__ == '__main__':
     init_db()
