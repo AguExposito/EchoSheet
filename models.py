@@ -18,6 +18,15 @@ class Character:
     cantrips: List[str] = field(default_factory=list)  # Cantrips only
     spells_known: List[str] = field(default_factory=list)  # Spells only (not cantrips)
     personality_traits: str = ""
+    background_story: str = ""
+    short_term_goals: str = ""
+    long_term_goals: str = ""
+    personal_goals: str = ""
+    personality_tags: List[str] = field(default_factory=list)
+    flaws: str = ""
+    currency: Dict[str, int] = field(default_factory=dict)  # {"cp": 0, "sp": 0, "ep": 0, "gp": 0, "pp": 0}
+    items: List[str] = field(default_factory=list)
+    item_weights: Dict[str, float] = field(default_factory=dict)  # Custom weights for items
     history_log: List[str] = field(default_factory=list)
     chat_history: List[Dict[str, str]] = field(default_factory=list)
     available_attribute_points: int = 27  # Point buy system
@@ -153,6 +162,15 @@ class Character:
             'feats': self.feats,
             'spells': self.spells,
             'personality_traits': self.personality_traits,
+            'background_story': self.background_story,
+            'short_term_goals': self.short_term_goals,
+            'long_term_goals': self.long_term_goals,
+            'personal_goals': self.personal_goals,
+            'personality_tags': self.personality_tags,
+            'flaws': self.flaws,
+            'currency': self.currency,
+            'items': self.items,
+            'item_weights': self.item_weights,
             'history_log': self.history_log,
             'chat_history': self.chat_history
         }
@@ -174,6 +192,15 @@ class Character:
             cantrips=data.get('cantrips', []),
             spells_known=data.get('spells_known', []),
             personality_traits=data.get('personality_traits', ''),
+            background_story=data.get('background_story', ''),
+            short_term_goals=data.get('short_term_goals', ''),
+            long_term_goals=data.get('long_term_goals', ''),
+            personal_goals=data.get('personal_goals', ''),
+            personality_tags=data.get('personality_tags', []),
+            flaws=data.get('flaws', ''),
+            currency=data.get('currency', {}),
+            items=data.get('items', []),
+            item_weights=data.get('item_weights', {}),
             history_log=data.get('history_log', []),
             chat_history=data.get('chat_history', [])
         )
@@ -334,4 +361,142 @@ class Character:
             'Bard': 'Support Caster'
         }
         
-        return combat_roles.get(self.char_class, "Versatile") 
+        return combat_roles.get(self.char_class, "Versatile")
+    
+    def get_carrying_capacity(self) -> int:
+        """Calculate carrying capacity based on Strength"""
+        str_score = self.attributes.get('Strength', 10)
+        return str_score * 15  # 15 pounds per point of Strength
+    
+    def get_push_drag_lift(self) -> int:
+        """Calculate push, drag, or lift capacity"""
+        str_score = self.attributes.get('Strength', 10)
+        return str_score * 30  # 30 pounds per point of Strength
+    
+    def get_total_currency_value(self) -> int:
+        """Get total currency value in copper pieces"""
+        total_cp = 0
+        currency_values = {
+            'cp': 1,      # Copper piece
+            'sp': 10,     # Silver piece = 10 cp
+            'ep': 50,     # Electrum piece = 50 cp
+            'gp': 100,    # Gold piece = 100 cp
+            'pp': 1000    # Platinum piece = 1000 cp
+        }
+        
+        for currency_type, amount in self.currency.items():
+            if currency_type in currency_values:
+                total_cp += amount * currency_values[currency_type]
+        
+        return total_cp
+    
+    def format_currency(self) -> str:
+        """Format currency for display"""
+        if not self.currency:
+            return "0 cp"
+        
+        # Convert everything to copper first
+        total_cp = self.get_total_currency_value()
+        
+        # Convert back to highest denominations
+        pp = total_cp // 1000
+        total_cp %= 1000
+        gp = total_cp // 100
+        total_cp %= 100
+        ep = total_cp // 50
+        total_cp %= 50
+        sp = total_cp // 10
+        total_cp %= 10
+        cp = total_cp
+        
+        # Build formatted string
+        parts = []
+        if pp > 0:
+            parts.append(f"{pp} pp")
+        if gp > 0:
+            parts.append(f"{gp} gp")
+        if ep > 0:
+            parts.append(f"{ep} ep")
+        if sp > 0:
+            parts.append(f"{sp} sp")
+        if cp > 0:
+            parts.append(f"{cp} cp")
+        
+        return ", ".join(parts) if parts else "0 cp"
+    
+    def get_estimated_weight(self) -> float:
+        """Estimate total weight of items (simplified calculation)"""
+        # Base weight for common items (in pounds)
+        default_item_weights = {
+            'backpack': 5,
+            'bedroll': 7,
+            'rations': 2,
+            'waterskin': 5,
+            'torch': 1,
+            'rope': 10,
+            'tent': 20,
+            'armor': 40,  # Average armor weight
+            'weapon': 3,  # Average weapon weight
+            'shield': 6,
+            'potion': 0.5,
+            'scroll': 0.1,
+            'book': 5,
+            'clothes': 3,
+            'boots': 2,
+            'helmet': 4,
+            'gloves': 1,
+            'belt': 1,
+            'pouch': 1,
+            'coin': 0.02  # Per coin
+        }
+        
+        total_weight = 0
+        
+        # Calculate weight from items
+        for item in self.items:
+            found_weight = False
+            
+            # First check custom weights (exact match)
+            if item in self.item_weights:
+                total_weight += self.item_weights[item]
+                found_weight = True
+            else:
+                # Then check default weights (partial match)
+                item_lower = item.lower()
+                for weight_item, weight in default_item_weights.items():
+                    if weight_item in item_lower:
+                        total_weight += weight
+                        found_weight = True
+                        break
+            
+            # If no specific weight found, assume 1 pound
+            if not found_weight:
+                total_weight += 1
+        
+        # Add currency weight
+        total_cp = self.get_total_currency_value()
+        total_weight += total_cp * 0.02  # 50 coins = 1 pound
+        
+        return round(total_weight, 1)
+    
+    def get_item_weight(self, item_name: str) -> float:
+        """Get the weight of a specific item"""
+        # First check custom weights
+        if item_name in self.item_weights:
+            return self.item_weights[item_name]
+        
+        # Then check default weights
+        default_weights = {
+            'backpack': 5, 'bedroll': 7, 'rations': 2, 'waterskin': 5,
+            'torch': 1, 'rope': 10, 'tent': 20, 'armor': 40,
+            'weapon': 3, 'shield': 6, 'potion': 0.5, 'scroll': 0.1,
+            'book': 5, 'clothes': 3, 'boots': 2, 'helmet': 4,
+            'gloves': 1, 'belt': 1, 'pouch': 1
+        }
+        
+        item_lower = item_name.lower()
+        for weight_item, weight in default_weights.items():
+            if weight_item in item_lower:
+                return weight
+        
+        return 1.0  # Default weight 

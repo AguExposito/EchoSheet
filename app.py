@@ -46,7 +46,7 @@ def init_db():
         existing_columns = [column[1] for column in cursor.fetchall()]
         
         missing_columns = []
-        required_columns = ['cantrips', 'spells_known']
+        required_columns = ['cantrips', 'spells_known', 'background_story', 'short_term_goals', 'long_term_goals', 'personal_goals', 'personality_tags', 'flaws', 'currency', 'items', 'item_weights']
         
         for column in required_columns:
             if column not in existing_columns:
@@ -205,14 +205,19 @@ def create_character():
             cursor = conn.cursor()
             cursor.execute('''
                 INSERT INTO characters (name, race, char_class, level, background, 
-                                        attributes, skills, feats, cantrips, spells_known, personality_traits)
-                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                                        attributes, skills, feats, cantrips, spells_known, personality_traits,
+                                        background_story, short_term_goals, long_term_goals, personal_goals, personality_tags, flaws,
+                                        currency, items, item_weights)
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             ''', (
                 character.name, character.race, character.char_class, character.level,
                 character.background, json.dumps(character.attributes),
                 json.dumps(character.skills), json.dumps(character.feats),
-                    json.dumps(character.cantrips), json.dumps(character.spells_known), 
-                    character.personality_traits
+                json.dumps(character.cantrips), json.dumps(character.spells_known), 
+                character.personality_traits, character.background_story,
+                character.short_term_goals, character.long_term_goals, character.personal_goals,
+                json.dumps(character.personality_tags), character.flaws,
+                json.dumps(character.currency), json.dumps(character.items), json.dumps(character.item_weights)
             ))
             character_id = cursor.lastrowid
             conn.commit()
@@ -251,7 +256,16 @@ def view_character(character_id):
         feats=json.loads(char_data[8]) if char_data[8] and char_data[8].strip() else [],
         cantrips=json.loads(char_data[14]) if char_data[14] and char_data[14].strip() else [],
         spells_known=json.loads(char_data[15]) if char_data[15] and char_data[15].strip() else [],
-        personality_traits=char_data[10] or ''
+        personality_traits=char_data[10] or '',
+        background_story=char_data[16] if len(char_data) > 16 and char_data[16] else '',
+        short_term_goals=char_data[17] if len(char_data) > 17 and char_data[17] else '',
+        long_term_goals=char_data[18] if len(char_data) > 18 and char_data[18] else '',
+        personal_goals=char_data[19] if len(char_data) > 19 and char_data[19] else '',
+        personality_tags=json.loads(char_data[20]) if len(char_data) > 20 and char_data[20] and char_data[20].strip() else [],
+        flaws=char_data[21] if len(char_data) > 21 and char_data[21] else '',
+        currency=json.loads(char_data[22]) if len(char_data) > 22 and char_data[22] and char_data[22].strip() else {},
+        items=json.loads(char_data[23]) if len(char_data) > 23 and char_data[23] and char_data[23].strip() else [],
+        item_weights=json.loads(char_data[24]) if len(char_data) > 24 and char_data[24] and char_data[24].strip() else {}
     )
     
     # Combine cantrips and spells_known for backward compatibility
@@ -305,6 +319,15 @@ def chat_with_character(character_id):
         cantrips=json.loads(char_data[14]) if char_data[14] and char_data[14].strip() else [],
         spells_known=json.loads(char_data[15]) if char_data[15] and char_data[15].strip() else [],
         personality_traits=char_data[10] or '',
+        background_story=char_data[16] if len(char_data) > 16 and char_data[16] else '',
+        short_term_goals=char_data[17] if len(char_data) > 17 and char_data[17] else '',
+        long_term_goals=char_data[18] if len(char_data) > 18 and char_data[18] else '',
+        personal_goals=char_data[19] if len(char_data) > 19 and char_data[19] else '',
+        personality_tags=json.loads(char_data[20]) if len(char_data) > 20 and char_data[20] and char_data[20].strip() else [],
+        flaws=char_data[21] if len(char_data) > 21 and char_data[21] else '',
+        currency=json.loads(char_data[22]) if len(char_data) > 22 and char_data[22] and char_data[22].strip() else {},
+        items=json.loads(char_data[23]) if len(char_data) > 23 and char_data[23] and char_data[23].strip() else [],
+        item_weights=json.loads(char_data[24]) if len(char_data) > 24 and char_data[24] and char_data[24].strip() else {},
         chat_history=json.loads(char_data[12]) if char_data[12] and char_data[12].strip() else []
     )
     
@@ -488,6 +511,160 @@ def get_spell_info(spell_name):
             'success': False,
             'error': str(e)
         }), 500
+
+@app.route('/api/character/<int:character_id>/personality', methods=['POST'])
+def update_personality(character_id):
+    """Update character personality fields"""
+    try:
+        data = request.get_json()
+        
+        # Get current character data
+        conn = sqlite3.connect('db.sqlite')
+        cursor = conn.cursor()
+        cursor.execute('SELECT * FROM characters WHERE id = ?', (character_id,))
+        char_data = cursor.fetchone()
+        
+        if not char_data:
+            conn.close()
+            return jsonify({'success': False, 'error': 'Character not found'}), 404
+        
+        # Update personality fields
+        cursor.execute('''
+            UPDATE characters SET 
+                background_story = ?, 
+                short_term_goals = ?, 
+                long_term_goals = ?, 
+                personal_goals = ?, 
+                personality_tags = ?, 
+                flaws = ?
+            WHERE id = ?
+        ''', (
+            data.get('background_story', ''),
+            data.get('short_term_goals', ''),
+            data.get('long_term_goals', ''),
+            data.get('personal_goals', ''),
+            json.dumps(data.get('personality_tags', [])),
+            data.get('flaws', ''),
+            character_id
+        ))
+        
+        conn.commit()
+        conn.close()
+        
+        return jsonify({'success': True})
+    except Exception as e:
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+@app.route('/api/character/<int:character_id>/inventory', methods=['POST'])
+def update_inventory(character_id):
+    """Update character inventory and currency"""
+    try:
+        data = request.get_json()
+        
+        # Get current character data
+        conn = sqlite3.connect('db.sqlite')
+        cursor = conn.cursor()
+        cursor.execute('SELECT * FROM characters WHERE id = ?', (character_id,))
+        char_data = cursor.fetchone()
+        
+        if not char_data:
+            conn.close()
+            return jsonify({'success': False, 'error': 'Character not found'}), 404
+        
+        # Update inventory fields
+        cursor.execute('''
+            UPDATE characters SET 
+                currency = ?, 
+                items = ?,
+                item_weights = ?
+            WHERE id = ?
+        ''', (
+            json.dumps(data.get('currency', {})),
+            json.dumps(data.get('items', [])),
+            json.dumps(data.get('item_weights', {})),
+            character_id
+        ))
+        
+        conn.commit()
+        conn.close()
+        
+        return jsonify({'success': True})
+    except Exception as e:
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+@app.route('/api/character/<int:character_id>/apply-pack', methods=['POST'])
+def apply_equipment_pack(character_id):
+    """Apply an equipment pack to a character"""
+    try:
+        from utils.equipment_packs import get_pack_info
+        
+        data = request.get_json()
+        pack_name = data.get('pack_name')
+        
+        if not pack_name:
+            return jsonify({'success': False, 'error': 'Pack name is required'}), 400
+        
+        # Get pack information
+        pack_info = get_pack_info(pack_name)
+        if not pack_info:
+            return jsonify({'success': False, 'error': 'Pack not found'}), 404
+        
+        # Get current character data
+        conn = sqlite3.connect('db.sqlite')
+        cursor = conn.cursor()
+        cursor.execute('SELECT * FROM characters WHERE id = ?', (character_id,))
+        char_data = cursor.fetchone()
+        
+        if not char_data:
+            conn.close()
+            return jsonify({'success': False, 'error': 'Character not found'}), 404
+        
+        # Get current inventory
+        current_items = json.loads(char_data[23]) if len(char_data) > 23 and char_data[23] and char_data[23].strip() else []
+        current_currency = json.loads(char_data[22]) if len(char_data) > 22 and char_data[22] and char_data[22].strip() else {}
+        current_weights = json.loads(char_data[24]) if len(char_data) > 24 and char_data[24] and char_data[24].strip() else {}
+        
+        # Add pack items (avoid duplicates)
+        new_items = current_items.copy()
+        for item in pack_info['items']:
+            if item not in new_items:
+                new_items.append(item)
+        
+        # Add pack weights
+        new_weights = current_weights.copy()
+        new_weights.update(pack_info['item_weights'])
+        
+        # Add pack currency
+        new_currency = current_currency.copy()
+        for currency_type, amount in pack_info['currency'].items():
+            new_currency[currency_type] = new_currency.get(currency_type, 0) + amount
+        
+        # Update character
+        cursor.execute('''
+            UPDATE characters SET 
+                currency = ?, 
+                items = ?,
+                item_weights = ?
+            WHERE id = ?
+        ''', (
+            json.dumps(new_currency),
+            json.dumps(new_items),
+            json.dumps(new_weights),
+            character_id
+        ))
+        
+        conn.commit()
+        conn.close()
+        
+        return jsonify({
+            'success': True,
+            'pack_name': pack_name,
+            'items_added': pack_info['items'],
+            'currency_added': pack_info['currency'],
+            'total_weight': sum(pack_info['item_weights'].values())
+        })
+    except Exception as e:
+        return jsonify({'success': False, 'error': str(e)}), 500
 
 if __name__ == '__main__':
     init_db()

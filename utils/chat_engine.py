@@ -324,6 +324,39 @@ class ChatEngine:
         """Generar respuesta contextual basada en el personaje"""
         message_lower = message.lower()
         
+        # Respuestas basadas en personalidad y background
+        if 'background' in message_lower or 'historia' in message_lower or 'pasado' in message_lower:
+            if character.background_story:
+                # Extract a short snippet from the background story
+                story_snippet = character.background_story[:100] + "..." if len(character.background_story) > 100 else character.background_story
+                return f"Mi historia... {story_snippet} Es parte de lo que me ha hecho quien soy hoy."
+            else:
+                return "Mi pasado es... complicado. No me gusta hablar mucho de ello."
+        
+        # Respuestas basadas en metas
+        if 'meta' in message_lower or 'objetivo' in message_lower or 'objetivos' in message_lower or 'goal' in message_lower:
+            if character.short_term_goals:
+                return f"Mis objetivos inmediatos son {character.short_term_goals}. Me mantienen enfocado en el presente."
+            elif character.long_term_goals:
+                return f"Mi meta a largo plazo es {character.long_term_goals}. Es lo que me impulsa a seguir adelante."
+            else:
+                return "Todavía estoy descubriendo cuáles son mis verdaderos objetivos en la vida."
+        
+        # Respuestas basadas en personalidad
+        if 'personalidad' in message_lower or 'carácter' in message_lower or 'cómo eres' in message_lower:
+            if character.personality_tags:
+                tags_text = ', '.join(character.personality_tags[:3])
+                return f"Me describiría como {tags_text}. Esas son las cualidades que más me definen."
+            else:
+                return "Soy... complejo. Como todos, supongo. ¿Qué aspecto de mi personalidad te interesa?"
+        
+        # Respuestas basadas en defectos
+        if 'defecto' in message_lower or 'debilidad' in message_lower or 'flaw' in message_lower or 'error' in message_lower:
+            if character.flaws:
+                return f"Mis defectos... {character.flaws} Son parte de lo que me hace humano, ¿no crees?"
+            else:
+                return "Todos tenemos defectos. Los míos... bueno, prefiero no hablar de ellos."
+        
         # Respuestas basadas en atributos
         if 'fuerza' in message_lower or 'fuerte' in message_lower:
             str_mod = character.get_attribute_modifier('STR')
@@ -357,8 +390,12 @@ class ChatEngine:
             else:
                 return "La magia no es mi especialidad, pero respeto su poder."
         
-        # Respuesta por defecto
-        return f"Como {character.race} {character.char_class}, tengo una perspectiva única sobre las cosas. ¿Qué te gustaría saber específicamente?"
+        # Respuesta por defecto con personalidad
+        personality_context = ""
+        if character.personality_tags:
+            personality_context = f" Soy {', '.join(character.personality_tags[:2])} por naturaleza."
+        
+        return f"Como {character.race} {character.char_class}, tengo una perspectiva única sobre las cosas.{personality_context} ¿Qué te gustaría saber específicamente?"
     
     def get_suggested_questions(self) -> List[str]:
         """Obtener preguntas sugeridas para el usuario"""

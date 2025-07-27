@@ -58,6 +58,9 @@
                     <button class="tab-btn" data-tab="combat">
                         ⚔️ Combat
                     </button>
+                    <button class="tab-btn" data-tab="inventory">
+                        🎒 Inventory
+                    </button>
                     <button class="tab-btn" data-tab="personality">
                         💭 Personality
                     </button>
@@ -425,6 +428,201 @@
                                     </div>
                                 </section>
                             </div>
+                                            </div>
+                </div>
+
+                    <!-- Inventory Tab -->
+                    <div class="tab-pane" id="inventory-tab">
+                        <div class="sheet-content">
+                            <div class="sheet-main">
+                                <!-- Equipment Packs Section -->
+                                <section class="packs-section">
+                                    <h3>📦 Equipment Packs</h3>
+                                    <div class="packs-grid">
+                                        <button class="pack-btn" data-pack="Burglar's Pack">
+                                            <div class="pack-icon">🦹</div>
+                                            <div class="pack-name">Burglar's Pack</div>
+                                            <div class="pack-desc">Perfect for rogues and stealthy characters</div>
+                                        </button>
+                                        <button class="pack-btn" data-pack="Diplomat's Pack">
+                                            <div class="pack-icon">🤝</div>
+                                            <div class="pack-name">Diplomat's Pack</div>
+                                            <div class="pack-desc">Ideal for characters focused on social interaction</div>
+                                        </button>
+                                        <button class="pack-btn" data-pack="Dungeoneer's Pack">
+                                            <div class="pack-icon">🏰</div>
+                                            <div class="pack-name">Dungeoneer's Pack</div>
+                                            <div class="pack-desc">Essential for exploring dungeons and caves</div>
+                                        </button>
+                                        <button class="pack-btn" data-pack="Entertainer's Pack">
+                                            <div class="pack-icon">🎭</div>
+                                            <div class="pack-name">Entertainer's Pack</div>
+                                            <div class="pack-desc">Perfect for bards and performers</div>
+                                        </button>
+                                        <button class="pack-btn" data-pack="Explorer's Pack">
+                                            <div class="pack-icon">🗺️</div>
+                                            <div class="pack-name">Explorer's Pack</div>
+                                            <div class="pack-desc">Great for wilderness exploration and survival</div>
+                                        </button>
+                                        <button class="pack-btn" data-pack="Priest's Pack">
+                                            <div class="pack-icon">⛪</div>
+                                            <div class="pack-name">Priest's Pack</div>
+                                            <div class="pack-desc">Ideal for clerics and religious characters</div>
+                                        </button>
+                                        <button class="pack-btn" data-pack="Scholar's Pack">
+                                            <div class="pack-icon">📚</div>
+                                            <div class="pack-name">Scholar's Pack</div>
+                                            <div class="pack-desc">Perfect for wizards and knowledge seekers</div>
+                                        </button>
+                                    </div>
+                                    <div class="pack-status" id="pack-status"></div>
+                                </section>
+
+                                <!-- Currency Section -->
+                                <section class="currency-section">
+                                    <h3>💰 Currency</h3>
+                                    <div class="currency-grid">
+                                        <div class="currency-item">
+                                            <label for="cp-amount">Copper (cp)</label>
+                                            <input type="number" id="cp-amount" class="currency-input" 
+                                                   value="{{ character.currency.get('cp', 0) }}" min="0">
+                                        </div>
+                                        <div class="currency-item">
+                                            <label for="sp-amount">Silver (sp)</label>
+                                            <input type="number" id="sp-amount" class="currency-input" 
+                                                   value="{{ character.currency.get('sp', 0) }}" min="0">
+                                        </div>
+                                        <div class="currency-item">
+                                            <label for="ep-amount">Electrum (ep)</label>
+                                            <input type="number" id="ep-amount" class="currency-input" 
+                                                   value="{{ character.currency.get('ep', 0) }}" min="0">
+                                        </div>
+                                        <div class="currency-item">
+                                            <label for="gp-amount">Gold (gp)</label>
+                                            <input type="number" id="gp-amount" class="currency-input" 
+                                                   value="{{ character.currency.get('gp', 0) }}" min="0">
+                                        </div>
+                                        <div class="currency-item">
+                                            <label for="pp-amount">Platinum (pp)</label>
+                                            <input type="number" id="pp-amount" class="currency-input" 
+                                                   value="{{ character.currency.get('pp', 0) }}" min="0">
+                                        </div>
+                                    </div>
+                                    <div class="currency-total">
+                                        <strong>Total Value:</strong> <span id="currency-total">{{ character.format_currency() }}</span>
+                                    </div>
+                                </section>
+
+                                <!-- Items Section -->
+                                <section class="items-section">
+                                    <h3>🎒 Items & Equipment</h3>
+                                    <div class="items-input-container">
+                                        <input type="text" id="items-input" 
+                                               placeholder="Type item name and press Enter, Space, or Comma to add..."
+                                               class="items-input">
+                                        <div id="items-display" class="items-display">
+                                            {% for item in character.items %}
+                                            <span class="item-tag" data-item="{{ item }}">
+                                                <div class="item-content">
+                                                    <span class="item-name">{{ item }}</span>
+                                                    <span class="item-weight" data-item="{{ item }}">
+                                                        {{ character.get_item_weight(item) }} lbs
+                                                    </span>
+                                                </div>
+                                                <button type="button" class="item-edit-weight" onclick="editItemWeight('{{ item }}')" title="Edit weight">⚖️</button>
+                                                <button type="button" class="item-remove" onclick="removeItem(this)">×</button>
+                                            </span>
+                                            {% endfor %}
+                                        </div>
+                                    </div>
+                                    <div class="items-actions">
+                                        <button id="clear-all-items-btn" class="btn btn-danger">
+                                            🗑️ Clear All Items
+                                        </button>
+                                    </div>
+                                    <div class="items-help">
+                                        💡 Add equipment, weapons, armor, tools, and other items your character carries. Click ⚖️ to edit item weight.
+                                    </div>
+                                </section>
+
+                                <!-- Weight & Capacity Section -->
+                                <section class="weight-section">
+                                    <h3>⚖️ Weight & Capacity</h3>
+                                    <div class="weight-grid">
+                                        <div class="weight-item">
+                                            <div class="weight-label">Carrying Capacity</div>
+                                            <div class="weight-value">{{ character.get_carrying_capacity() }} lbs</div>
+                                            <div class="weight-desc">Based on Strength (15 × STR)</div>
+                                        </div>
+                                        <div class="weight-item">
+                                            <div class="weight-label">Push/Drag/Lift</div>
+                                            <div class="weight-value">{{ character.get_push_drag_lift() }} lbs</div>
+                                            <div class="weight-desc">Maximum weight (30 × STR)</div>
+                                        </div>
+                                        <div class="weight-item">
+                                            <div class="weight-label">Current Weight</div>
+                                            <div class="weight-value" id="current-weight">{{ character.get_estimated_weight() }} lbs</div>
+                                            <div class="weight-desc">Estimated from items</div>
+                                        </div>
+                                    </div>
+                                    <div class="weight-status" id="weight-status">
+                                        {% set capacity = character.get_carrying_capacity() %}
+                                        {% set weight = character.get_estimated_weight() %}
+                                        {% if weight > capacity %}
+                                            <span class="weight-warning">⚠️ Overloaded! Reduce weight to avoid penalties.</span>
+                                        {% elif weight > capacity * 0.8 %}
+                                            <span class="weight-caution">⚡ Heavy load - movement may be affected.</span>
+                                        {% else %}
+                                            <span class="weight-ok">✅ Weight is manageable.</span>
+                                        {% endif %}
+                                    </div>
+                                </section>
+
+                                <!-- Save Button -->
+                                <div class="inventory-actions">
+                                    <button id="save-inventory-btn" class="btn btn-success">
+                                        💾 Save Inventory
+                                    </button>
+                                    <div id="inventory-save-status" class="save-status"></div>
+                                </div>
+                            </div>
+
+                            <!-- Sidebar with Inventory Tips -->
+                            <div class="sheet-sidebar">
+                                <section class="recommendations-section">
+                                    <h3>🎒 Inventory Management</h3>
+                                    
+                                    <div class="recommendation-card">
+                                        <h4>💰 Currency Tips</h4>
+                                        <div class="tips-list">
+                                            <p class="tip-item">💡 1 Gold = 10 Silver = 100 Copper</p>
+                                            <p class="tip-item">💡 1 Platinum = 10 Gold = 1000 Copper</p>
+                                            <p class="tip-item">💡 Keep some copper for small purchases</p>
+                                            <p class="tip-item">💡 Gold is the standard for most transactions</p>
+                                        </div>
+                                    </div>
+
+                                    <div class="recommendation-card">
+                                        <h4>⚖️ Weight Management</h4>
+                                        <div class="tips-list">
+                                            <p class="tip-item">🎯 Stay under carrying capacity for full movement</p>
+                                            <p class="tip-item">⚡ Heavy loads reduce movement speed</p>
+                                            <p class="tip-item">🛡️ Consider using a mount or pack animal</p>
+                                            <p class="tip-item">📦 Use containers to organize your gear</p>
+                                        </div>
+                                    </div>
+
+                                    <div class="recommendation-card">
+                                        <h4>🎒 Essential Items</h4>
+                                        <div class="tips-list">
+                                            <p class="tip-item">🛡️ Armor and weapons for your class</p>
+                                            <p class="tip-item">🏕️ Bedroll, rations, and waterskin</p>
+                                            <p class="tip-item">🔧 Tools and equipment for your skills</p>
+                                            <p class="tip-item">💊 Healing potions and scrolls</p>
+                                        </div>
+                                    </div>
+                                </section>
+                            </div>
                         </div>
                     </div>
 
@@ -432,30 +630,97 @@
                     <div class="tab-pane" id="personality-tab">
                         <div class="sheet-content">
                             <div class="sheet-main">
-                                {% if character.personality_traits %}
-                                <section class="personality-section">
+                                <!-- Personality Editor -->
+                                <section class="personality-editor">
                                     <h3>💭 Personality & Background</h3>
-                                    <div class="personality-content">
-                                        <p class="personality-traits">{{ character.personality_traits }}</p>
+                                    
+                                    <!-- Background Story -->
+                                    <div class="personality-field">
+                                        <label for="background-story">📖 Background Story</label>
+                                        <textarea id="background-story" class="personality-textarea" 
+                                                  placeholder="Describe your character's background, upbringing, and key life events that shaped who they are today..."
+                                                  maxlength="500">{{ character.background_story }}</textarea>
+                                        <div class="char-counter">
+                                            <span id="background-story-count">{{ character.background_story|length }}</span>/500
+                                        </div>
                                     </div>
-                                </section>
-                                {% endif %}
 
-                                <!-- Character Development -->
-                                <section class="development-section">
-                                    <h3>📈 Character Development</h3>
-                                    <div class="development-grid">
-                                        <div class="development-card">
-                                            <h4>🎭 Character Arc</h4>
-                                            <p>Your character's journey from level {{ character.level }} to higher levels will reveal new depths and abilities.</p>
-                                        </div>
+                                    <!-- Goals Section -->
+                                    <div class="goals-section">
+                                        <h4>🎯 Character Goals</h4>
                                         
-                                        <div class="development-card">
-                                            <h4>🌟 Growth Opportunities</h4>
-                                            <p>Focus on developing your character's unique strengths and addressing their weaknesses.</p>
+                                        <div class="personality-field">
+                                            <label for="short-term-goals">⚡ Short-term Goals</label>
+                                            <textarea id="short-term-goals" class="personality-textarea" 
+                                                      placeholder="What does your character want to achieve in the next few sessions or weeks?"
+                                                      maxlength="200">{{ character.short_term_goals }}</textarea>
+                                            <div class="char-counter">
+                                                <span id="short-term-goals-count">{{ character.short_term_goals|length }}</span>/200
+                                            </div>
+                                        </div>
+
+                                        <div class="personality-field">
+                                            <label for="long-term-goals">🌟 Long-term Goals</label>
+                                            <textarea id="long-term-goals" class="personality-textarea" 
+                                                      placeholder="What are your character's major life ambitions and ultimate aspirations?"
+                                                      maxlength="200">{{ character.long_term_goals }}</textarea>
+                                            <div class="char-counter">
+                                                <span id="long-term-goals-count">{{ character.long_term_goals|length }}</span>/200
+                                            </div>
+                                        </div>
+
+                                        <div class="personality-field">
+                                            <label for="personal-goals">💫 Personal Goals</label>
+                                            <textarea id="personal-goals" class="personality-textarea" 
+                                                      placeholder="What drives your character internally? What personal growth do they seek?"
+                                                      maxlength="200">{{ character.personal_goals }}</textarea>
+                                            <div class="char-counter">
+                                                <span id="personal-goals-count">{{ character.personal_goals|length }}</span>/200
+                                            </div>
                                         </div>
                                     </div>
+
+                                    <!-- Personality Tags -->
+                                    <div class="personality-field">
+                                        <label for="personality-tags">🏷️ Personality Tags</label>
+                                        <div class="tags-input-container">
+                                            <input type="text" id="personality-tags-input" 
+                                                   placeholder="Type personality traits and press Enter, Space, or Comma to add tags..."
+                                                   class="tags-input">
+                                            <div id="personality-tags-display" class="tags-display">
+                                                {% for tag in character.personality_tags %}
+                                                <span class="tag" data-tag="{{ tag }}">
+                                                    {{ tag }}
+                                                    <button type="button" class="tag-remove" onclick="removeTag(this)">×</button>
+                                                </span>
+                                                {% endfor %}
+                                            </div>
+                                        </div>
+                                        <div class="tags-help">
+                                            💡 Add single-word personality traits like "brave", "curious", "loyal", "impulsive", etc.
+                                        </div>
+                                    </div>
+
+                                    <!-- Flaws -->
+                                    <div class="personality-field">
+                                        <label for="flaws">⚠️ Flaws & Weaknesses</label>
+                                        <textarea id="flaws" class="personality-textarea" 
+                                                  placeholder="Describe your character's flaws, weaknesses, or character defects that make them more realistic and interesting..."
+                                                  maxlength="300">{{ character.flaws }}</textarea>
+                                        <div class="char-counter">
+                                            <span id="flaws-count">{{ character.flaws|length }}</span>/300
+                                        </div>
+                                    </div>
+
+                                    <!-- Save Button -->
+                                    <div class="personality-actions">
+                                        <button id="save-personality-btn" class="btn btn-success">
+                                            💾 Save Personality
+                                        </button>
+                                        <div id="save-status" class="save-status"></div>
+                                    </div>
                                 </section>
+
                             </div>
 
                             <!-- Sidebar with Personality Recommendations -->
@@ -474,6 +739,25 @@
                                             <p class="goal-item">🎯 Short-term: Establish your character's immediate objectives</p>
                                             <p class="goal-item">🌟 Long-term: Define your character's ultimate aspirations</p>
                                             <p class="goal-item">💫 Personal: Consider what drives your character internally</p>
+                                        </div>
+                                    </div>
+
+                                    <div class="recommendation-card">
+                                        <h4>💡 Personality Tips</h4>
+                                        <div class="tips-list">
+                                            <p class="tip-item">🎭 Use your personality tags to guide roleplay decisions</p>
+                                            <p class="tip-item">⚠️ Flaws make characters more interesting and realistic</p>
+                                            <p class="tip-item">📖 Background story helps explain character motivations</p>
+                                            <p class="tip-item">🎯 Goals provide direction for character development</p>
+                                        </div>
+                                    </div>
+
+                                    <!-- Character Development -->
+                                    <div class="recommendation-card">
+                                        <h4>📈 Character Development</h4>
+                                        <div class="development-content">
+                                            <p class="development-text">Your character's journey from level {{ character.level }} to higher levels will reveal new depths and abilities.</p>
+                                            <p class="development-text">Focus on developing your character's unique strengths and addressing their weaknesses.</p>
                                         </div>
                                     </div>
                                 </section>

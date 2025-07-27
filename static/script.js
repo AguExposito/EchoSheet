@@ -1828,4 +1828,861 @@ if (!document.querySelector('#notification-styles')) {
     style.id = 'notification-styles';
     style.textContent = notificationStyles;
     document.head.appendChild(style);
+}
+
+// Personality Editor Functionality
+function initPersonalityEditor() {
+    const personalityTab = document.getElementById('personality-tab');
+    if (!personalityTab) return;
+    
+    // Initialize character counters
+    initCharacterCounters();
+    
+    // Initialize tags system
+    initTagsSystem();
+    
+    // Initialize save functionality
+    initPersonalitySave();
+}
+
+function initCharacterCounters() {
+    const textareas = document.querySelectorAll('.personality-textarea');
+    
+    textareas.forEach(textarea => {
+        const counterId = textarea.id + '-count';
+        const counter = document.getElementById(counterId);
+        
+        if (counter) {
+            // Update counter on input
+            textarea.addEventListener('input', function() {
+                const currentLength = this.value.length;
+                const maxLength = this.maxLength;
+                counter.textContent = currentLength;
+                
+                // Change color when approaching limit
+                if (currentLength >= maxLength * 0.9) {
+                    counter.style.color = '#e74c3c';
+                } else if (currentLength >= maxLength * 0.7) {
+                    counter.style.color = '#f39c12';
+                } else {
+                    counter.style.color = '#f4d03f';
+                }
+            });
+        }
+    });
+}
+
+function initTagsSystem() {
+    const tagsInput = document.getElementById('personality-tags-input');
+    const tagsDisplay = document.getElementById('personality-tags-display');
+    
+    if (!tagsInput || !tagsDisplay) return;
+    
+    // Handle input events
+    tagsInput.addEventListener('keydown', function(e) {
+        if (e.key === 'Enter' || e.key === ' ' || e.key === ',') {
+            e.preventDefault();
+            addTag(this.value.trim());
+            this.value = '';
+        }
+    });
+    
+    // Handle paste events
+    tagsInput.addEventListener('paste', function(e) {
+        e.preventDefault();
+        const pastedText = (e.clipboardData || window.clipboardData).getData('text');
+        const tags = pastedText.split(/[\s,]+/).filter(tag => tag.trim());
+        
+        tags.forEach(tag => {
+            if (tag.trim()) {
+                addTag(tag.trim());
+            }
+        });
+    });
+    
+    // Handle blur event
+    tagsInput.addEventListener('blur', function() {
+        if (this.value.trim()) {
+            addTag(this.value.trim());
+            this.value = '';
+        }
+    });
+}
+
+function addTag(tagText) {
+    if (!tagText || tagText.length === 0) return;
+    
+    // Clean the tag text (single word, no spaces)
+    const cleanTag = tagText.toLowerCase().replace(/[^a-z0-9]/g, '');
+    if (!cleanTag) return;
+    
+    // Capitalize first letter
+    const displayTag = cleanTag.charAt(0).toUpperCase() + cleanTag.slice(1);
+    
+    // Check if tag already exists
+    const existingTags = document.querySelectorAll('#personality-tags-display .tag');
+    for (let tag of existingTags) {
+        if (tag.getAttribute('data-tag').toLowerCase() === cleanTag) {
+            return; // Tag already exists
+        }
+    }
+    
+    // Create new tag element
+    const tagElement = document.createElement('span');
+    tagElement.className = 'tag';
+    tagElement.setAttribute('data-tag', cleanTag);
+    tagElement.innerHTML = `
+        ${displayTag}
+        <button type="button" class="tag-remove" onclick="removeTag(this)">×</button>
+    `;
+    
+    // Add to display
+    const tagsDisplay = document.getElementById('personality-tags-display');
+    tagsDisplay.appendChild(tagElement);
+    
+    // Trigger save
+    debouncedSavePersonality();
+}
+
+function removeTag(button) {
+    const tag = button.parentElement;
+    tag.style.animation = 'tagSlideOut 0.3s ease';
+    
+    setTimeout(() => {
+        tag.remove();
+        debouncedSavePersonality();
+    }, 300);
+}
+
+// Debounced save function
+const debouncedSavePersonality = debounce(savePersonality, 1000);
+
+function initPersonalitySave() {
+    const saveBtn = document.getElementById('save-personality-btn');
+    if (!saveBtn) return;
+    
+    saveBtn.addEventListener('click', function() {
+        savePersonality();
+    });
+    
+    // Auto-save on input changes
+    const textareas = document.querySelectorAll('.personality-textarea');
+    textareas.forEach(textarea => {
+        textarea.addEventListener('input', debouncedSavePersonality);
+    });
+}
+
+function savePersonality() {
+    const characterId = getCharacterIdFromUrl();
+    if (!characterId) return;
+    
+    const saveBtn = document.getElementById('save-personality-btn');
+    const saveStatus = document.getElementById('save-status');
+    
+    // Show saving state
+    if (saveBtn) {
+        saveBtn.disabled = true;
+        saveBtn.innerHTML = '💾 Saving...';
+    }
+    if (saveStatus) {
+        saveStatus.textContent = 'Saving...';
+        saveStatus.className = 'save-status saving';
+    }
+    
+    // Collect data
+    const data = {
+        background_story: document.getElementById('background-story')?.value || '',
+        short_term_goals: document.getElementById('short-term-goals')?.value || '',
+        long_term_goals: document.getElementById('long-term-goals')?.value || '',
+        personal_goals: document.getElementById('personal-goals')?.value || '',
+        personality_tags: getPersonalityTags(),
+        flaws: document.getElementById('flaws')?.value || ''
+    };
+    
+    // Send to server
+    fetch(`/api/character/${characterId}/personality`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data)
+    })
+    .then(response => response.json())
+    .then(result => {
+        if (result.success) {
+            if (saveStatus) {
+                saveStatus.textContent = 'Saved successfully!';
+                saveStatus.className = 'save-status success';
+            }
+            showNotification('Personality saved successfully!', 'success');
+        } else {
+            if (saveStatus) {
+                saveStatus.textContent = 'Error saving';
+                saveStatus.className = 'save-status error';
+            }
+            showNotification('Error saving personality: ' + (result.error || 'Unknown error'), 'error');
+        }
+    })
+    .catch(error => {
+        console.error('Error saving personality:', error);
+        if (saveStatus) {
+            saveStatus.textContent = 'Error saving';
+            saveStatus.className = 'save-status error';
+        }
+        showNotification('Error saving personality: ' + error.message, 'error');
+    })
+    .finally(() => {
+        if (saveBtn) {
+            saveBtn.disabled = false;
+            saveBtn.innerHTML = '💾 Save Personality';
+        }
+        
+        // Clear status after 3 seconds
+        setTimeout(() => {
+            if (saveStatus) {
+                saveStatus.textContent = '';
+                saveStatus.className = 'save-status';
+            }
+        }, 3000);
+    });
+}
+
+function getPersonalityTags() {
+    const tags = document.querySelectorAll('#personality-tags-display .tag');
+    return Array.from(tags).map(tag => tag.getAttribute('data-tag'));
+}
+
+function getCharacterIdFromUrl() {
+    const urlParts = window.location.pathname.split('/');
+    const characterIndex = urlParts.indexOf('character');
+    if (characterIndex !== -1 && urlParts[characterIndex + 1]) {
+        return urlParts[characterIndex + 1];
+    }
+    return null;
+}
+
+// Add slide out animation for tags
+const personalityStyles = document.createElement('style');
+personalityStyles.textContent = `
+    @keyframes tagSlideOut {
+        from {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+        }
+        to {
+            opacity: 0;
+            transform: translateY(-10px) scale(0.8);
+        }
+    }
+`;
+document.head.appendChild(personalityStyles);
+
+// Initialize personality editor when DOM is loaded
+document.addEventListener('DOMContentLoaded', function() {
+    // Initialize personality editor if on character page
+    if (document.getElementById('personality-tab')) {
+        initPersonalityEditor();
+    }
+    
+    // Initialize inventory system if on character page
+    if (document.getElementById('inventory-tab')) {
+        initInventorySystem();
+    }
+});
+
+// Inventory System Functionality
+function initInventorySystem() {
+    const inventoryTab = document.getElementById('inventory-tab');
+    if (!inventoryTab) return;
+    
+    // Initialize currency system
+    initCurrencySystem();
+    
+    // Initialize items system
+    initItemsSystem();
+    
+    // Initialize equipment packs
+    initEquipmentPacks();
+    
+    // Initialize save functionality
+    initInventorySave();
+}
+
+function initCurrencySystem() {
+    const currencyInputs = document.querySelectorAll('.currency-input');
+    
+    currencyInputs.forEach(input => {
+        input.addEventListener('input', function() {
+            updateCurrencyTotal();
+            debouncedSaveInventory();
+        });
+    });
+}
+
+function updateCurrencyTotal() {
+    const currencyValues = {
+        'cp': 1,
+        'sp': 10,
+        'ep': 50,
+        'gp': 100,
+        'pp': 1000
+    };
+    
+    let totalCp = 0;
+    
+    // Calculate total in copper pieces
+    for (const [type, value] of Object.entries(currencyValues)) {
+        const input = document.getElementById(`${type}-amount`);
+        if (input) {
+            const amount = parseInt(input.value) || 0;
+            totalCp += amount * value;
+        }
+    }
+    
+    // Convert back to highest denominations
+    const pp = Math.floor(totalCp / 1000);
+    totalCp %= 1000;
+    const gp = Math.floor(totalCp / 100);
+    totalCp %= 100;
+    const ep = Math.floor(totalCp / 50);
+    totalCp %= 50;
+    const sp = Math.floor(totalCp / 10);
+    totalCp %= 10;
+    const cp = totalCp;
+    
+    // Build formatted string
+    const parts = [];
+    if (pp > 0) parts.push(`${pp} pp`);
+    if (gp > 0) parts.push(`${gp} gp`);
+    if (ep > 0) parts.push(`${ep} ep`);
+    if (sp > 0) parts.push(`${sp} sp`);
+    if (cp > 0) parts.push(`${cp} cp`);
+    
+    const totalDisplay = parts.length > 0 ? parts.join(', ') : '0 cp';
+    const totalElement = document.getElementById('currency-total');
+    if (totalElement) {
+        totalElement.textContent = totalDisplay;
+    }
+}
+
+function initItemsSystem() {
+    const itemsInput = document.getElementById('items-input');
+    const itemsDisplay = document.getElementById('items-display');
+    const clearAllBtn = document.getElementById('clear-all-items-btn');
+    
+    if (!itemsInput || !itemsDisplay) return;
+    
+    // Handle input events
+    itemsInput.addEventListener('keydown', function(e) {
+        if (e.key === 'Enter' || e.key === ' ' || e.key === ',') {
+            e.preventDefault();
+            addItem(this.value.trim());
+            this.value = '';
+        }
+    });
+    
+    // Handle paste events
+    itemsInput.addEventListener('paste', function(e) {
+        e.preventDefault();
+        const pastedText = (e.clipboardData || window.clipboardData).getData('text');
+        const items = pastedText.split(/[\s,]+/).filter(item => item.trim());
+        
+        items.forEach(item => {
+            if (item.trim()) {
+                addItem(item.trim());
+            }
+        });
+    });
+    
+    // Handle blur event
+    itemsInput.addEventListener('blur', function() {
+        if (this.value.trim()) {
+            addItem(this.value.trim());
+            this.value = '';
+        }
+    });
+    
+    // Handle clear all items
+    if (clearAllBtn) {
+        clearAllBtn.addEventListener('click', function() {
+            if (confirm('Are you sure you want to remove all items? This action cannot be undone.')) {
+                clearAllItems();
+            }
+        });
+    }
+}
+
+function addItem(itemText) {
+    if (!itemText || itemText.length === 0) return;
+    
+    // Clean the item text
+    const cleanItem = itemText.trim();
+    if (!cleanItem) return;
+    
+    // Check if item already exists
+    const existingItems = document.querySelectorAll('#items-display .item-tag');
+    for (let item of existingItems) {
+        if (item.getAttribute('data-item').toLowerCase() === cleanItem.toLowerCase()) {
+            return; // Item already exists
+        }
+    }
+    
+    // Create new item element
+    const itemElement = document.createElement('span');
+    itemElement.className = 'item-tag';
+    itemElement.setAttribute('data-item', cleanItem);
+    itemElement.innerHTML = `
+        <div class="item-content">
+            <span class="item-name">${cleanItem}</span>
+            <span class="item-weight" data-item="${cleanItem}">1.0 lbs</span>
+        </div>
+        <button type="button" class="item-edit-weight" onclick="editItemWeight('${cleanItem}')" title="Edit weight">⚖️</button>
+        <button type="button" class="item-remove" onclick="removeItem(this)">×</button>
+    `;
+    
+    // Add to display
+    const itemsDisplay = document.getElementById('items-display');
+    itemsDisplay.appendChild(itemElement);
+    
+    // Update weight calculation
+    updateWeightCalculation();
+    
+    // Trigger save
+    debouncedSaveInventory();
+}
+
+function removeItem(button) {
+    const item = button.parentElement;
+    item.style.animation = 'tagSlideOut 0.3s ease';
+    
+    setTimeout(() => {
+        item.remove();
+        updateWeightCalculation();
+        debouncedSaveInventory();
+    }, 300);
+}
+
+function updateWeightCalculation() {
+    // Calculate weight from displayed weights
+    const items = document.querySelectorAll('#items-display .item-tag');
+    let estimatedWeight = 0;
+    
+    items.forEach(item => {
+        const weightElement = item.querySelector('.item-weight');
+        if (weightElement) {
+            const weight = parseFloat(weightElement.textContent.replace(' lbs', ''));
+            estimatedWeight += weight;
+        }
+    });
+    
+    // Add currency weight (50 coins = 1 pound)
+    const currencyInputs = document.querySelectorAll('.currency-input');
+    let totalCoins = 0;
+    currencyInputs.forEach(input => {
+        totalCoins += parseInt(input.value) || 0;
+    });
+    estimatedWeight += totalCoins * 0.02;
+    
+    // Update display
+    const weightElement = document.getElementById('current-weight');
+    if (weightElement) {
+        weightElement.textContent = `${Math.round(estimatedWeight * 10) / 10} lbs`;
+    }
+    
+    // Update weight status
+    updateWeightStatus(estimatedWeight);
+}
+
+function updateCurrencyFromPack(currencyAdded) {
+    // Update currency inputs with new values
+    for (const [currencyType, amount] of Object.entries(currencyAdded)) {
+        const input = document.getElementById(`${currencyType}-amount`);
+        if (input) {
+            const currentValue = parseInt(input.value) || 0;
+            input.value = currentValue + amount;
+        }
+    }
+    
+    // Update currency total display
+    updateCurrencyTotal();
+}
+
+function addItemsFromPack(itemsAdded, packName) {
+    const itemsDisplay = document.getElementById('items-display');
+    if (!itemsDisplay) return;
+    
+    // Get pack weights from the equipment packs data
+    const packWeights = getPackWeights(packName);
+    
+    itemsAdded.forEach(item => {
+        // Check if item already exists
+        const existingItem = document.querySelector(`[data-item="${item}"]`);
+        if (!existingItem) {
+            // Get weight for this item from pack data
+            const weight = packWeights[item] || 1.0;
+            
+            // Create new item element
+            const itemElement = document.createElement('span');
+            itemElement.className = 'item-tag';
+            itemElement.setAttribute('data-item', item);
+            itemElement.innerHTML = `
+                <div class="item-content">
+                    <span class="item-name">${item}</span>
+                    <span class="item-weight" data-item="${item}">${weight} lbs</span>
+                </div>
+                <button type="button" class="item-edit-weight" onclick="editItemWeight('${item}')" title="Edit weight">⚖️</button>
+                <button type="button" class="item-remove" onclick="removeItem(this)">×</button>
+            `;
+            
+            // Add to display with animation
+            itemElement.style.animation = 'tagSlideIn 0.3s ease';
+            itemsDisplay.appendChild(itemElement);
+        }
+    });
+}
+
+function getPackWeights(packName) {
+    // This would ideally come from the server, but for now we'll use a simplified version
+    const packWeights = {
+        "Burglar's Pack": {
+            "Backpack": 5.0, "Bag of 1,000 ball bearings": 2.0, "10 feet of string": 0.0,
+            "Bell": 0.0, "5 candles": 0.0, "Crowbar": 5.0, "Hammer": 3.0, "10 pitons": 2.5,
+            "Hooded lantern": 2.0, "2 flasks of oil": 2.0, "5 days of rations": 10.0,
+            "Tinderbox": 1.0, "Waterskin": 5.0, "50 feet of hempen rope": 10.0
+        },
+        "Diplomat's Pack": {
+            "Chest": 25.0, "2 cases for maps and scrolls": 1.0, "Fine clothes": 6.0,
+            "Bottle of ink": 0.0, "Ink pen": 0.0, "Lamp": 1.0, "2 flasks of oil": 2.0,
+            "5 sheets of paper": 0.0, "Vial of perfume": 0.0, "Sealing wax": 0.0, "Soap": 0.0
+        },
+        "Dungeoneer's Pack": {
+            "Backpack": 5.0, "Crowbar": 5.0, "Hammer": 3.0, "10 pitons": 2.5,
+            "10 torches": 10.0, "Tinderbox": 1.0, "10 days of rations": 20.0,
+            "Waterskin": 5.0, "50 feet of hempen rope": 10.0
+        },
+        "Entertainer's Pack": {
+            "Backpack": 5.0, "Bedroll": 7.0, "2 costumes": 8.0, "5 candles": 0.0,
+            "5 days of rations": 10.0, "Waterskin": 5.0, "Disguise kit": 3.0
+        },
+        "Explorer's Pack": {
+            "Backpack": 5.0, "Bedroll": 7.0, "Mess kit": 1.0, "Tinderbox": 1.0,
+            "10 torches": 10.0, "10 days of rations": 20.0, "Waterskin": 5.0,
+            "50 feet of hempen rope": 10.0
+        },
+        "Priest's Pack": {
+            "Backpack": 5.0, "Blanket": 3.0, "10 candles": 0.0, "Tinderbox": 1.0,
+            "Alms box": 1.0, "2 blocks of incense": 0.0, "Censer": 1.0,
+            "Vestments": 4.0, "2 days of rations": 4.0, "Waterskin": 5.0
+        },
+        "Scholar's Pack": {
+            "Backpack": 5.0, "Book of lore": 5.0, "Bottle of ink": 0.0, "Ink pen": 0.0,
+            "10 sheets of parchment": 0.0, "Little bag of sand": 1.0, "Small knife": 1.0
+        }
+    };
+    
+    return packWeights[packName] || {};
+}
+
+function updateWeightStatus(weight) {
+    const statusElement = document.getElementById('weight-status');
+    if (!statusElement) return;
+    
+    // Get carrying capacity (simplified - would need to get from character data)
+    const capacity = 150; // Default capacity, should be calculated from Strength
+    
+    let statusHtml = '';
+    if (weight > capacity) {
+        statusHtml = '<span class="weight-warning">⚠️ Overloaded! Reduce weight to avoid penalties.</span>';
+    } else if (weight > capacity * 0.8) {
+        statusHtml = '<span class="weight-caution">⚡ Heavy load - movement may be affected.</span>';
+    } else {
+        statusHtml = '<span class="weight-ok">✅ Weight is manageable.</span>';
+    }
+    
+    statusElement.innerHTML = statusHtml;
+}
+
+// Debounced save function for inventory
+const debouncedSaveInventory = debounce(saveInventory, 1000);
+
+function initInventorySave() {
+    const saveBtn = document.getElementById('save-inventory-btn');
+    if (!saveBtn) return;
+    
+    saveBtn.addEventListener('click', function() {
+        saveInventory();
+    });
+}
+
+function saveInventory() {
+    const characterId = getCharacterIdFromUrl();
+    if (!characterId) return;
+    
+    const saveBtn = document.getElementById('save-inventory-btn');
+    const saveStatus = document.getElementById('inventory-save-status');
+    
+    // Show saving state
+    if (saveBtn) {
+        saveBtn.disabled = true;
+        saveBtn.innerHTML = '💾 Saving...';
+    }
+    if (saveStatus) {
+        saveStatus.textContent = 'Saving...';
+        saveStatus.className = 'save-status saving';
+    }
+    
+    // Collect currency data
+    const currency = {};
+    const currencyTypes = ['cp', 'sp', 'ep', 'gp', 'pp'];
+    currencyTypes.forEach(type => {
+        const input = document.getElementById(`${type}-amount`);
+        if (input) {
+            currency[type] = parseInt(input.value) || 0;
+        }
+    });
+    
+    // Collect items data
+    const items = getInventoryItems();
+    
+    // Collect item weights
+    const itemWeights = {};
+    items.forEach(item => {
+        const weightElement = document.querySelector(`[data-item="${item}"] .item-weight`);
+        if (weightElement) {
+            const weight = parseFloat(weightElement.textContent.replace(' lbs', ''));
+            if (!isNaN(weight)) {
+                itemWeights[item] = weight;
+            }
+        }
+    });
+    
+    // Collect data
+    const data = {
+        currency: currency,
+        items: items,
+        item_weights: itemWeights
+    };
+    
+    // Send to server
+    fetch(`/api/character/${characterId}/inventory`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data)
+    })
+    .then(response => response.json())
+    .then(result => {
+        if (result.success) {
+            if (saveStatus) {
+                saveStatus.textContent = 'Saved successfully!';
+                saveStatus.className = 'save-status success';
+            }
+            showNotification('Inventory saved successfully!', 'success');
+        } else {
+            if (saveStatus) {
+                saveStatus.textContent = 'Error saving';
+                saveStatus.className = 'save-status error';
+            }
+            showNotification('Error saving inventory: ' + (result.error || 'Unknown error'), 'error');
+        }
+    })
+    .catch(error => {
+        console.error('Error saving inventory:', error);
+        if (saveStatus) {
+            saveStatus.textContent = 'Error saving';
+            saveStatus.className = 'save-status error';
+        }
+        showNotification('Error saving inventory: ' + error.message, 'error');
+    })
+    .finally(() => {
+        if (saveBtn) {
+            saveBtn.disabled = false;
+            saveBtn.innerHTML = '💾 Save Inventory';
+        }
+        
+        // Clear status after 3 seconds
+        setTimeout(() => {
+            if (saveStatus) {
+                saveStatus.textContent = '';
+                saveStatus.className = 'save-status';
+            }
+        }, 3000);
+    });
+}
+
+function getInventoryItems() {
+    const items = document.querySelectorAll('#items-display .item-tag');
+    return Array.from(items).map(item => item.getAttribute('data-item'));
+}
+
+function clearAllItems() {
+    const itemsDisplay = document.getElementById('items-display');
+    if (!itemsDisplay) return;
+    
+    // Remove all items with animation
+    const items = itemsDisplay.querySelectorAll('.item-tag');
+    items.forEach((item, index) => {
+        setTimeout(() => {
+            item.style.animation = 'tagSlideOut 0.3s ease';
+            setTimeout(() => {
+                item.remove();
+                // Update weight calculation after all items are removed
+                if (index === items.length - 1) {
+                    updateWeightCalculation();
+                    debouncedSaveInventory();
+                }
+            }, 300);
+        }, index * 50); // Stagger the animations
+    });
+    
+    showNotification('All items removed successfully!', 'success');
+}
+
+// Equipment Packs Functionality
+function initEquipmentPacks() {
+    const packButtons = document.querySelectorAll('.pack-btn');
+    
+    packButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            const packName = this.getAttribute('data-pack');
+            applyEquipmentPack(packName);
+        });
+    });
+}
+
+function applyEquipmentPack(packName) {
+    const characterId = getCharacterIdFromUrl();
+    if (!characterId) return;
+    
+    const statusElement = document.getElementById('pack-status');
+    
+    // Show loading state
+    if (statusElement) {
+        statusElement.textContent = `Applying ${packName}...`;
+        statusElement.className = 'pack-status';
+    }
+    
+    // Send request to server
+    fetch(`/api/character/${characterId}/apply-pack`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ pack_name: packName })
+    })
+    .then(response => response.json())
+            .then(result => {
+            if (result.success) {
+                if (statusElement) {
+                    statusElement.textContent = `✅ ${packName} applied successfully! Added ${result.items_added.length} items and ${Object.values(result.currency_added)[0]} gp`;
+                    statusElement.className = 'pack-status pack-success';
+                }
+                
+                // Update currency display
+                updateCurrencyFromPack(result.currency_added);
+                
+                // Add new items to display
+                addItemsFromPack(result.items_added, result.pack_name);
+                
+                // Update weight calculation
+                updateWeightCalculation();
+                
+                // Auto-save the changes
+                debouncedSaveInventory();
+                
+                showNotification(`${packName} applied successfully!`, 'success');
+                
+                // Clear status after 5 seconds
+                setTimeout(() => {
+                    if (statusElement) {
+                        statusElement.textContent = '';
+                        statusElement.className = 'pack-status';
+                    }
+                }, 5000);
+            } else {
+                if (statusElement) {
+                    statusElement.textContent = `❌ Error: ${result.error}`;
+                    statusElement.className = 'pack-status pack-error';
+                }
+                showNotification('Error applying pack: ' + (result.error || 'Unknown error'), 'error');
+            }
+        })
+    .catch(error => {
+        console.error('Error applying pack:', error);
+        if (statusElement) {
+            statusElement.textContent = '❌ Error applying pack';
+            statusElement.className = 'pack-status pack-error';
+        }
+        showNotification('Error applying pack: ' + error.message, 'error');
+    });
+}
+
+// Item Weight Editing Functionality
+function editItemWeight(itemName) {
+    const currentWeight = getItemWeightFromDisplay(itemName);
+    const newWeight = prompt(`Enter new weight for "${itemName}" (in pounds):`, currentWeight);
+    
+    if (newWeight !== null && newWeight !== '') {
+        const weight = parseFloat(newWeight);
+        if (isNaN(weight) || weight < 0) {
+            showNotification('Please enter a valid positive number for weight', 'error');
+            return;
+        }
+        
+        updateItemWeight(itemName, weight);
+        debouncedSaveInventory();
+    }
+}
+
+function getItemWeightFromDisplay(itemName) {
+    const weightElement = document.querySelector(`[data-item="${itemName}"] .item-weight`);
+    if (weightElement) {
+        return parseFloat(weightElement.textContent.replace(' lbs', ''));
+    }
+    return 1.0;
+}
+
+function updateItemWeight(itemName, weight) {
+    // Update display
+    const weightElement = document.querySelector(`[data-item="${itemName}"] .item-weight`);
+    if (weightElement) {
+        weightElement.textContent = `${weight} lbs`;
+    }
+    
+    // Update weight calculation
+    updateWeightCalculation();
+}
+
+function updateWeightCalculation() {
+    // This is a simplified weight calculation
+    // In a full implementation, you'd have a database of item weights
+    const items = document.querySelectorAll('#items-display .item-tag');
+    let estimatedWeight = 0;
+    
+    // Calculate weight from displayed weights
+    items.forEach(item => {
+        const weightElement = item.querySelector('.item-weight');
+        if (weightElement) {
+            const weight = parseFloat(weightElement.textContent.replace(' lbs', ''));
+            estimatedWeight += weight;
+        }
+    });
+    
+    // Add currency weight (50 coins = 1 pound)
+    const currencyInputs = document.querySelectorAll('.currency-input');
+    let totalCoins = 0;
+    currencyInputs.forEach(input => {
+        totalCoins += parseInt(input.value) || 0;
+    });
+    estimatedWeight += totalCoins * 0.02;
+    
+    // Update display
+    const weightElement = document.getElementById('current-weight');
+    if (weightElement) {
+        weightElement.textContent = `${Math.round(estimatedWeight * 10) / 10} lbs`;
+    }
+    
+    // Update weight status
+    updateWeightStatus(estimatedWeight);
 } 
