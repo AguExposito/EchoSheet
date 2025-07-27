@@ -21,7 +21,7 @@ A modern web application for creating and managing Dungeons & Dragons 5e charact
 1. **Clone or download the project**
    ```bash
    git clone <repository-url>
-   cd DnDCharacterCodex
+   cd EchoSheet
    ```
 
 2. **Install dependencies**
@@ -38,6 +38,59 @@ A modern web application for creating and managing Dungeons & Dragons 5e charact
    ```
    http://localhost:5000
    ```
+
+## 🧪 Testing
+
+### Run Tests Locally
+```bash
+# Install test dependencies
+pip install -r requirements.txt
+
+# Run all tests
+pytest
+
+# Run tests with coverage
+pytest --cov=app --cov-report=html
+
+# Run specific test file
+pytest tests/test_app.py -v
+```
+
+### Continuous Integration
+This project uses GitHub Actions for automated testing and deployment:
+
+- **CI Pipeline**: Runs on every push and pull request
+- **Test Matrix**: Tests against Python 3.10 and 3.11
+- **Coverage Reports**: Uploads coverage to Codecov
+- **Auto Deployment**: Deploys to Render when tests pass on main branch
+
+## 🚀 Deployment
+
+### GitHub Actions Setup
+
+1. **Fork/Clone the repository**
+
+2. **Set up Render Secrets** (for auto-deployment):
+   - Go to your GitHub repository → Settings → Secrets and variables → Actions
+   - Add the following secrets:
+     - `RENDER_SERVICE_ID`: Your Render service ID
+     - `RENDER_API_KEY`: Your Render API key
+
+3. **Get Render Credentials**:
+   - Service ID: Go to your Render dashboard → Service → Settings → General → Service ID
+   - API Key: Go to Account Settings → API Keys → Create new API key
+
+4. **Push to main branch**:
+   - The CI will run automatically
+   - If tests pass, it will deploy to Render
+
+### Manual Deployment to Render
+
+1. Connect your GitHub repository to Render
+2. Configure the service with:
+   - **Build Command**: `pip install -r requirements.txt`
+   - **Start Command**: `gunicorn app:app --bind 0.0.0.0:$PORT`
+   - **Environment**: Python 3.11.7
 
 ## 🎮 How to Use
 
@@ -60,12 +113,19 @@ A modern web application for creating and managing Dungeons & Dragons 5e charact
 ## 🏗️ Architecture
 
 ```
-DnDCharacterCodex/
+EchoSheet/
 ├── app.py                 # Main Flask server
 ├── models.py              # Character data model
 ├── requirements.txt       # Python dependencies
+├── pytest.ini            # Pytest configuration
 ├── README.md             # This file
 ├── AppDesignDocument.md  # Design document
+├── .github/workflows/    # GitHub Actions
+│   ├── ci.yml           # Continuous Integration
+│   └── deploy-render.yml# Deployment to Render
+├── tests/               # Test suite
+│   ├── __init__.py
+│   └── test_app.py     # Application tests
 ├── templates/            # HTML templates
 │   ├── index.html       # Main page
 │   ├── create.html      # Character creation
@@ -77,8 +137,10 @@ DnDCharacterCodex/
 ├── utils/               # Utility modules
 │   ├── autofill.py     # Character auto-fill
 │   ├── recommender.py  # Recommendation system
-│   └── chat_engine.py  # Chat engine
-└── data/               # Game data (future)
+│   ├── chat_engine.py  # Chat engine
+│   └── spell_manager.py# Spell management
+└── data/               # Game data
+    └── spells.json     # Spell database
 ```
 
 ## 🎯 MVP Features
@@ -93,6 +155,9 @@ DnDCharacterCodex/
 - [x] SQLite database for persistence
 - [x] Character deletion with confirmation
 - [x] Legal compliance with SRD (System Reference Document)
+- [x] Automated testing with pytest
+- [x] Continuous Integration with GitHub Actions
+- [x] Automated deployment to Render
 
 ### 🔮 Future Improvements
 - [ ] User authentication
@@ -111,6 +176,9 @@ DnDCharacterCodex/
 - **Frontend**: HTML5, CSS3, JavaScript (Vanilla)
 - **Diseño**: CSS Grid, Flexbox, Gradientes
 - **Fuentes**: Google Fonts (Cinzel, Crimson Text)
+- **Testing**: pytest, pytest-cov
+- **CI/CD**: GitHub Actions
+- **Deployment**: Render
 
 ## 📝 Clases y Razas Soportadas (SRD Only)
 
@@ -133,6 +201,13 @@ Esta aplicación utiliza únicamente contenido del **System Reference Document (
 3. Commit tus cambios (`git commit -m 'Add some AmazingFeature'`)
 4. Push a la rama (`git push origin feature/AmazingFeature`)
 5. Abre un Pull Request
+
+### Development Workflow
+1. **Create a feature branch**: `git checkout -b feature/new-feature`
+2. **Make changes and test locally**: `pytest`
+3. **Commit changes**: `git commit -m "Add new feature"`
+4. **Push and create PR**: GitHub Actions will run tests automatically
+5. **Merge when tests pass**: Auto-deployment will trigger
 
 ## 📄 Licencia
 
