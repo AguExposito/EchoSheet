@@ -10,6 +10,16 @@ document.addEventListener('DOMContentLoaded', function() {
         initChat();
     }
     
+    // Inicializar funcionalidades de character sheet
+    if (document.querySelector('.character-sheet')) {
+        initPersonalityEditor();
+        initInventorySystem();
+        initCharacterInfoEditors();
+        initLevelUp();
+        initPersonalityTags();
+        initExperienceTracking();
+    }
+    
     // Inicializar botones de preguntas sugeridas
     initSuggestedQuestions();
     
@@ -18,6 +28,15 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Inicializar botones de descarga PDF
     initPdfDownload();
+    
+    // Initialize level up functionality
+    initLevelUp();
+    
+    // Enhanced Personality Tags System
+    initPersonalityTags();
+    
+    // Initialize experience tracking
+    initExperienceTracking();
 });
 
 // Character creation functionality
@@ -1828,7 +1847,7 @@ if (!document.querySelector('#notification-styles')) {
     style.id = 'notification-styles';
     style.textContent = notificationStyles;
     document.head.appendChild(style);
-}
+} 
 
 // Personality Editor Functionality
 function initPersonalityEditor() {
@@ -1995,6 +2014,9 @@ function savePersonality() {
         short_term_goals: document.getElementById('short-term-goals')?.value || '',
         long_term_goals: document.getElementById('long-term-goals')?.value || '',
         personal_goals: document.getElementById('personal-goals')?.value || '',
+        personality_traits: document.getElementById('personality-traits')?.value || '',
+        ideals: document.getElementById('ideals')?.value || '',
+        bonds: document.getElementById('bonds')?.value || '',
         personality_tags: getPersonalityTags(),
         flaws: document.getElementById('flaws')?.value || ''
     };
@@ -2685,4 +2707,556 @@ function updateWeightCalculation() {
     
     // Update weight status
     updateWeightStatus(estimatedWeight);
+}
+
+// Initialize character info editors
+function initCharacterInfoEditors() {
+    initBasicInfoEditor();
+    initPhysicalInfoEditor();
+    initHitPointsEditor();
+}
+
+function initBasicInfoEditor() {
+    const saveBtn = document.getElementById('save-basic-info-btn');
+    if (!saveBtn) return;
+    
+    saveBtn.addEventListener('click', saveBasicInfo);
+}
+
+function initPhysicalInfoEditor() {
+    const saveBtn = document.getElementById('save-physical-btn');
+    if (!saveBtn) return;
+    
+    saveBtn.addEventListener('click', savePhysicalInfo);
+}
+
+function initHitPointsEditor() {
+    const saveBtn = document.getElementById('save-hp-btn');
+    if (!saveBtn) return;
+    
+    saveBtn.addEventListener('click', saveHitPoints);
+    
+    // Initialize HP tracking
+    initHPTracking();
+}
+
+function saveBasicInfo() {
+    const characterId = getCharacterIdFromUrl();
+    if (!characterId) return;
+    
+    const saveBtn = document.getElementById('save-basic-info-btn');
+    
+    // Show saving state
+    if (saveBtn) {
+        saveBtn.disabled = true;
+        saveBtn.innerHTML = '💾 Saving...';
+    }
+    
+    // Collect data
+    const data = {
+        alignment: document.getElementById('alignment-select')?.value || '',
+        experience_points: parseInt(document.getElementById('experience-points')?.value || '0')
+    };
+    
+    // Send to server
+    fetch(`/api/character/${characterId}/basic-info`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data)
+    })
+    .then(response => response.json())
+    .then(result => {
+        if (result.success) {
+            showNotification('Basic information saved successfully!', 'success');
+            // Update progress bar and level up button
+            updateExperienceDisplay();
+        } else {
+            showNotification('Error saving basic information: ' + (result.error || 'Unknown error'), 'error');
+        }
+    })
+    .catch(error => {
+        console.error('Error saving basic info:', error);
+        showNotification('Error saving basic information: ' + error.message, 'error');
+    })
+    .finally(() => {
+        if (saveBtn) {
+            saveBtn.disabled = false;
+            saveBtn.innerHTML = '💾 Save Basic Info';
+        }
+    });
+}
+
+function updateExperienceDisplay() {
+    // Update the experience progress display after saving
+    updateExperienceProgress();
+    
+    // Show a brief success message without reloading
+    showNotification('Experience updated successfully!', 'success');
+}
+
+function savePhysicalInfo() {
+    const characterId = getCharacterIdFromUrl();
+    if (!characterId) return;
+    
+    const saveBtn = document.getElementById('save-physical-btn');
+    
+    // Show saving state
+    if (saveBtn) {
+        saveBtn.disabled = true;
+        saveBtn.innerHTML = '💾 Saving...';
+    }
+    
+    // Collect data
+    const data = {
+        age: document.getElementById('age-input')?.value || '',
+        height: document.getElementById('height-input')?.value || '',
+        weight: document.getElementById('weight-input')?.value || '',
+        eyes: document.getElementById('eyes-input')?.value || '',
+        skin: document.getElementById('skin-input')?.value || '',
+        hair: document.getElementById('hair-input')?.value || ''
+    };
+    
+    // Send to server
+    fetch(`/api/character/${characterId}/physical-info`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data)
+    })
+    .then(response => response.json())
+    .then(result => {
+        if (result.success) {
+            showNotification('Physical information saved successfully!', 'success');
+        } else {
+            showNotification('Error saving physical information: ' + (result.error || 'Unknown error'), 'error');
+        }
+    })
+    .catch(error => {
+        console.error('Error saving physical info:', error);
+        showNotification('Error saving physical information: ' + error.message, 'error');
+    })
+    .finally(() => {
+        if (saveBtn) {
+            saveBtn.disabled = false;
+            saveBtn.innerHTML = '💾 Save Physical Info';
+        }
+    });
+}
+
+function saveHitPoints() {
+    const characterId = getCharacterIdFromUrl();
+    if (!characterId) return;
+    
+    const saveBtn = document.getElementById('save-hp-btn');
+    
+    // Show saving state
+    if (saveBtn) {
+        saveBtn.disabled = true;
+        saveBtn.innerHTML = '💾 Saving...';
+    }
+    
+    // Collect data
+    const data = {
+        hit_point_maximum: parseInt(document.getElementById('hp-maximum')?.value || '0'),
+        current_hit_points: parseInt(document.getElementById('hp-current')?.value || '0'),
+        temporary_hit_points: parseInt(document.getElementById('hp-temporary')?.value || '0')
+    };
+    
+    // Validate data
+    if (data.hit_point_maximum < 1) {
+        showNotification('Hit Point Maximum must be at least 1', 'error');
+        if (saveBtn) {
+            saveBtn.disabled = false;
+            saveBtn.innerHTML = '💾 Save HP';
+        }
+        return;
+    }
+    
+    if (data.current_hit_points < 0) {
+        showNotification('Current Hit Points cannot be negative', 'error');
+        if (saveBtn) {
+            saveBtn.disabled = false;
+            saveBtn.innerHTML = '💾 Save HP';
+        }
+        return;
+    }
+    
+    if (data.temporary_hit_points < 0) {
+        showNotification('Temporary Hit Points cannot be negative', 'error');
+        if (saveBtn) {
+            saveBtn.disabled = false;
+            saveBtn.innerHTML = '💾 Save HP';
+        }
+        return;
+    }
+    
+    // Send to server
+    fetch(`/api/character/${characterId}/hit-points`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data)
+    })
+    .then(response => response.json())
+    .then(result => {
+        if (result.success) {
+            showNotification('Hit Points saved successfully!', 'success');
+            // Update visual bar after saving
+            updateHPVisualBar();
+        } else {
+            showNotification('Error saving hit points: ' + (result.error || 'Unknown error'), 'error');
+        }
+    })
+    .catch(error => {
+        console.error('Error saving hit points:', error);
+        showNotification('Error saving hit points: ' + error.message, 'error');
+    })
+    .finally(() => {
+        if (saveBtn) {
+            saveBtn.disabled = false;
+            saveBtn.innerHTML = '💾 Save HP';
+        }
+    });
 } 
+
+// Initialize level up functionality
+function initLevelUp() {
+    const levelUpBtn = document.getElementById('level-up-btn');
+    if (!levelUpBtn) return;
+    
+    levelUpBtn.addEventListener('click', performLevelUp);
+    
+
+}
+
+function performLevelUp() {
+    const characterId = getCharacterIdFromUrl();
+    if (!characterId) return;
+    
+    const levelUpBtn = document.getElementById('level-up-btn');
+    
+    // Show loading state
+    if (levelUpBtn) {
+        levelUpBtn.disabled = true;
+        levelUpBtn.innerHTML = '💾 Saving XP...';
+    }
+    
+    // First, save the current XP
+    const expInput = document.getElementById('experience-points');
+    const currentXP = expInput ? parseInt(expInput.value) || 0 : 0;
+    
+    // Save XP first
+    fetch(`/api/character/${characterId}/basic-info`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            experience_points: currentXP
+        })
+    })
+    .then(response => response.json())
+    .then(saveResult => {
+        if (!saveResult.success) {
+            throw new Error('Failed to save XP: ' + (saveResult.error || 'Unknown error'));
+        }
+        
+        // Update button text to show leveling up
+        if (levelUpBtn) {
+            levelUpBtn.innerHTML = '🎯 Leveling Up...';
+        }
+        
+        // Now send level up request
+        return fetch(`/api/character/${characterId}/level-up`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            }
+        });
+    })
+    .then(response => response.json())
+    .then(result => {
+        if (result.success) {
+            showNotification(result.message, 'success');
+            
+            // Update the level display
+            const levelDisplay = document.getElementById('character-level');
+            if (levelDisplay) {
+                levelDisplay.textContent = result.new_level;
+            }
+            
+            // Update experience progress after level up
+            updateExperienceProgress();
+            
+            // Hide level up button if character can't level up anymore
+            const levelUpContainer = document.getElementById('level-up-container');
+            if (levelUpContainer) {
+                levelUpContainer.style.display = 'none';
+            }
+        } else {
+            showNotification('Error leveling up: ' + (result.error || 'Unknown error'), 'error');
+        }
+    })
+    .catch(error => {
+        console.error('Error leveling up:', error);
+        showNotification('Error leveling up: ' + error.message, 'error');
+    })
+    .finally(() => {
+        if (levelUpBtn) {
+            levelUpBtn.disabled = false;
+            levelUpBtn.innerHTML = '🎯 Level Up!';
+        }
+    });
+}
+
+// Enhanced Personality Tags System
+function initPersonalityTags() {
+    const tagsInput = document.getElementById('personality-tags');
+    const tagsContainer = document.getElementById('personality-tags-container');
+    
+    if (!tagsInput || !tagsContainer) return;
+    
+    // Handle input events
+    tagsInput.addEventListener('keydown', handleTagInput);
+    tagsInput.addEventListener('paste', handleTagPaste);
+    tagsInput.addEventListener('blur', handleTagBlur);
+    
+    // Initialize existing tags
+    updateTagsFromInput();
+}
+
+function handleTagInput(event) {
+    if (event.key === 'Enter' || event.key === ' ' || event.key === ',') {
+        event.preventDefault();
+        addTagFromInput();
+    }
+}
+
+function handleTagPaste(event) {
+    setTimeout(() => {
+        addTagFromInput();
+    }, 10);
+}
+
+function handleTagBlur() {
+    addTagFromInput();
+}
+
+function addTagFromInput() {
+    const tagsInput = document.getElementById('personality-tags');
+    const tagsContainer = document.getElementById('personality-tags-container');
+    
+    if (!tagsInput || !tagsContainer) return;
+    
+    const inputValue = tagsInput.value.trim();
+    if (!inputValue) return;
+    
+    // Split by spaces and commas
+    const newTags = inputValue.split(/[\s,]+/).filter(tag => tag.trim());
+    
+    // Get existing tags
+    const existingTags = Array.from(tagsContainer.querySelectorAll('.tag')).map(tag => tag.dataset.tag);
+    
+    // Add new tags
+    newTags.forEach(tag => {
+        const cleanTag = tag.trim().toLowerCase();
+        if (cleanTag && !existingTags.includes(cleanTag)) {
+            addPersonalityTag(cleanTag);
+        }
+    });
+    
+    // Clear input
+    tagsInput.value = '';
+}
+
+function addPersonalityTag(tagText) {
+    const tagsContainer = document.getElementById('personality-tags-container');
+    if (!tagsContainer) return;
+    
+    const tagElement = document.createElement('span');
+    tagElement.className = 'tag';
+    tagElement.dataset.tag = tagText;
+    tagElement.innerHTML = `
+        ${tagText}
+        <button class="tag-remove" onclick="removePersonalityTag(this)">×</button>
+    `;
+    
+    tagsContainer.appendChild(tagElement);
+    
+    // Trigger save
+    debouncedSavePersonality();
+}
+
+function removePersonalityTag(button) {
+    const tag = button.parentElement;
+    tag.style.animation = 'tagDisappear 0.3s ease-out';
+    
+    setTimeout(() => {
+        tag.remove();
+        debouncedSavePersonality();
+    }, 300);
+}
+
+function updateTagsFromInput() {
+    const tagsInput = document.getElementById('personality-tags');
+    const tagsContainer = document.getElementById('personality-tags-container');
+    
+    if (!tagsInput || !tagsContainer) return;
+    
+    // Clear existing tags
+    tagsContainer.innerHTML = '';
+    
+    // Add tags from input value
+    const inputValue = tagsInput.value.trim();
+    if (inputValue) {
+        const tags = inputValue.split(/[\s,]+/).filter(tag => tag.trim());
+        tags.forEach(tag => {
+            addPersonalityTag(tag.trim().toLowerCase());
+        });
+    }
+}
+
+function getPersonalityTags() {
+    const tagsContainer = document.getElementById('personality-tags-container');
+    if (!tagsContainer) return [];
+    
+    return Array.from(tagsContainer.querySelectorAll('.tag')).map(tag => tag.dataset.tag);
+}
+
+// Initialize experience tracking
+function initExperienceTracking() {
+    const expInput = document.getElementById('experience-points');
+    if (!expInput) return;
+    
+    // Update on every input change for real-time feedback
+    expInput.addEventListener('input', updateExperienceProgress);
+    expInput.addEventListener('change', updateExperienceProgress);
+    expInput.addEventListener('keyup', updateExperienceProgress);
+    
+    // Initial update
+    updateExperienceProgress();
+}
+
+function updateExperienceProgress() {
+    const expInput = document.getElementById('experience-points');
+    const progressFill = document.getElementById('experience-progress-fill');
+    const progressText = document.getElementById('experience-progress-text');
+    const levelUpBtn = document.getElementById('level-up-btn');
+    const expToNextDisplay = document.getElementById('experience-to-next-level');
+    
+    if (!expInput) return;
+    
+    const currentXP = parseInt(expInput.value) || 0;
+    const characterLevel = parseInt(document.getElementById('character-level')?.textContent) || 1;
+    
+    // D&D 5e Experience Thresholds (corrected from official table)
+    const xpThresholds = {
+        1: 0, 2: 300, 3: 900, 4: 2700, 5: 6500,
+        6: 14000, 7: 23000, 8: 34000, 9: 48000, 10: 64000,
+        11: 85000, 12: 100000, 13: 120000, 14: 140000, 15: 165000,
+        16: 195000, 17: 225000, 18: 265000, 19: 305000, 20: 355000
+    };
+    
+    const currentLevelXP = xpThresholds[characterLevel] || 0;
+    const nextLevelXP = xpThresholds[characterLevel + 1] || currentLevelXP;
+    
+    if (nextLevelXP === currentLevelXP) {
+        // Max level (20)
+        if (progressFill) progressFill.style.width = '100%';
+        if (progressText) progressText.textContent = '100.0%';
+        if (levelUpBtn) levelUpBtn.style.display = 'none';
+        if (expToNextDisplay) expToNextDisplay.textContent = '0 XP';
+        return;
+    }
+    
+    // Calculate experience needed for next level
+    const expToNext = Math.max(0, nextLevelXP - currentXP);
+    
+    // Calculate progress percentage (based on XP progress within current level)
+    const progressPercent = nextLevelXP > currentLevelXP ? 
+        Math.min(100.0, Math.max(0.0, ((currentXP - currentLevelXP) / (nextLevelXP - currentLevelXP)) * 100)) : 100.0;
+    
+    // Update progress bar
+    if (progressFill) {
+        progressFill.style.width = progressPercent + '%';
+    }
+    
+    // Update progress text
+    if (progressText) {
+        progressText.textContent = progressPercent.toFixed(1) + '%';
+    }
+    
+    // Update "Experience to Next Level" display
+    if (expToNextDisplay) {
+        expToNextDisplay.textContent = expToNext + ' XP';
+    }
+    
+    // Show/hide level up button
+    const levelUpContainer = document.getElementById('level-up-container');
+    if (levelUpBtn && levelUpContainer) {
+        if (currentXP >= nextLevelXP && characterLevel < 20) {
+            levelUpContainer.style.display = 'block';
+            levelUpBtn.disabled = false;
+        } else {
+            levelUpContainer.style.display = 'none';
+            levelUpBtn.disabled = true;
+        }
+    }
+}
+
+// Initialize HP tracking
+function initHPTracking() {
+    const hpMaximum = document.getElementById('hp-maximum');
+    const hpCurrent = document.getElementById('hp-current');
+    const hpTemporary = document.getElementById('hp-temporary');
+    
+    if (hpMaximum) hpMaximum.addEventListener('input', updateHPVisualBar);
+    if (hpCurrent) hpCurrent.addEventListener('input', updateHPVisualBar);
+    if (hpTemporary) hpTemporary.addEventListener('input', updateHPVisualBar);
+    
+    // Initial update
+    updateHPVisualBar();
+}
+
+function updateHPVisualBar() {
+    const hpMaximum = parseInt(document.getElementById('hp-maximum')?.value || '0');
+    const hpCurrent = parseInt(document.getElementById('hp-current')?.value || '0');
+    const hpTemporary = parseInt(document.getElementById('hp-temporary')?.value || '0');
+    
+    const barMaximum = document.getElementById('hp-bar-maximum');
+    const barCurrent = document.getElementById('hp-bar-current');
+    const barTemporary = document.getElementById('hp-bar-temporary');
+    
+    if (!barMaximum || !barCurrent || !barTemporary) return;
+    
+    // Calculate percentages based on maximum HP
+    const maxHP = Math.max(hpMaximum, hpCurrent, hpTemporary);
+    if (maxHP <= 0) {
+        barMaximum.style.width = '0%';
+        barCurrent.style.width = '0%';
+        barTemporary.style.width = '0%';
+        return;
+    }
+    
+    const maxPercent = (hpMaximum / maxHP) * 100;
+    const currentPercent = (hpCurrent / maxHP) * 100;
+    const tempPercent = (hpTemporary / maxHP) * 100;
+    
+    // Update bar widths
+    barMaximum.style.width = maxPercent + '%';
+    barCurrent.style.width = Math.min(currentPercent, maxPercent) + '%';
+    barTemporary.style.width = Math.min(tempPercent, maxPercent) + '%';
+    
+    // Update labels with actual values
+    const labelMaximum = document.querySelector('.hp-label-maximum');
+    const labelCurrent = document.querySelector('.hp-label-current');
+    const labelTemporary = document.querySelector('.hp-label-temporary');
+    
+    if (labelMaximum) labelMaximum.textContent = `Maximum: ${hpMaximum}`;
+    if (labelCurrent) labelCurrent.textContent = `Current: ${hpCurrent}`;
+    if (labelTemporary) labelTemporary.textContent = `Temporary: ${hpTemporary}`;
+}

@@ -1,6 +1,8 @@
+import json
 from dataclasses import dataclass, field
-from typing import Dict, List, Optional
 from datetime import datetime
+from typing import Dict, List, Optional
+
 
 @dataclass
 class Character:
@@ -11,19 +13,43 @@ class Character:
     char_class: str = ""
     level: int = 1
     background: str = ""
+    alignment: str = ""
+    experience_points: int = 0
+    
+    # Physical Characteristics
+    age: str = ""
+    height: str = ""
+    weight: str = ""
+    eyes: str = ""
+    skin: str = ""
+    hair: str = ""
+    
+    # Combat Information
+    hit_point_maximum: int = 0
+    current_hit_points: int = 0
+    temporary_hit_points: int = 0
+    hit_dice: str = ""
+    
     attributes: Dict[str, int] = field(default_factory=dict)  # STR, DEX, CON, INT, WIS, CHA
     skills: List[str] = field(default_factory=list)
     feats: List[str] = field(default_factory=list)
     spells: List[str] = field(default_factory=list)  # Combined list of cantrips and spells
     cantrips: List[str] = field(default_factory=list)  # Cantrips only
     spells_known: List[str] = field(default_factory=list)  # Spells only (not cantrips)
+    
+    # Personality Traits (D&D 5e standard)
     personality_traits: str = ""
+    ideals: str = ""
+    bonds: str = ""
+    
+    # Extended Personality (custom)
     background_story: str = ""
     short_term_goals: str = ""
     long_term_goals: str = ""
     personal_goals: str = ""
     personality_tags: List[str] = field(default_factory=list)
     flaws: str = ""
+    
     currency: Dict[str, int] = field(default_factory=dict)  # {"cp": 0, "sp": 0, "ep": 0, "gp": 0, "pp": 0}
     items: List[str] = field(default_factory=list)
     item_weights: Dict[str, float] = field(default_factory=dict)  # Custom weights for items
@@ -157,11 +183,27 @@ class Character:
             'char_class': self.char_class,
             'level': self.level,
             'background': self.background,
+            'alignment': self.alignment,
+            'experience_points': self.experience_points,
+            'age': self.age,
+            'height': self.height,
+            'weight': self.weight,
+            'eyes': self.eyes,
+            'skin': self.skin,
+            'hair': self.hair,
+            'hit_point_maximum': self.hit_point_maximum,
+            'current_hit_points': self.current_hit_points,
+            'temporary_hit_points': self.temporary_hit_points,
+            'hit_dice': self.hit_dice,
             'attributes': self.attributes,
             'skills': self.skills,
             'feats': self.feats,
             'spells': self.spells,
+            'cantrips': self.cantrips,
+            'spells_known': self.spells_known,
             'personality_traits': self.personality_traits,
+            'ideals': self.ideals,
+            'bonds': self.bonds,
             'background_story': self.background_story,
             'short_term_goals': self.short_term_goals,
             'long_term_goals': self.long_term_goals,
@@ -185,6 +227,18 @@ class Character:
             char_class=data.get('char_class', ''),
             level=data.get('level', 1),
             background=data.get('background', ''),
+            alignment=data.get('alignment', ''),
+            experience_points=data.get('experience_points', 0),
+            age=data.get('age', ''),
+            height=data.get('height', ''),
+            weight=data.get('weight', ''),
+            eyes=data.get('eyes', ''),
+            skin=data.get('skin', ''),
+            hair=data.get('hair', ''),
+            hit_point_maximum=data.get('hit_point_maximum', 0),
+            current_hit_points=data.get('current_hit_points', 0),
+            temporary_hit_points=data.get('temporary_hit_points', 0),
+            hit_dice=data.get('hit_dice', ''),
             attributes=data.get('attributes', {}),
             skills=data.get('skills', []),
             feats=data.get('feats', []),
@@ -192,6 +246,8 @@ class Character:
             cantrips=data.get('cantrips', []),
             spells_known=data.get('spells_known', []),
             personality_traits=data.get('personality_traits', ''),
+            ideals=data.get('ideals', ''),
+            bonds=data.get('bonds', ''),
             background_story=data.get('background_story', ''),
             short_term_goals=data.get('short_term_goals', ''),
             long_term_goals=data.get('long_term_goals', ''),
@@ -362,6 +418,123 @@ class Character:
         }
         
         return combat_roles.get(self.char_class, "Versatile")
+    
+    def get_initiative(self) -> int:
+        """Calculate initiative bonus"""
+        return self.get_attribute_modifier('Dexterity')
+    
+    def get_passive_perception(self) -> int:
+        """Calculate passive perception"""
+        base = 10
+        perception_bonus = self.get_skill_bonus('Perception')
+        return base + perception_bonus
+    
+    def get_passive_investigation(self) -> int:
+        """Calculate passive investigation"""
+        base = 10
+        investigation_bonus = self.get_skill_bonus('Investigation')
+        return base + investigation_bonus
+    
+    def get_passive_insight(self) -> int:
+        """Calculate passive insight"""
+        base = 10
+        insight_bonus = self.get_skill_bonus('Insight')
+        return base + insight_bonus
+    
+    def get_hit_dice(self) -> str:
+        """Get hit dice string based on class and level"""
+        if not self.char_class:
+            return ""
+        
+        # Hit dice by class
+        hit_dice_types = {
+            'Barbarian': 'd12',
+            'Fighter': 'd10',
+            'Paladin': 'd10',
+            'Ranger': 'd10',
+            'Bard': 'd8',
+            'Cleric': 'd8',
+            'Druid': 'd8',
+            'Monk': 'd8',
+            'Rogue': 'd8',
+            'Sorcerer': 'd6',
+            'Warlock': 'd8',
+            'Wizard': 'd6'
+        }
+        
+        dice_type = hit_dice_types.get(self.char_class, 'd8')
+        return f"{self.level}{dice_type}"
+    
+    def get_experience_to_next_level(self) -> int:
+        """Get experience points needed for next level"""
+        # D&D 5e Experience Thresholds (official table)
+        xp_thresholds = {
+            1: 0, 2: 300, 3: 900, 4: 2700, 5: 6500,
+            6: 14000, 7: 23000, 8: 34000, 9: 48000, 10: 64000,
+            11: 85000, 12: 100000, 13: 120000, 14: 140000, 15: 165000,
+            16: 195000, 17: 225000, 18: 265000, 19: 305000, 20: 355000
+        }
+        
+        if self.level >= 20:
+            return 0
+        
+        # Ensure experience_points is an integer
+        current_xp = int(self.experience_points) if self.experience_points else 0
+        next_level_xp = xp_thresholds.get(self.level + 1, 0)
+        
+        return max(0, next_level_xp - current_xp)
+    
+    def can_level_up(self) -> bool:
+        """Check if character can level up"""
+        if self.level >= 20:
+            return False
+        
+        # Ensure experience_points is an integer
+        current_xp = int(self.experience_points) if self.experience_points else 0
+        xp_thresholds = {
+            1: 0, 2: 300, 3: 900, 4: 2700, 5: 6500,
+            6: 14000, 7: 23000, 8: 34000, 9: 48000, 10: 64000,
+            11: 85000, 12: 100000, 13: 120000, 14: 140000, 15: 165000,
+            16: 195000, 17: 225000, 18: 265000, 19: 305000, 20: 355000
+        }
+        
+        next_level_xp = xp_thresholds.get(self.level + 1, 0)
+        return current_xp >= next_level_xp
+    
+    def get_current_level_xp_threshold(self) -> int:
+        """Get XP threshold for current level"""
+        xp_thresholds = {
+            1: 0, 2: 300, 3: 900, 4: 2700, 5: 6500,
+            6: 14000, 7: 23000, 8: 34000, 9: 48000, 10: 64000,
+            11: 85000, 12: 100000, 13: 120000, 14: 140000, 15: 165000,
+            16: 195000, 17: 225000, 18: 265000, 19: 305000, 20: 355000
+        }
+        return xp_thresholds.get(self.level, 0)
+    
+    def get_experience_progress(self) -> float:
+        """Get experience progress as percentage to next level"""
+        if self.level >= 20:
+            return 100.0
+        
+        xp_thresholds = {
+            1: 0, 2: 300, 3: 900, 4: 2700, 5: 6500,
+            6: 14000, 7: 23000, 8: 34000, 9: 48000, 10: 64000,
+            11: 85000, 12: 100000, 13: 120000, 14: 140000, 15: 165000,
+            16: 195000, 17: 225000, 18: 265000, 19: 305000, 20: 355000
+        }
+        
+        current_level_xp = xp_thresholds.get(self.level, 0)
+        next_level_xp = xp_thresholds.get(self.level + 1, current_level_xp)
+        
+        if next_level_xp == current_level_xp:
+            return 100.0
+        
+        # Ensure experience_points is an integer
+        current_xp = int(self.experience_points) if self.experience_points else 0
+        progress = current_xp - current_level_xp
+        total_needed = next_level_xp - current_level_xp
+        
+        return min(100.0, max(0.0, (progress / total_needed) * 100))
     
     def get_carrying_capacity(self) -> int:
         """Calculate carrying capacity based on Strength"""

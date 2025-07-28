@@ -347,8 +347,24 @@ class ChatEngine:
             if character.personality_tags:
                 tags_text = ', '.join(character.personality_tags[:3])
                 return f"Me describiría como {tags_text}. Esas son las cualidades que más me definen."
+            elif character.personality_traits:
+                return f"Mi personalidad... {character.personality_traits}"
             else:
                 return "Soy... complejo. Como todos, supongo. ¿Qué aspecto de mi personalidad te interesa?"
+        
+        # Respuestas basadas en ideales
+        if 'ideal' in message_lower or 'creencia' in message_lower or 'valor' in message_lower:
+            if character.ideals:
+                return f"Mis ideales son importantes para mí: {character.ideals}"
+            else:
+                return "Tengo mis propias creencias sobre lo que está bien y mal."
+        
+        # Respuestas basadas en vínculos
+        if 'vínculo' in message_lower or 'bond' in message_lower or 'conexión' in message_lower or 'familia' in message_lower:
+            if character.bonds:
+                return f"Mis vínculos más importantes... {character.bonds}"
+            else:
+                return "Las conexiones con otros son importantes, aunque a veces son complicadas."
         
         # Respuestas basadas en defectos
         if 'defecto' in message_lower or 'debilidad' in message_lower or 'flaw' in message_lower or 'error' in message_lower:

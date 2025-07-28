@@ -46,7 +46,13 @@ def init_db():
         existing_columns = [column[1] for column in cursor.fetchall()]
         
         missing_columns = []
-        required_columns = ['cantrips', 'spells_known', 'background_story', 'short_term_goals', 'long_term_goals', 'personal_goals', 'personality_tags', 'flaws', 'currency', 'items', 'item_weights']
+        required_columns = [
+            'cantrips', 'spells_known', 'background_story', 'short_term_goals', 'long_term_goals', 
+            'personal_goals', 'personality_tags', 'flaws', 'currency', 'items', 'item_weights',
+            'alignment', 'experience_points', 'age', 'height', 'weight', 'eyes', 'skin', 'hair',
+            'hit_point_maximum', 'current_hit_points', 'temporary_hit_points', 'hit_dice',
+            'ideals', 'bonds'
+        ]
         
         for column in required_columns:
             if column not in existing_columns:
@@ -213,7 +219,7 @@ def create_character():
                 character.name, character.race, character.char_class, character.level,
                 character.background, json.dumps(character.attributes),
                 json.dumps(character.skills), json.dumps(character.feats),
-                json.dumps(character.cantrips), json.dumps(character.spells_known), 
+                    json.dumps(character.cantrips), json.dumps(character.spells_known), 
                 character.personality_traits, character.background_story,
                 character.short_term_goals, character.long_term_goals, character.personal_goals,
                 json.dumps(character.personality_tags), character.flaws,
@@ -251,12 +257,26 @@ def view_character(character_id):
         char_class=char_data[3],
         level=char_data[4],
         background=char_data[5],
+        alignment=char_data[25] if len(char_data) > 25 and char_data[25] else '',
+        experience_points=char_data[26] if len(char_data) > 26 and char_data[26] else 0,
+        age=char_data[27] if len(char_data) > 27 and char_data[27] else '',
+        height=char_data[28] if len(char_data) > 28 and char_data[28] else '',
+        weight=char_data[29] if len(char_data) > 29 and char_data[29] else '',
+        eyes=char_data[30] if len(char_data) > 30 and char_data[30] else '',
+        skin=char_data[31] if len(char_data) > 31 and char_data[31] else '',
+        hair=char_data[32] if len(char_data) > 32 and char_data[32] else '',
+        hit_point_maximum=char_data[33] if len(char_data) > 33 and char_data[33] else 0,
+        current_hit_points=char_data[34] if len(char_data) > 34 and char_data[34] else 0,
+        temporary_hit_points=char_data[35] if len(char_data) > 35 and char_data[35] else 0,
+        hit_dice=char_data[36] if len(char_data) > 36 and char_data[36] else '',
         attributes=json.loads(char_data[6]) if char_data[6] and char_data[6].strip() else {},
         skills=json.loads(char_data[7]) if char_data[7] and char_data[7].strip() else [],
         feats=json.loads(char_data[8]) if char_data[8] and char_data[8].strip() else [],
         cantrips=json.loads(char_data[14]) if char_data[14] and char_data[14].strip() else [],
         spells_known=json.loads(char_data[15]) if char_data[15] and char_data[15].strip() else [],
         personality_traits=char_data[10] or '',
+        ideals=char_data[37] if len(char_data) > 37 and char_data[37] else '',
+        bonds=char_data[38] if len(char_data) > 38 and char_data[38] else '',
         background_story=char_data[16] if len(char_data) > 16 and char_data[16] else '',
         short_term_goals=char_data[17] if len(char_data) > 17 and char_data[17] else '',
         long_term_goals=char_data[18] if len(char_data) > 18 and char_data[18] else '',
@@ -313,12 +333,26 @@ def chat_with_character(character_id):
         char_class=char_data[3],
         level=char_data[4],
         background=char_data[5],
+        alignment=char_data[25] if len(char_data) > 25 and char_data[25] else '',
+        experience_points=char_data[26] if len(char_data) > 26 and char_data[26] else 0,
+        age=char_data[27] if len(char_data) > 27 and char_data[27] else '',
+        height=char_data[28] if len(char_data) > 28 and char_data[28] else '',
+        weight=char_data[29] if len(char_data) > 29 and char_data[29] else '',
+        eyes=char_data[30] if len(char_data) > 30 and char_data[30] else '',
+        skin=char_data[31] if len(char_data) > 31 and char_data[31] else '',
+        hair=char_data[32] if len(char_data) > 32 and char_data[32] else '',
+        hit_point_maximum=char_data[33] if len(char_data) > 33 and char_data[33] else 0,
+        current_hit_points=char_data[34] if len(char_data) > 34 and char_data[34] else 0,
+        temporary_hit_points=char_data[35] if len(char_data) > 35 and char_data[35] else 0,
+        hit_dice=char_data[36] if len(char_data) > 36 and char_data[36] else '',
         attributes=json.loads(char_data[6]) if char_data[6] and char_data[6].strip() else {},
         skills=json.loads(char_data[7]) if char_data[7] and char_data[7].strip() else [],
         feats=json.loads(char_data[8]) if char_data[8] and char_data[8].strip() else [],
         cantrips=json.loads(char_data[14]) if char_data[14] and char_data[14].strip() else [],
         spells_known=json.loads(char_data[15]) if char_data[15] and char_data[15].strip() else [],
         personality_traits=char_data[10] or '',
+        ideals=char_data[37] if len(char_data) > 37 and char_data[37] else '',
+        bonds=char_data[38] if len(char_data) > 38 and char_data[38] else '',
         background_story=char_data[16] if len(char_data) > 16 and char_data[16] else '',
         short_term_goals=char_data[17] if len(char_data) > 17 and char_data[17] else '',
         long_term_goals=char_data[18] if len(char_data) > 18 and char_data[18] else '',
@@ -535,6 +569,9 @@ def update_personality(character_id):
                 short_term_goals = ?, 
                 long_term_goals = ?, 
                 personal_goals = ?, 
+                personality_traits = ?,
+                ideals = ?,
+                bonds = ?,
                 personality_tags = ?, 
                 flaws = ?
             WHERE id = ?
@@ -543,6 +580,9 @@ def update_personality(character_id):
             data.get('short_term_goals', ''),
             data.get('long_term_goals', ''),
             data.get('personal_goals', ''),
+            data.get('personality_traits', ''),
+            data.get('ideals', ''),
+            data.get('bonds', ''),
             json.dumps(data.get('personality_tags', [])),
             data.get('flaws', ''),
             character_id
@@ -665,6 +705,213 @@ def apply_equipment_pack(character_id):
         })
     except Exception as e:
         return jsonify({'success': False, 'error': str(e)}), 500
+
+@app.route('/api/character/<int:character_id>/basic-info', methods=['POST'])
+def update_basic_info(character_id):
+    """Update character basic information"""
+    try:
+        data = request.get_json()
+        
+        # Get current character data
+        conn = sqlite3.connect('db.sqlite')
+        cursor = conn.cursor()
+        cursor.execute('SELECT * FROM characters WHERE id = ?', (character_id,))
+        char_data = cursor.fetchone()
+        
+        if not char_data:
+            conn.close()
+            return jsonify({'success': False, 'error': 'Character not found'}), 404
+        
+        # Update basic info fields
+        cursor.execute('''
+            UPDATE characters SET 
+                alignment = ?, 
+                experience_points = ?
+            WHERE id = ?
+        ''', (
+            data.get('alignment', ''),
+            data.get('experience_points', 0),
+            character_id
+        ))
+        
+        conn.commit()
+        conn.close()
+        
+        return jsonify({'success': True})
+    except Exception as e:
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+@app.route('/api/character/<int:character_id>/physical-info', methods=['POST'])
+def update_physical_info(character_id):
+    """Update character physical characteristics"""
+    try:
+        data = request.get_json()
+        
+        # Get current character data
+        conn = sqlite3.connect('db.sqlite')
+        cursor = conn.cursor()
+        cursor.execute('SELECT * FROM characters WHERE id = ?', (character_id,))
+        char_data = cursor.fetchone()
+        
+        if not char_data:
+            conn.close()
+            return jsonify({'success': False, 'error': 'Character not found'}), 404
+        
+        # Update physical info fields
+        cursor.execute('''
+            UPDATE characters SET 
+                age = ?, 
+                height = ?, 
+                weight = ?, 
+                eyes = ?, 
+                skin = ?, 
+                hair = ?
+            WHERE id = ?
+        ''', (
+            data.get('age', ''),
+            data.get('height', ''),
+            data.get('weight', ''),
+            data.get('eyes', ''),
+            data.get('skin', ''),
+            data.get('hair', ''),
+            character_id
+        ))
+        
+        conn.commit()
+        conn.close()
+        
+        return jsonify({'success': True})
+    except Exception as e:
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+@app.route('/api/character/<int:character_id>/hit-points', methods=['POST'])
+def update_hit_points(character_id):
+    """Update character hit points"""
+    try:
+        data = request.get_json()
+        
+        # Get current character data
+        conn = sqlite3.connect('db.sqlite')
+        cursor = conn.cursor()
+        cursor.execute('SELECT * FROM characters WHERE id = ?', (character_id,))
+        char_data = cursor.fetchone()
+        
+        if not char_data:
+            conn.close()
+            return jsonify({'success': False, 'error': 'Character not found'}), 404
+        
+        # Update hit points fields
+        cursor.execute('''
+            UPDATE characters SET 
+                hit_point_maximum = ?, 
+                current_hit_points = ?, 
+                temporary_hit_points = ?
+            WHERE id = ?
+        ''', (
+            data.get('hit_point_maximum', 0),
+            data.get('current_hit_points', 0),
+            data.get('temporary_hit_points', 0),
+            character_id
+        ))
+        
+        conn.commit()
+        conn.close()
+        
+        return jsonify({'success': True})
+    except Exception as e:
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+
+
+@app.route('/api/character/<int:character_id>/level-up', methods=['POST'])
+def level_up_character(character_id):
+    """Level up character"""
+    try:
+        # Get current character data
+        conn = sqlite3.connect('db.sqlite')
+        cursor = conn.cursor()
+        cursor.execute('SELECT * FROM characters WHERE id = ?', (character_id,))
+        char_data = cursor.fetchone()
+        
+        if not char_data:
+            conn.close()
+            return jsonify({'success': False, 'error': 'Character not found'}), 404
+        
+        # Load character from database data
+        character = Character(
+            id=char_data[0],
+            name=char_data[1],
+            race=char_data[2],
+            char_class=char_data[3],
+            level=char_data[4],
+            background=char_data[5],
+            alignment=char_data[25] if len(char_data) > 25 and char_data[25] else '',
+            experience_points=char_data[26] if len(char_data) > 26 and char_data[26] else 0,
+            age=char_data[27] if len(char_data) > 27 and char_data[27] else '',
+            height=char_data[28] if len(char_data) > 28 and char_data[28] else '',
+            weight=char_data[29] if len(char_data) > 29 and char_data[29] else '',
+            eyes=char_data[30] if len(char_data) > 30 and char_data[30] else '',
+            skin=char_data[31] if len(char_data) > 31 and char_data[31] else '',
+            hair=char_data[32] if len(char_data) > 32 and char_data[32] else '',
+            hit_point_maximum=char_data[33] if len(char_data) > 33 and char_data[33] else 0,
+            current_hit_points=char_data[34] if len(char_data) > 34 and char_data[34] else 0,
+            temporary_hit_points=char_data[35] if len(char_data) > 35 and char_data[35] else 0,
+            hit_dice=char_data[36] if len(char_data) > 36 and char_data[36] else '',
+            attributes=json.loads(char_data[6]) if char_data[6] and char_data[6].strip() else {},
+            skills=json.loads(char_data[7]) if char_data[7] and char_data[7].strip() else [],
+            feats=json.loads(char_data[8]) if char_data[8] and char_data[8].strip() else [],
+            cantrips=json.loads(char_data[14]) if char_data[14] and char_data[14].strip() else [],
+            spells_known=json.loads(char_data[15]) if char_data[15] and char_data[15].strip() else [],
+            personality_traits=char_data[10] or '',
+            ideals=char_data[37] if len(char_data) > 37 and char_data[37] else '',
+            bonds=char_data[38] if len(char_data) > 38 and char_data[38] else '',
+            background_story=char_data[16] if len(char_data) > 16 and char_data[16] else '',
+            short_term_goals=char_data[17] if len(char_data) > 17 and char_data[17] else '',
+            long_term_goals=char_data[18] if len(char_data) > 18 and char_data[18] else '',
+            personal_goals=char_data[19] if len(char_data) > 19 and char_data[19] else '',
+            personality_tags=json.loads(char_data[20]) if len(char_data) > 20 and char_data[20] and char_data[20].strip() else [],
+            flaws=char_data[21] if len(char_data) > 21 and char_data[21] else '',
+            currency=json.loads(char_data[22]) if len(char_data) > 22 and char_data[22] and char_data[22].strip() else {},
+            items=json.loads(char_data[23]) if len(char_data) > 23 and char_data[23] and char_data[23].strip() else [],
+            item_weights=json.loads(char_data[24]) if len(char_data) > 24 and char_data[24] and char_data[24].strip() else {}
+        )
+        
+        # Check if character can level up
+        if not character.can_level_up():
+            conn.close()
+            # Add debug information
+            current_xp = int(character.experience_points) if character.experience_points else 0
+            xp_needed = character.get_experience_to_next_level()
+            return jsonify({
+                'success': False, 
+                'error': f'Character cannot level up yet. Current XP: {current_xp}, XP needed: {xp_needed}'
+            }), 400
+        
+        # Level up
+        new_level = character.level + 1
+        
+        # Keep the current XP (don't reset it)
+        current_xp = int(character.experience_points) if character.experience_points else 0
+        
+        # Update character level (keep current XP)
+        cursor.execute('''
+            UPDATE characters SET 
+                level = ?
+            WHERE id = ?
+        ''', (new_level, character_id))
+        
+        conn.commit()
+        conn.close()
+        
+        return jsonify({
+            'success': True, 
+            'new_level': new_level,
+            'message': f'Character leveled up to level {new_level}!'
+        })
+    except Exception as e:
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+
 
 if __name__ == '__main__':
     init_db()

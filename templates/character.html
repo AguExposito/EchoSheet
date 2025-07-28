@@ -52,6 +52,9 @@
                     <button class="tab-btn active" data-tab="overview">
                         📊 Overview
                     </button>
+                    <button class="tab-btn" data-tab="character-info">
+                        👤 Character Info
+                    </button>
                     <button class="tab-btn" data-tab="spells">
                         ✨ Spells
                     </button>
@@ -61,9 +64,7 @@
                     <button class="tab-btn" data-tab="inventory">
                         🎒 Inventory
                     </button>
-                    <button class="tab-btn" data-tab="personality">
-                        💭 Personality
-                    </button>
+
                 </div>
 
                 <!-- Tab Content -->
@@ -172,6 +173,265 @@
                                     </div>
                                 </section>
                             </div>
+                        </div>
+                    </div>
+
+                    <!-- Character Info Tab -->
+                    <div class="tab-pane" id="character-info-tab">
+                        <div class="sheet-content">
+                            <div class="sheet-main">
+                                <!-- Basic Information Section -->
+                                <section class="basic-info-section">
+                                    <h3>📋 Basic Information</h3>
+                                    <div class="basic-info-editor">
+                                        <div class="basic-info-grid">
+                                            <div class="info-item">
+                                                <label>Alignment</label>
+                                                <select id="alignment-select" class="info-input">
+                                                    <option value="">Select alignment...</option>
+                                                    <option value="Lawful Good" {{ 'selected' if character.alignment == 'Lawful Good' else '' }}>Lawful Good</option>
+                                                    <option value="Neutral Good" {{ 'selected' if character.alignment == 'Neutral Good' else '' }}>Neutral Good</option>
+                                                    <option value="Chaotic Good" {{ 'selected' if character.alignment == 'Chaotic Good' else '' }}>Chaotic Good</option>
+                                                    <option value="Lawful Neutral" {{ 'selected' if character.alignment == 'Lawful Neutral' else '' }}>Lawful Neutral</option>
+                                                    <option value="True Neutral" {{ 'selected' if character.alignment == 'True Neutral' else '' }}>True Neutral</option>
+                                                    <option value="Chaotic Neutral" {{ 'selected' if character.alignment == 'Chaotic Neutral' else '' }}>Chaotic Neutral</option>
+                                                    <option value="Lawful Evil" {{ 'selected' if character.alignment == 'Lawful Evil' else '' }}>Lawful Evil</option>
+                                                    <option value="Neutral Evil" {{ 'selected' if character.alignment == 'Neutral Evil' else '' }}>Neutral Evil</option>
+                                                    <option value="Chaotic Evil" {{ 'selected' if character.alignment == 'Chaotic Evil' else '' }}>Chaotic Evil</option>
+                                                </select>
+                                            </div>
+                                            <div class="info-item">
+                                                <label>Experience Points</label>
+                                                <input type="number" id="experience-points" class="info-input" 
+                                                       value="{{ character.experience_points }}" min="0">
+                                            </div>
+                                            <div class="info-item">
+                                                <label>Current Level</label>
+                                                <span class="info-display" id="character-level">{{ character.level }}</span>
+                                            </div>
+                                            <div class="info-item">
+                                                <label>Experience to Next Level</label>
+                                                <span class="info-display" id="experience-to-next-level">{{ character.get_experience_to_next_level() }} XP</span>
+                                            </div>
+                                            <div class="info-item">
+                                                <label>Experience Progress</label>
+                                                <div class="progress-bar">
+                                                    <div class="progress-fill" id="experience-progress-fill" style="width: {{ character.get_experience_progress() }}%"></div>
+                                                </div>
+                                                <span class="info-display" id="experience-progress-text">{{ "%.1f"|format(character.get_experience_progress()) }}%</span>
+                                            </div>
+                                            <div class="info-item level-up-item" id="level-up-container" style="display: none;">
+                                                <button id="level-up-btn" class="btn btn-warning">🎯 Level Up!</button>
+                                            </div>
+                                            
+                                        </div>
+                                        <button id="save-basic-info-btn" class="btn btn-success">💾 Save Basic Info</button>
+                                    </div>
+                                </section>
+
+                                <!-- Physical Characteristics Section -->
+                                <section class="physical-section">
+                                    <h3>👤 Physical Characteristics</h3>
+                                    <div class="physical-editor">
+                                        <div class="physical-grid">
+                                            <div class="info-item">
+                                                <label>Age</label>
+                                                <input type="text" id="age-input" class="info-input" 
+                                                       value="{{ character.age }}" placeholder="e.g., 25 years old">
+                                            </div>
+                                            <div class="info-item">
+                                                <label>Height</label>
+                                                <input type="text" id="height-input" class="info-input" 
+                                                       value="{{ character.height }}" placeholder="e.g., 5'8\"">
+                                            </div>
+                                            <div class="info-item">
+                                                <label>Weight</label>
+                                                <input type="text" id="weight-input" class="info-input" 
+                                                       value="{{ character.weight }}" placeholder="e.g., 150 lbs">
+                                            </div>
+                                            <div class="info-item">
+                                                <label>Eyes</label>
+                                                <input type="text" id="eyes-input" class="info-input" 
+                                                       value="{{ character.eyes }}" placeholder="e.g., Blue">
+                                            </div>
+                                            <div class="info-item">
+                                                <label>Skin</label>
+                                                <input type="text" id="skin-input" class="info-input" 
+                                                       value="{{ character.skin }}" placeholder="e.g., Fair">
+                                            </div>
+                                            <div class="info-item">
+                                                <label>Hair</label>
+                                                <input type="text" id="hair-input" class="info-input" 
+                                                       value="{{ character.hair }}" placeholder="e.g., Brown">
+                                            </div>
+                                        </div>
+                                        <button id="save-physical-btn" class="btn btn-success">💾 Save Physical Info</button>
+                                    </div>
+                                </section>
+
+                                <!-- Personality Section -->
+                                <section class="personality-section">
+                                    <h3>💭 Personality & Background</h3>
+                                    
+                                    <!-- D&D 5e Standard Personality Traits -->
+                                    <div class="personality-field">
+                                        <label for="personality-traits">🎭 Personality Traits</label>
+                                        <textarea id="personality-traits" class="personality-textarea" 
+                                                  placeholder="Describe your character's personality traits, mannerisms, and behavioral quirks..."
+                                                  maxlength="200">{{ character.personality_traits }}</textarea>
+                                        <div class="char-counter">
+                                            <span id="personality-traits-count">{{ character.personality_traits|length }}</span>/200
+                                        </div>
+                                    </div>
+
+                                    <div class="personality-field">
+                                        <label for="ideals">🌟 Ideals</label>
+                                        <textarea id="ideals" class="personality-textarea" 
+                                                  placeholder="What are your character's core beliefs, moral principles, and driving ideals?"
+                                                  maxlength="200">{{ character.ideals }}</textarea>
+                                        <div class="char-counter">
+                                            <span id="ideals-count">{{ character.ideals|length }}</span>/200
+                                        </div>
+                                    </div>
+
+                                    <div class="personality-field">
+                                        <label for="bonds">💝 Bonds</label>
+                                        <textarea id="bonds" class="personality-textarea" 
+                                                  placeholder="What connections, relationships, or attachments are most important to your character?"
+                                                  maxlength="200">{{ character.bonds }}</textarea>
+                                        <div class="char-counter">
+                                            <span id="bonds-count">{{ character.bonds|length }}</span>/200
+                                        </div>
+                                    </div>
+
+                                    <!-- Extended Personality Fields -->
+                                    <div class="personality-field">
+                                        <label for="background-story">📖 Background Story</label>
+                                        <textarea id="background-story" class="personality-textarea" 
+                                                  placeholder="Tell the story of your character's past, their origins, and what led them to adventure..."
+                                                  maxlength="500">{{ character.background_story }}</textarea>
+                                        <div class="char-counter">
+                                            <span id="background-story-count">{{ character.background_story|length }}</span>/500
+                                        </div>
+                                    </div>
+
+                                    <div class="personality-field">
+                                        <label for="short-term-goals">🎯 Short-term Goals</label>
+                                        <textarea id="short-term-goals" class="personality-textarea" 
+                                                  placeholder="What immediate objectives or goals does your character want to achieve?"
+                                                  maxlength="300">{{ character.short_term_goals }}</textarea>
+                                        <div class="char-counter">
+                                            <span id="short-term-goals-count">{{ character.short_term_goals|length }}</span>/300
+                                        </div>
+                                    </div>
+
+                                    <div class="personality-field">
+                                        <label for="long-term-goals">🌟 Long-term Goals</label>
+                                        <textarea id="long-term-goals" class="personality-textarea" 
+                                                  placeholder="What are your character's ultimate aspirations and long-term objectives?"
+                                                  maxlength="300">{{ character.long_term_goals }}</textarea>
+                                        <div class="char-counter">
+                                            <span id="long-term-goals-count">{{ character.long_term_goals|length }}</span>/300
+                                        </div>
+                                    </div>
+
+                                    <div class="personality-field">
+                                        <label for="personal-goals">💫 Personal Goals</label>
+                                        <textarea id="personal-goals" class="personality-textarea" 
+                                                  placeholder="What personal desires, dreams, or private objectives does your character have?"
+                                                  maxlength="300">{{ character.personal_goals }}</textarea>
+                                        <div class="char-counter">
+                                            <span id="personal-goals-count">{{ character.personal_goals|length }}</span>/300
+                                        </div>
+                                    </div>
+
+                                    <!-- Personality Tags -->
+                                    <div class="personality-field">
+                                        <label for="personality-tags">🏷️ Personality Tags</label>
+                                        <div class="tags-input-container">
+                                            <input type="text" id="personality-tags" class="personality-input" 
+                                                   placeholder="Type personality traits and press Enter, Space, or Comma to add tags..."
+                                                   value="{{ character.personality_tags|join(' ') if character.personality_tags else '' }}">
+                                            <div class="tags-container" id="personality-tags-container">
+                                                {% for tag in character.personality_tags %}
+                                                <span class="tag" data-tag="{{ tag }}">
+                                                    {{ tag }}
+                                                    <button class="tag-remove" onclick="removeTag(this)">×</button>
+                                                </span>
+                                                {% endfor %}
+                                            </div>
+                                        </div>
+                                        <div class="tags-help">
+                                            💡 Add single-word personality traits like "brave", "curious", "loyal", "impulsive", etc.
+                                        </div>
+                                    </div>
+
+                                    <!-- Flaws -->
+                                    <div class="personality-field">
+                                        <label for="flaws">💔 Flaws</label>
+                                        <textarea id="flaws" class="personality-textarea" 
+                                                  placeholder="What are your character's weaknesses, vices, or character flaws that make them more realistic?"
+                                                  maxlength="300">{{ character.flaws }}</textarea>
+                                        <div class="char-counter">
+                                            <span id="flaws-count">{{ character.flaws|length }}</span>/300
+                                        </div>
+                                    </div>
+
+                                    <!-- Save Personality Button -->
+                                    <button id="save-personality-btn" class="btn btn-success">💾 Save Personality</button>
+                                </section>
+
+
+                            </div>
+
+                                            <!-- Sidebar with Character Info Tips -->
+                <div class="sheet-sidebar">
+                    <section class="recommendations-section">
+                        <h3>💡 Character Development</h3>
+                        
+                        <div class="recommendation-card">
+                            <h4>📊 Experience & Leveling</h4>
+                            <div class="tips-list">
+                                <p class="tip-item">🎯 Complete quests and defeat enemies to gain XP</p>
+                                <p class="tip-item">📈 Each level brings new abilities and improvements</p>
+                                <p class="tip-item">⚡ Focus on your character's strengths</p>
+                                <p class="tip-item">🔄 Consider multiclassing for unique combinations</p>
+                            </div>
+                        </div>
+
+                        <div class="recommendation-card">
+                            <h4>👤 Physical Description</h4>
+                            <div class="tips-list">
+                                <p class="tip-item">🎨 Add unique physical traits to make your character memorable</p>
+                                <p class="tip-item">👁️ Eye color can reflect personality or magical influence</p>
+                                <p class="tip-item">💇 Hair style and color can show cultural background</p>
+                                <p class="tip-item">🏃 Physical characteristics can affect roleplay</p>
+                            </div>
+                        </div>
+
+                        <div class="recommendation-card">
+                            <h4>💭 Personality Development</h4>
+                            <div class="tips-list">
+                                <p class="tip-item">🎭 Use personality traits to guide roleplay decisions</p>
+                                <p class="tip-item">🌟 Ideals should drive your character's major choices</p>
+                                <p class="tip-item">💝 Bonds create emotional connections to the world</p>
+                                <p class="tip-item">🎯 Goals give your character purpose and direction</p>
+                                <p class="tip-item">🏷️ Tags help quickly identify character quirks</p>
+                                <p class="tip-item">💔 Flaws make characters more realistic and interesting</p>
+                            </div>
+                        </div>
+
+                        <div class="recommendation-card">
+                            <h4>❤️ Hit Point Management</h4>
+                            <div class="tips-list">
+                                <p class="tip-item">🛡️ Keep track of current HP during combat</p>
+                                <p class="tip-item">💊 Use healing potions and spells when needed</p>
+                                <p class="tip-item">⚡ Temporary HP provides extra protection</p>
+                                <p class="tip-item">🎲 Hit dice can be used for healing during short rests</p>
+                            </div>
+                        </div>
+                    </section>
+                </div>
                         </div>
                     </div>
 
@@ -347,6 +607,7 @@
                     <div class="tab-pane" id="combat-tab">
                         <div class="sheet-content">
                             <div class="sheet-main">
+                                <!-- Combat Statistics Section -->
                                 <section class="combat-section">
                                     <h3>⚔️ Combat Statistics</h3>
                                     
@@ -361,19 +622,11 @@
                                         </div>
                                         
                                         <div class="combat-stat-card">
-                                            <div class="stat-icon">❤️</div>
-                                            <div class="stat-info">
-                                                <div class="stat-label">Hit Points</div>
-                                                <div class="stat-value">{{ character.get_hit_points() }}</div>
-                                            </div>
-                                        </div>
-                                        
-                                        <div class="combat-stat-card">
                                             <div class="stat-icon">🎯</div>
                                             <div class="stat-info">
                                                 <div class="stat-label">Initiative</div>
                                                 <div class="stat-value">
-                                                    {% set modifier = character.get_attribute_modifier('Dexterity') %}
+                                                    {% set modifier = character.get_initiative() %}
                                                     {% if modifier >= 0 %}+{% endif %}{{ modifier }}
                                                 </div>
                                             </div>
@@ -386,22 +639,102 @@
                                                 <div class="stat-value">{{ character.get_speed() }} ft</div>
                                             </div>
                                         </div>
-                                    </div>
-
-                                    <!-- Saving Throws -->
-                                    <div class="saving-throws-section">
-                                        <h4>🛡️ Saving Throws</h4>
-                                        <div class="saving-throws-grid">
-                                            {% for attr in ['Strength', 'Dexterity', 'Constitution', 'Intelligence', 'Wisdom', 'Charisma'] %}
-                                            <div class="saving-throw-item">
-                                                <span class="throw-name">{{ attr[:3] }}</span>
-                                                <span class="throw-bonus">
-                                                    {% set bonus = character.get_saving_throw_bonus(attr) %}
-                                                    {% if bonus >= 0 %}+{% endif %}{{ bonus }}
-                                                </span>
+                                        
+                                        <div class="combat-stat-card">
+                                            <div class="stat-icon">🎲</div>
+                                            <div class="stat-info">
+                                                <div class="stat-label">Proficiency Bonus</div>
+                                                <div class="stat-value">+{{ character.get_proficiency_bonus() }}</div>
                                             </div>
-                                            {% endfor %}
                                         </div>
+                                    </div>
+                                </section>
+
+                                <!-- Hit Points Section -->
+                                            <section class="hit-points-section">
+                <h3>❤️ Hit Points</h3>
+                <div class="hit-points-editor">
+                    <div class="hp-grid">
+                        <div class="hp-item">
+                            <label>Hit Point Maximum</label>
+                            <input type="number" id="hp-maximum" class="hp-input" 
+                                   value="{{ character.hit_point_maximum or character.get_hit_points() }}" min="1">
+                        </div>
+                        <div class="hp-item">
+                            <label>Current Hit Points</label>
+                            <input type="number" id="hp-current" class="hp-input" 
+                                   value="{{ character.current_hit_points or character.get_hit_points() }}" min="0">
+                        </div>
+                        <div class="hp-item">
+                            <label>Temporary Hit Points</label>
+                            <input type="number" id="hp-temporary" class="hp-input" 
+                                   value="{{ character.temporary_hit_points }}" min="0">
+                        </div>
+                        <div class="hp-item">
+                            <label>Hit Dice</label>
+                            <span class="hp-display">{{ character.hit_dice or character.get_hit_dice() }}</span>
+                        </div>
+                    </div>
+                    
+                    <!-- HP Visual Bar -->
+                    <div class="hp-visual-bar">
+                        <div class="hp-bar-container">
+                            <div class="hp-bar-maximum" id="hp-bar-maximum"></div>
+                            <div class="hp-bar-current" id="hp-bar-current"></div>
+                            <div class="hp-bar-temporary" id="hp-bar-temporary"></div>
+                        </div>
+                        <div class="hp-bar-labels">
+                            <span class="hp-label-maximum">Maximum</span>
+                            <span class="hp-label-current">Current</span>
+                            <span class="hp-label-temporary">Temporary</span>
+                        </div>
+                    </div>
+                    
+                    <button id="save-hp-btn" class="btn btn-success">💾 Save HP</button>
+                </div>
+            </section>
+
+                                <!-- Passive Skills Section -->
+                                <section class="passive-skills-section">
+                                    <h3>👁️ Passive Skills</h3>
+                                    <div class="passive-skills-grid">
+                                        <div class="passive-skill-item">
+                                            <div class="skill-icon">👁️</div>
+                                            <div class="skill-info">
+                                                <div class="skill-label">Passive Perception</div>
+                                                <div class="skill-value">{{ character.get_passive_perception() }}</div>
+                                            </div>
+                                        </div>
+                                        <div class="passive-skill-item">
+                                            <div class="skill-icon">🔍</div>
+                                            <div class="skill-info">
+                                                <div class="skill-label">Passive Investigation</div>
+                                                <div class="skill-value">{{ character.get_passive_investigation() }}</div>
+                                            </div>
+                                        </div>
+                                        <div class="passive-skill-item">
+                                            <div class="skill-icon">🧠</div>
+                                            <div class="skill-info">
+                                                <div class="skill-label">Passive Insight</div>
+                                                <div class="skill-value">{{ character.get_passive_insight() }}</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </section>
+
+                                <!-- Saving Throws -->
+                                <section class="saving-throws-section">
+                                    <h3>🛡️ Saving Throws</h3>
+                                    <div class="saving-throws-grid">
+                                        {% for attr in ['Strength', 'Dexterity', 'Constitution', 'Intelligence', 'Wisdom', 'Charisma'] %}
+                                        <div class="saving-throw-item">
+                                            <span class="throw-name">{{ attr[:3] }}</span>
+                                            <span class="throw-bonus">
+                                                {% set bonus = character.get_saving_throw_bonus(attr) %}
+                                                {% if bonus >= 0 %}+{% endif %}{{ bonus }}
+                                            </span>
+                                        </div>
+                                        {% endfor %}
                                     </div>
                                 </section>
                             </div>
@@ -626,144 +959,7 @@
                         </div>
                     </div>
 
-                    <!-- Personality Tab -->
-                    <div class="tab-pane" id="personality-tab">
-                        <div class="sheet-content">
-                            <div class="sheet-main">
-                                <!-- Personality Editor -->
-                                <section class="personality-editor">
-                                    <h3>💭 Personality & Background</h3>
-                                    
-                                    <!-- Background Story -->
-                                    <div class="personality-field">
-                                        <label for="background-story">📖 Background Story</label>
-                                        <textarea id="background-story" class="personality-textarea" 
-                                                  placeholder="Describe your character's background, upbringing, and key life events that shaped who they are today..."
-                                                  maxlength="500">{{ character.background_story }}</textarea>
-                                        <div class="char-counter">
-                                            <span id="background-story-count">{{ character.background_story|length }}</span>/500
-                                        </div>
-                                    </div>
 
-                                    <!-- Goals Section -->
-                                    <div class="goals-section">
-                                        <h4>🎯 Character Goals</h4>
-                                        
-                                        <div class="personality-field">
-                                            <label for="short-term-goals">⚡ Short-term Goals</label>
-                                            <textarea id="short-term-goals" class="personality-textarea" 
-                                                      placeholder="What does your character want to achieve in the next few sessions or weeks?"
-                                                      maxlength="200">{{ character.short_term_goals }}</textarea>
-                                            <div class="char-counter">
-                                                <span id="short-term-goals-count">{{ character.short_term_goals|length }}</span>/200
-                                            </div>
-                                        </div>
-
-                                        <div class="personality-field">
-                                            <label for="long-term-goals">🌟 Long-term Goals</label>
-                                            <textarea id="long-term-goals" class="personality-textarea" 
-                                                      placeholder="What are your character's major life ambitions and ultimate aspirations?"
-                                                      maxlength="200">{{ character.long_term_goals }}</textarea>
-                                            <div class="char-counter">
-                                                <span id="long-term-goals-count">{{ character.long_term_goals|length }}</span>/200
-                                            </div>
-                                        </div>
-
-                                        <div class="personality-field">
-                                            <label for="personal-goals">💫 Personal Goals</label>
-                                            <textarea id="personal-goals" class="personality-textarea" 
-                                                      placeholder="What drives your character internally? What personal growth do they seek?"
-                                                      maxlength="200">{{ character.personal_goals }}</textarea>
-                                            <div class="char-counter">
-                                                <span id="personal-goals-count">{{ character.personal_goals|length }}</span>/200
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <!-- Personality Tags -->
-                                    <div class="personality-field">
-                                        <label for="personality-tags">🏷️ Personality Tags</label>
-                                        <div class="tags-input-container">
-                                            <input type="text" id="personality-tags-input" 
-                                                   placeholder="Type personality traits and press Enter, Space, or Comma to add tags..."
-                                                   class="tags-input">
-                                            <div id="personality-tags-display" class="tags-display">
-                                                {% for tag in character.personality_tags %}
-                                                <span class="tag" data-tag="{{ tag }}">
-                                                    {{ tag }}
-                                                    <button type="button" class="tag-remove" onclick="removeTag(this)">×</button>
-                                                </span>
-                                                {% endfor %}
-                                            </div>
-                                        </div>
-                                        <div class="tags-help">
-                                            💡 Add single-word personality traits like "brave", "curious", "loyal", "impulsive", etc.
-                                        </div>
-                                    </div>
-
-                                    <!-- Flaws -->
-                                    <div class="personality-field">
-                                        <label for="flaws">⚠️ Flaws & Weaknesses</label>
-                                        <textarea id="flaws" class="personality-textarea" 
-                                                  placeholder="Describe your character's flaws, weaknesses, or character defects that make them more realistic and interesting..."
-                                                  maxlength="300">{{ character.flaws }}</textarea>
-                                        <div class="char-counter">
-                                            <span id="flaws-count">{{ character.flaws|length }}</span>/300
-                                        </div>
-                                    </div>
-
-                                    <!-- Save Button -->
-                                    <div class="personality-actions">
-                                        <button id="save-personality-btn" class="btn btn-success">
-                                            💾 Save Personality
-                                        </button>
-                                        <div id="save-status" class="save-status"></div>
-                                    </div>
-                                </section>
-
-                            </div>
-
-                            <!-- Sidebar with Personality Recommendations -->
-                            <div class="sheet-sidebar">
-                                <section class="recommendations-section">
-                                    <h3>💭 Roleplay Guidance</h3>
-                                    
-                                    <div class="recommendation-card">
-                                        <h4>🎭 Character Voice</h4>
-                                        <p class="recommendation-reason">Develop a unique voice and mannerisms that reflect your character's background and personality.</p>
-                                    </div>
-
-                                    <div class="recommendation-card">
-                                        <h4>🌟 Character Goals</h4>
-                                        <div class="goals-list">
-                                            <p class="goal-item">🎯 Short-term: Establish your character's immediate objectives</p>
-                                            <p class="goal-item">🌟 Long-term: Define your character's ultimate aspirations</p>
-                                            <p class="goal-item">💫 Personal: Consider what drives your character internally</p>
-                                        </div>
-                                    </div>
-
-                                    <div class="recommendation-card">
-                                        <h4>💡 Personality Tips</h4>
-                                        <div class="tips-list">
-                                            <p class="tip-item">🎭 Use your personality tags to guide roleplay decisions</p>
-                                            <p class="tip-item">⚠️ Flaws make characters more interesting and realistic</p>
-                                            <p class="tip-item">📖 Background story helps explain character motivations</p>
-                                            <p class="tip-item">🎯 Goals provide direction for character development</p>
-                                        </div>
-                                    </div>
-
-                                    <!-- Character Development -->
-                                    <div class="recommendation-card">
-                                        <h4>📈 Character Development</h4>
-                                        <div class="development-content">
-                                            <p class="development-text">Your character's journey from level {{ character.level }} to higher levels will reveal new depths and abilities.</p>
-                                            <p class="development-text">Focus on developing your character's unique strengths and addressing their weaknesses.</p>
-                                        </div>
-                                    </div>
-                                </section>
-                            </div>
-                        </div>
-                    </div>
                 </div>
             </div>
         </main>
