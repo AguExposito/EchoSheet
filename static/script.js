@@ -281,13 +281,22 @@ function showPlaystyleSelector(availablePlaystyles, currentPlaystyle) {
     if (!playstyleSelector || !playstyleSelect) return;
     
     // Clear current options
-    playstyleSelect.innerHTML = '<option value="">Random / Standard Array</option>';
+    playstyleSelect.innerHTML = '';
     
     // Add playstyle options
     availablePlaystyles.forEach(playstyle => {
         const option = document.createElement('option');
         option.value = playstyle;
-        option.textContent = playstyle.charAt(0).toUpperCase() + playstyle.slice(1);
+        
+        // Format playstyle names nicely
+        let displayName = playstyle;
+        if (playstyle === 'standard_array') {
+            displayName = 'Standard Array';
+        } else {
+            displayName = playstyle.charAt(0).toUpperCase() + playstyle.slice(1);
+        }
+        
+        option.textContent = displayName;
         playstyleSelect.appendChild(option);
     });
     
@@ -1210,10 +1219,16 @@ function updatePreviewWithData(data) {
     const playstyleInfo = document.getElementById('preview-playstyle');
     if (playstyleInfo) {
         if (data.current_playstyle) {
-            playstyleInfo.textContent = `Playstyle: ${data.current_playstyle.charAt(0).toUpperCase() + data.current_playstyle.slice(1)}`;
+            let playstyleDisplay = data.current_playstyle;
+            if (data.current_playstyle === 'standard_array') {
+                playstyleDisplay = 'Standard Array';
+            } else {
+                playstyleDisplay = data.current_playstyle.charAt(0).toUpperCase() + data.current_playstyle.slice(1);
+            }
+            playstyleInfo.textContent = `Playstyle: ${playstyleDisplay}`;
             playstyleInfo.style.display = 'block';
         } else {
-            playstyleInfo.textContent = 'Playstyle: Random / Standard Array';
+            playstyleInfo.textContent = 'Playstyle: Standard Array';
             playstyleInfo.style.display = 'block';
         }
     }
@@ -1834,7 +1849,7 @@ function initPdfDownload() {
             // Show notification that PDF download is coming soon
             showNotification('PDF download feature coming soon!', 'info');
             
-            // TODO: Implement PDF generation and download
+            // PDF generation feature coming soon
             // This will be implemented in a future update
             console.log('PDF download requested for character:', characterName, 'ID:', characterId);
         });

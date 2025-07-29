@@ -8,6 +8,10 @@ from utils.autofill import AutoFill
 from utils.recommender import Recommender
 from utils.chat_engine import ChatEngine
 from utils.spell_manager import SpellManager
+from logging_config import setup_logging
+
+# Setup logging
+logger = setup_logging()
 
 def init_db():
     """Initialize database"""
@@ -39,7 +43,7 @@ def init_db():
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )
     ''')
-        print("Created new characters table")
+        logger.info("Created new characters table")
     else:
         # Check existing columns and add missing ones
         cursor.execute("PRAGMA table_info(characters)")
@@ -62,13 +66,13 @@ def init_db():
         for column in missing_columns:
             try:
                 cursor.execute(f'ALTER TABLE characters ADD COLUMN {column} TEXT')
-                print(f"Added missing column: {column}")
+                logger.info(f"Added missing column: {column}")
             except sqlite3.OperationalError as e:
-                print(f"Error adding column {column}: {e}")
+                logger.error(f"Error adding column {column}: {e}")
     
     conn.commit()
     conn.close()
-    print("Database initialization completed")
+    logger.info("Database initialization completed")
 
 app = Flask(__name__)
 app.secret_key = 'echo_sheet_secret_key'
@@ -99,7 +103,7 @@ def create_character():
     if request.method == 'POST':
         try:
             data = request.get_json()
-            print(f"Received data: {data}")
+            logger.info(f"Received character creation request for: {data.get('name', 'Unknown')}")
             
             # Validate required fields
             required_fields = ['name', 'race', 'char_class', 'background']
@@ -116,7 +120,7 @@ def create_character():
                 background=data.get('background', '')
             )
         except Exception as e:
-            print(f"Error processing request: {e}")
+            logger.error(f"Error processing character creation request: {e}")
             return jsonify({'success': False, 'error': f'Error processing request: {str(e)}'})
         
         # Set custom attributes if provided
@@ -229,10 +233,10 @@ def create_character():
             conn.commit()
             conn.close()
             
-            print(f"Character created successfully with ID: {character_id}")
+            logger.info(f"Character created successfully with ID: {character_id}")
             return jsonify({'success': True, 'character_id': character_id})
         except Exception as e:
-            print(f"Database error: {e}")
+            logger.error(f"Database error during character creation: {e}")
             return jsonify({'success': False, 'error': f'Database error: {str(e)}'})
     
     return render_template('create.html')
@@ -421,7 +425,7 @@ def api_autofill():
     """API to autofill character data"""
     try:
         data = request.get_json()
-        print(f"Received autofill request: {data}")
+        logger.info(f"Received autofill request for class: {data.get('char_class', 'Unknown')}")
         
         if not data:
             return jsonify({'success': False, 'error': 'No data provided'})
@@ -431,14 +435,14 @@ def api_autofill():
         race = data.get('race', '')
         playstyle = data.get('playstyle', '')
         
-        print(f"Processing: class={char_class}, background={background}, race={race}, playstyle={playstyle}")
+        logger.info(f"Processing autofill: class={char_class}, background={background}, race={race}, playstyle={playstyle}")
         
         if not char_class or not background:
             return jsonify({'success': False, 'error': 'Class and background are required'})
         
         # Get suggestions that respect available skills and playstyle
         suggestions = autofill.get_suggestions(char_class, background, race, playstyle)
-        print(f"Generated suggestions: {suggestions}")
+        logger.info(f"Generated autofill suggestions for {char_class}")
         
         return jsonify({
             'success': True,
@@ -449,7 +453,7 @@ def api_autofill():
             'current_playstyle': suggestions['current_playstyle']
         })
     except Exception as e:
-        print(f"Error in autofill: {e}")
+        logger.error(f"Error in autofill API: {e}")
         return jsonify({'success': False, 'error': str(e)})
 
 @app.route('/api/spells/<char_class>', methods=['GET'])

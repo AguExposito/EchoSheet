@@ -2,6 +2,13 @@ import json
 from dataclasses import dataclass, field
 from datetime import datetime
 from typing import Dict, List, Optional
+from config import (
+    MAX_LEVEL, MIN_LEVEL, MAX_ATTRIBUTE_POINTS, MIN_ATTRIBUTE_VALUE, 
+    MAX_ATTRIBUTE_VALUE, POINT_BUY_COSTS, XP_THRESHOLDS, 
+    CURRENCY_VALUES, DEFAULT_ITEM_WEIGHTS, HIT_DICE_BY_CLASS,
+    BASE_HP_BY_CLASS, MOVEMENT_SPEED_BY_RACE, SPELLCASTING_ABILITIES,
+    SAVING_THROW_PROFICIENCIES, COMBAT_ROLES
+)
 
 
 @dataclass
@@ -106,23 +113,18 @@ class Character:
         total_cost = 0
         errors = []
         
-        # Point buy costs
-        point_costs = {
-            8: 0, 9: 1, 10: 2, 11: 3, 12: 4, 13: 5, 14: 7, 15: 9
-        }
-        
         for attr, value in self.attributes.items():
-            if value < 8 or value > 15:
-                errors.append(f"{attr} must be between 8 and 15")
-            elif value in point_costs:
-                total_cost += point_costs[value]
+            if value < MIN_ATTRIBUTE_VALUE or value > MAX_ATTRIBUTE_VALUE:
+                errors.append(f"{attr} must be between {MIN_ATTRIBUTE_VALUE} and {MAX_ATTRIBUTE_VALUE}")
+            elif value in POINT_BUY_COSTS:
+                total_cost += POINT_BUY_COSTS[value]
             else:
                 errors.append(f"Invalid {attr} value: {value}")
         
         return {
-            'valid': len(errors) == 0 and total_cost <= 27,
+            'valid': len(errors) == 0 and total_cost <= MAX_ATTRIBUTE_POINTS,
             'total_cost': total_cost,
-            'remaining_points': 27 - total_cost,
+            'remaining_points': MAX_ATTRIBUTE_POINTS - total_cost,
             'errors': errors
         }
 
@@ -263,17 +265,7 @@ class Character:
     
     def get_spellcasting_ability(self) -> str:
         """Get the spellcasting ability for the character's class"""
-        spellcasting_abilities = {
-            'Wizard': 'Intelligence',
-            'Cleric': 'Wisdom',
-            'Bard': 'Charisma',
-            'Sorcerer': 'Charisma',
-            'Warlock': 'Charisma',
-            'Druid': 'Wisdom',
-            'Paladin': 'Charisma',
-            'Ranger': 'Wisdom'
-        }
-        return spellcasting_abilities.get(self.char_class, 'None')
+        return SPELLCASTING_ABILITIES.get(self.char_class, 'None')
     
     def get_spell_save_dc(self) -> str:
         """Calculate spell save DC"""
@@ -340,14 +332,7 @@ class Character:
         """Calculate hit points"""
         con_modifier = self.get_attribute_modifier('Constitution')
         
-        # Hit die by class
-        hit_dice = {
-            'Barbarian': 12, 'Fighter': 10, 'Paladin': 10, 'Ranger': 10,
-            'Bard': 8, 'Cleric': 8, 'Druid': 8, 'Monk': 8, 'Rogue': 8,
-            'Sorcerer': 6, 'Warlock': 8, 'Wizard': 6
-        }
-        
-        hit_die = hit_dice.get(self.char_class, 8)
+        hit_die = BASE_HP_BY_CLASS.get(self.char_class, 8)
         base_hp = hit_die + con_modifier
         
         # Add HP for levels beyond 1st
@@ -361,36 +346,14 @@ class Character:
     
     def get_speed(self) -> int:
         """Get movement speed"""
-        # Base speed by race (simplified)
-        race_speeds = {
-            'Human': 30, 'Elf': 30, 'Dwarf': 25, 'Halfling': 25,
-            'Dragonborn': 30, 'Tiefling': 30, 'Half-Elf': 30, 'Half-Orc': 30,
-            'Gnome': 25, 'Aarakocra': 25, 'Genasi': 30, 'Goliath': 30
-        }
-        
-        return race_speeds.get(self.race, 30)
+        return MOVEMENT_SPEED_BY_RACE.get(self.race, 30)
     
     def get_saving_throw_bonus(self, attribute: str) -> int:
         """Calculate saving throw bonus"""
         modifier = self.get_attribute_modifier(attribute)
         
         # Check if proficient in this saving throw
-        saving_throw_proficiencies = {
-            'Fighter': ['Strength', 'Constitution'],
-            'Wizard': ['Intelligence', 'Wisdom'],
-            'Cleric': ['Wisdom', 'Charisma'],
-            'Rogue': ['Dexterity', 'Intelligence'],
-            'Ranger': ['Strength', 'Dexterity'],
-            'Paladin': ['Wisdom', 'Charisma'],
-            'Bard': ['Dexterity', 'Charisma'],
-            'Sorcerer': ['Constitution', 'Charisma'],
-            'Warlock': ['Wisdom', 'Charisma'],
-            'Monk': ['Strength', 'Dexterity'],
-            'Druid': ['Intelligence', 'Wisdom'],
-            'Barbarian': ['Strength', 'Constitution']
-        }
-        
-        proficiencies = saving_throw_proficiencies.get(self.char_class, [])
+        proficiencies = SAVING_THROW_PROFICIENCIES.get(self.char_class, [])
         if attribute in proficiencies:
             modifier += self.get_proficiency_bonus()
         
@@ -401,23 +364,7 @@ class Character:
         if not self.char_class:
             return "Undefined"
         
-        # Combat roles by class
-        combat_roles = {
-            'Fighter': 'Frontline Defender',
-            'Paladin': 'Frontline Defender',
-            'Barbarian': 'Frontline Striker',
-            'Ranger': 'Ranged Striker',
-            'Rogue': 'Skirmisher',
-            'Monk': 'Mobile Striker',
-            'Wizard': 'Control Caster',
-            'Sorcerer': 'Blaster Caster',
-            'Warlock': 'Blaster Caster',
-            'Cleric': 'Support Caster',
-            'Druid': 'Control Caster',
-            'Bard': 'Support Caster'
-        }
-        
-        return combat_roles.get(self.char_class, "Versatile")
+        return COMBAT_ROLES.get(self.char_class, "Versatile")
     
     def get_initiative(self) -> int:
         """Calculate initiative bonus"""
@@ -446,85 +393,41 @@ class Character:
         if not self.char_class:
             return ""
         
-        # Hit dice by class
-        hit_dice_types = {
-            'Barbarian': 'd12',
-            'Fighter': 'd10',
-            'Paladin': 'd10',
-            'Ranger': 'd10',
-            'Bard': 'd8',
-            'Cleric': 'd8',
-            'Druid': 'd8',
-            'Monk': 'd8',
-            'Rogue': 'd8',
-            'Sorcerer': 'd6',
-            'Warlock': 'd8',
-            'Wizard': 'd6'
-        }
-        
-        dice_type = hit_dice_types.get(self.char_class, 'd8')
+        dice_type = HIT_DICE_BY_CLASS.get(self.char_class, 'd8')
         return f"{self.level}{dice_type}"
     
     def get_experience_to_next_level(self) -> int:
         """Get experience points needed for next level"""
-        # D&D 5e Experience Thresholds (official table)
-        xp_thresholds = {
-            1: 0, 2: 300, 3: 900, 4: 2700, 5: 6500,
-            6: 14000, 7: 23000, 8: 34000, 9: 48000, 10: 64000,
-            11: 85000, 12: 100000, 13: 120000, 14: 140000, 15: 165000,
-            16: 195000, 17: 225000, 18: 265000, 19: 305000, 20: 355000
-        }
-        
-        if self.level >= 20:
+        if self.level >= MAX_LEVEL:
             return 0
         
         # Ensure experience_points is an integer
         current_xp = int(self.experience_points) if self.experience_points else 0
-        next_level_xp = xp_thresholds.get(self.level + 1, 0)
+        next_level_xp = XP_THRESHOLDS.get(self.level + 1, 0)
         
         return max(0, next_level_xp - current_xp)
     
     def can_level_up(self) -> bool:
         """Check if character can level up"""
-        if self.level >= 20:
+        if self.level >= MAX_LEVEL:
             return False
         
         # Ensure experience_points is an integer
         current_xp = int(self.experience_points) if self.experience_points else 0
-        xp_thresholds = {
-            1: 0, 2: 300, 3: 900, 4: 2700, 5: 6500,
-            6: 14000, 7: 23000, 8: 34000, 9: 48000, 10: 64000,
-            11: 85000, 12: 100000, 13: 120000, 14: 140000, 15: 165000,
-            16: 195000, 17: 225000, 18: 265000, 19: 305000, 20: 355000
-        }
-        
-        next_level_xp = xp_thresholds.get(self.level + 1, 0)
+        next_level_xp = XP_THRESHOLDS.get(self.level + 1, 0)
         return current_xp >= next_level_xp
     
     def get_current_level_xp_threshold(self) -> int:
         """Get XP threshold for current level"""
-        xp_thresholds = {
-            1: 0, 2: 300, 3: 900, 4: 2700, 5: 6500,
-            6: 14000, 7: 23000, 8: 34000, 9: 48000, 10: 64000,
-            11: 85000, 12: 100000, 13: 120000, 14: 140000, 15: 165000,
-            16: 195000, 17: 225000, 18: 265000, 19: 305000, 20: 355000
-        }
-        return xp_thresholds.get(self.level, 0)
+        return XP_THRESHOLDS.get(self.level, 0)
     
     def get_experience_progress(self) -> float:
         """Get experience progress as percentage to next level"""
-        if self.level >= 20:
+        if self.level >= MAX_LEVEL:
             return 100.0
         
-        xp_thresholds = {
-            1: 0, 2: 300, 3: 900, 4: 2700, 5: 6500,
-            6: 14000, 7: 23000, 8: 34000, 9: 48000, 10: 64000,
-            11: 85000, 12: 100000, 13: 120000, 14: 140000, 15: 165000,
-            16: 195000, 17: 225000, 18: 265000, 19: 305000, 20: 355000
-        }
-        
-        current_level_xp = xp_thresholds.get(self.level, 0)
-        next_level_xp = xp_thresholds.get(self.level + 1, current_level_xp)
+        current_level_xp = XP_THRESHOLDS.get(self.level, 0)
+        next_level_xp = XP_THRESHOLDS.get(self.level + 1, current_level_xp)
         
         if next_level_xp == current_level_xp:
             return 100.0
@@ -549,17 +452,10 @@ class Character:
     def get_total_currency_value(self) -> int:
         """Get total currency value in copper pieces"""
         total_cp = 0
-        currency_values = {
-            'cp': 1,      # Copper piece
-            'sp': 10,     # Silver piece = 10 cp
-            'ep': 50,     # Electrum piece = 50 cp
-            'gp': 100,    # Gold piece = 100 cp
-            'pp': 1000    # Platinum piece = 1000 cp
-        }
         
         for currency_type, amount in self.currency.items():
-            if currency_type in currency_values:
-                total_cp += amount * currency_values[currency_type]
+            if currency_type in CURRENCY_VALUES:
+                total_cp += amount * CURRENCY_VALUES[currency_type]
         
         return total_cp
     
@@ -599,30 +495,6 @@ class Character:
     
     def get_estimated_weight(self) -> float:
         """Estimate total weight of items (simplified calculation)"""
-        # Base weight for common items (in pounds)
-        default_item_weights = {
-            'backpack': 5,
-            'bedroll': 7,
-            'rations': 2,
-            'waterskin': 5,
-            'torch': 1,
-            'rope': 10,
-            'tent': 20,
-            'armor': 40,  # Average armor weight
-            'weapon': 3,  # Average weapon weight
-            'shield': 6,
-            'potion': 0.5,
-            'scroll': 0.1,
-            'book': 5,
-            'clothes': 3,
-            'boots': 2,
-            'helmet': 4,
-            'gloves': 1,
-            'belt': 1,
-            'pouch': 1,
-            'coin': 0.02  # Per coin
-        }
-        
         total_weight = 0
         
         # Calculate weight from items
@@ -636,7 +508,7 @@ class Character:
             else:
                 # Then check default weights (partial match)
                 item_lower = item.lower()
-                for weight_item, weight in default_item_weights.items():
+                for weight_item, weight in DEFAULT_ITEM_WEIGHTS.items():
                     if weight_item in item_lower:
                         total_weight += weight
                         found_weight = True
@@ -659,16 +531,8 @@ class Character:
             return self.item_weights[item_name]
         
         # Then check default weights
-        default_weights = {
-            'backpack': 5, 'bedroll': 7, 'rations': 2, 'waterskin': 5,
-            'torch': 1, 'rope': 10, 'tent': 20, 'armor': 40,
-            'weapon': 3, 'shield': 6, 'potion': 0.5, 'scroll': 0.1,
-            'book': 5, 'clothes': 3, 'boots': 2, 'helmet': 4,
-            'gloves': 1, 'belt': 1, 'pouch': 1
-        }
-        
         item_lower = item_name.lower()
-        for weight_item, weight in default_weights.items():
+        for weight_item, weight in DEFAULT_ITEM_WEIGHTS.items():
             if weight_item in item_lower:
                 return weight
         

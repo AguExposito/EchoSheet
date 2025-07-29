@@ -3,6 +3,10 @@ import random
 from typing import Dict, List
 from models import Character
 from utils.spell_manager import SpellManager
+from logging_config import get_logger
+
+# Configure logging
+logger = get_logger(__name__)
 
 class AutoFill:
     """Clase para autocompletar datos del personaje"""
@@ -210,7 +214,7 @@ class AutoFill:
                     'description': 'Powerful melee fighter focused on raw strength'
                 },
                 'defensive': {
-                    'attributes': {'STR': 15, 'DEX': 12, 'CON': 15, 'INT': 8, 'WIS': 10, 'CHA': 11},  # 9+4+9+0+2+3 = 27
+                    'attributes': {'STR': 15, 'DEX': 12, 'CON': 14, 'INT': 8, 'WIS': 11, 'CHA': 12},  # 9+4+7+0+3+4 = 27
                     'skills': ['Athletics', 'Insight'],
                     'description': 'Tank fighter with high constitution and defensive skills'
                 }
@@ -282,16 +286,22 @@ class AutoFill:
                 'balanced': {
                     'attributes': {'STR': 12, 'DEX': 15, 'CON': 12, 'INT': 10, 'WIS': 13, 'CHA': 11},  # 4+9+4+2+5+3 = 27
                     'skills': ['Survival', 'Perception'],
+                    'spells': ['Cure Wounds', 'Hunter\'s Mark', 'Goodberry', 'Detect Magic'],
+                    'cantrips': ['Druidcraft'],
                     'description': 'Balanced ranger with wilderness and tracking skills'
                 },
                 'archer': {
                     'attributes': {'STR': 8, 'DEX': 15, 'CON': 13, 'INT': 12, 'WIS': 12, 'CHA': 13},    # 0+9+5+4+4+5 = 27
                     'skills': ['Stealth', 'Perception'],
+                    'spells': ['Hunter\'s Mark', 'Ensnaring Strike', 'Hail of Thorns', 'Detect Magic'],
+                    'cantrips': ['Druidcraft'],
                     'description': 'Ranged combat specialist with stealth and perception'
                 },
                 'beastmaster': {
                     'attributes': {'STR': 12, 'DEX': 12, 'CON': 13, 'INT': 10, 'WIS': 15, 'CHA': 11}, # 4+4+5+2+9+3 = 27
                     'skills': ['Animal Handling', 'Survival'],
+                    'spells': ['Hunter\'s Mark', 'Animal Friendship', 'Speak with Animals', 'Cure Wounds'],
+                    'cantrips': ['Druidcraft'],
                     'description': 'Beast master focused on animal companions and nature'
                 }
             },
@@ -313,28 +323,28 @@ class AutoFill:
                 'charismatic': {
                     'attributes': {'STR': 14, 'DEX': 10, 'CON': 13, 'INT': 8, 'WIS': 12, 'CHA': 15}, # 7+2+5+0+4+9 = 27
                     'skills': ['Persuasion', 'Intimidation'],
-                    'spells': ['Command', 'Bless'],
+                    'spells': ['Divine Favor', 'Command'],
                     'cantrips': [],
                     'description': 'Charismatic paladin with strong social and leadership skills'
                 }
             },
             'Bard': {
                 'balanced': {
-                    'attributes': {'STR': 8, 'DEX': 12, 'CON': 13, 'INT': 12, 'WIS': 11, 'CHA': 15},  # 0+4+5+4+3+9 = 25
+                    'attributes': {'STR': 8, 'DEX': 12, 'CON': 13, 'INT': 12, 'WIS': 13, 'CHA': 15},  # 0+4+5+4+5+9 = 27
                     'skills': ['Performance', 'Persuasion'],
                     'spells': ['Cure Wounds', 'Charm Person', 'Disguise Self', 'Detect Magic'],
                     'cantrips': ['Vicious Mockery', 'Prestidigitation'],
                     'description': 'Versatile bard with healing, charm, and utility spells'
                 },
                 'lore': {
-                    'attributes': {'STR': 8, 'DEX': 12, 'CON': 12, 'INT': 13, 'WIS': 11, 'CHA': 15},      # 0+4+4+5+3+9 = 25
+                    'attributes': {'STR': 8, 'DEX': 12, 'CON': 12, 'INT': 13, 'WIS': 13, 'CHA': 15},      # 0+4+4+5+5+9 = 27
                     'skills': ['History', 'Arcana'],
                     'spells': ['Comprehend Languages', 'Detect Magic', 'Cure Wounds', 'Charm Person'],
                     'cantrips': ['Vicious Mockery', 'Message'],
                     'description': 'Knowledge-focused bard with utility and information gathering'
                 },
                 'valor': {
-                    'attributes': {'STR': 12, 'DEX': 12, 'CON': 13, 'INT': 10, 'WIS': 9, 'CHA': 15},      # 4+4+5+2+1+9 = 25
+                    'attributes': {'STR': 12, 'DEX': 12, 'CON': 13, 'INT': 10, 'WIS': 11, 'CHA': 15},      # 4+4+5+2+3+9 = 27
                     'skills': ['Athletics', 'Performance'],
                     'spells': ['Cure Wounds', 'Heroism', 'Thunderwave', 'Charm Person'],
                     'cantrips': ['Vicious Mockery', 'Blade Ward'],
@@ -357,7 +367,7 @@ class AutoFill:
                     'description': 'Damage-focused sorcerer specializing in evocation'
                 },
                 'control': {
-                    'attributes': {'STR': 8, 'DEX': 12, 'CON': 13, 'INT': 12, 'WIS': 11, 'CHA': 15},    # 0+4+5+4+3+9 = 25
+                    'attributes': {'STR': 8, 'DEX': 12, 'CON': 13, 'INT': 12, 'WIS': 13, 'CHA': 15},    # 0+4+5+4+5+9 = 27
                     'skills': ['Arcana', 'Persuasion'],
                     'spells': ['Charm Person', 'Sleep'],
                     'cantrips': ['Mage Hand', 'Message', 'Minor Illusion', 'Friends'],
@@ -380,7 +390,7 @@ class AutoFill:
                     'description': 'Damage-focused warlock with powerful blasting abilities'
                 },
                 'utility': {
-                    'attributes': {'STR': 8, 'DEX': 12, 'CON': 13, 'INT': 12, 'WIS': 11, 'CHA': 15},    # 0+4+5+4+3+9 = 25
+                    'attributes': {'STR': 8, 'DEX': 12, 'CON': 13, 'INT': 12, 'WIS': 13, 'CHA': 15},    # 0+4+5+4+5+9 = 27
                     'skills': ['Arcana', 'Persuasion'],
                     'spells': ['Unseen Servant', 'Comprehend Languages'],
                     'cantrips': ['Eldritch Blast', 'Mage Hand'],
@@ -447,7 +457,7 @@ class AutoFill:
         }
     
     def roll_attributes(self) -> Dict[str, int]:
-        """Generate attributes using 4d6 drop lowest method"""
+        """Roll 4d6 drop lowest for each attribute"""
         attributes = {}
         for attr in ['STR', 'DEX', 'CON', 'INT', 'WIS', 'CHA']:
             rolls = [random.randint(1, 6) for _ in range(4)]
@@ -456,182 +466,232 @@ class AutoFill:
         return attributes
 
     def get_recommended_attributes(self, char_class: str, race: str = None) -> Dict[str, int]:
-        """Get recommended attributes based on class and race"""
-        # Point buy costs: 8=0, 9=1, 10=2, 11=3, 12=4, 13=5, 14=7, 15=9
-        point_costs = {8: 0, 9: 1, 10: 2, 11: 3, 12: 4, 13: 5, 14: 7, 15: 9}
+        """Get recommended attributes for a class and race combination"""
+        # Get optimized standard array for the class
+        attributes = self.get_optimized_standard_array(char_class)
         
-        # Standard Arrays from D&D 5e SRD (all using exactly 27 points)
-        standard_arrays = [
-            {'STR': 15, 'DEX': 14, 'CON': 13, 'INT': 12, 'WIS': 10, 'CHA': 8},   # 9+7+5+4+2+0 = 27
-            {'STR': 15, 'DEX': 13, 'CON': 14, 'INT': 12, 'WIS': 10, 'CHA': 8},   # 9+5+7+4+2+0 = 27
-            {'STR': 15, 'DEX': 12, 'CON': 14, 'INT': 13, 'WIS': 10, 'CHA': 8},   # 9+4+7+5+2+0 = 27
-            {'STR': 14, 'DEX': 15, 'CON': 13, 'INT': 12, 'WIS': 10, 'CHA': 8},   # 7+9+5+4+2+0 = 27
-            {'STR': 14, 'DEX': 13, 'CON': 15, 'INT': 12, 'WIS': 10, 'CHA': 8},   # 7+5+9+4+2+0 = 27
-            {'STR': 13, 'DEX': 15, 'CON': 14, 'INT': 12, 'WIS': 10, 'CHA': 8},   # 5+9+7+4+2+0 = 27
-            {'STR': 12, 'DEX': 15, 'CON': 14, 'INT': 13, 'WIS': 10, 'CHA': 8},   # 4+9+7+5+2+0 = 27
-            {'STR': 8, 'DEX': 14, 'CON': 14, 'INT': 15, 'WIS': 12, 'CHA': 8},   # 0+7+7+9+4+0 = 27 (Wizard)
-            {'STR': 8, 'DEX': 12, 'CON': 14, 'INT': 15, 'WIS': 12, 'CHA': 11},   # 0+4+7+9+4+3 = 27 (Wizard)
-            {'STR': 8, 'DEX': 12, 'CON': 14, 'INT': 15, 'WIS': 13, 'CHA': 10},   # 0+4+7+9+5+2 = 27 (Wizard)
-        ]
+        # Apply racial bonuses AFTER assignment
+        if race and race in self.races:
+            race_bonus = self.races[race]['ability_bonus']
+            for attr, bonus in race_bonus.items():
+                attributes[attr] += bonus
         
-        # Choose between standard arrays and presets
-        if random.random() < 0.3:  # 30% chance to use standard array
-            chosen_array = random.choice(standard_arrays)
-            
-            # Validate that the array uses exactly 27 points and no value exceeds 15
-            total_cost = sum(point_costs.get(value, 0) for value in chosen_array.values())
-            max_value = max(chosen_array.values())
-            
-            if total_cost != 27:
-                print(f"Warning: Standard array uses {total_cost} points instead of 27")
-            if max_value > 15:
-                print(f"Warning: Standard array has value {max_value} which exceeds 15")
-                # Fallback to a safe array
-                chosen_array = {'STR': 13, 'DEX': 13, 'CON': 13, 'INT': 12, 'WIS': 12, 'CHA': 12}
-            
-            return {
-                'STR': chosen_array['STR'],
-                'DEX': chosen_array['DEX'],
-                'CON': chosen_array['CON'],
-                'INT': chosen_array['INT'],
-                'WIS': chosen_array['WIS'],
-                'CHA': chosen_array['CHA']
-            }
+        return attributes
+    
+    def get_optimized_standard_array(self, char_class: str) -> Dict[str, int]:
+        """Get optimized standard array for a specific class (non-random)"""
+        # Class-specific optimized standard arrays
+        # Each array uses exactly 27 points and prioritizes class needs
+        optimized_arrays = {
+            'Fighter': {
+                'STR': 15, 'CON': 14, 'DEX': 13, 'WIS': 12, 'CHA': 10, 'INT': 8
+            },  # 9+7+5+4+2+0 = 27
+            'Wizard': {
+                'INT': 15, 'CON': 14, 'DEX': 13, 'WIS': 12, 'CHA': 10, 'STR': 8
+            },  # 9+7+5+4+2+0 = 27
+            'Cleric': {
+                'WIS': 15, 'CON': 14, 'STR': 13, 'CHA': 12, 'INT': 10, 'DEX': 8
+            },  # 9+7+5+4+2+0 = 27
+            'Rogue': {
+                'DEX': 15, 'CON': 14, 'INT': 13, 'WIS': 12, 'CHA': 10, 'STR': 8
+            },  # 9+7+5+4+2+0 = 27
+            'Ranger': {
+                'DEX': 15, 'WIS': 14, 'CON': 13, 'STR': 12, 'CHA': 10, 'INT': 8
+            },  # 9+7+5+4+2+0 = 27
+            'Paladin': {
+                'STR': 15, 'CHA': 14, 'CON': 13, 'WIS': 12, 'DEX': 10, 'INT': 8
+            },  # 9+7+5+4+2+0 = 27
+            'Bard': {
+                'CHA': 15, 'DEX': 14, 'CON': 13, 'INT': 12, 'WIS': 10, 'STR': 8
+            },  # 9+7+5+4+2+0 = 27
+            'Sorcerer': {
+                'CHA': 15, 'CON': 14, 'DEX': 13, 'WIS': 12, 'INT': 10, 'STR': 8
+            },  # 9+7+5+4+2+0 = 27
+            'Warlock': {
+                'CHA': 15, 'CON': 14, 'DEX': 13, 'WIS': 12, 'INT': 10, 'STR': 8
+            },  # 9+7+5+4+2+0 = 27
+            'Monk': {
+                'DEX': 15, 'WIS': 14, 'CON': 13, 'STR': 12, 'CHA': 10, 'INT': 8
+            },  # 9+7+5+4+2+0 = 27
+            'Druid': {
+                'WIS': 15, 'CON': 14, 'DEX': 13, 'STR': 12, 'INT': 10, 'CHA': 8
+            },  # 9+7+5+4+2+0 = 27
+            'Barbarian': {
+                'STR': 15, 'CON': 14, 'DEX': 13, 'WIS': 12, 'CHA': 10, 'INT': 8
+            }  # 9+7+5+4+2+0 = 27
+        }
         
-        if char_class in self.playstyles:
-            # Choose a random playstyle for the class
-            playstyle_names = list(self.playstyles[char_class].keys())
-            chosen_playstyle = random.choice(playstyle_names)
-            chosen_playstyle_data = self.playstyles[char_class][chosen_playstyle]
-            chosen_attributes = chosen_playstyle_data['attributes']
-            
-            # Validate that the playstyle uses exactly 27 points and no value exceeds 15
-            total_cost = sum(point_costs.get(value, 0) for value in chosen_attributes.values())
-            max_value = max(chosen_attributes.values())
-            
-            if total_cost != 27:
-                print(f"Warning: {char_class} {chosen_playstyle} playstyle uses {total_cost} points instead of 27")
-            if max_value > 15:
-                print(f"Warning: {char_class} {chosen_playstyle} playstyle has value {max_value} which exceeds 15")
-                # Cap any value that exceeds 15 to 15
-                for attr, value in chosen_attributes.items():
-                    if value > 15:
-                        print(f"Capping {attr} from {value} to 15")
-                        chosen_attributes[attr] = 15
-            
-            # Rebalance if total cost is not 27
-            if total_cost != 27:
-                print(f"Rebalancing {char_class} {chosen_playstyle} from {total_cost} to 27 points")
-                # Add points to primary attributes first
-                primary_attrs = self.classes.get(char_class, {}).get('primary_attributes', [])
-                
-                # Calculate how many points we need to add
-                points_needed = 27 - total_cost
-                
-                # Add points to primary attributes first, then others
-                priority_attrs = primary_attrs + [attr for attr in ['STR', 'DEX', 'CON', 'INT', 'WIS', 'CHA'] if attr not in primary_attrs]
-                
-                for attr in priority_attrs:
-                    if points_needed <= 0:
-                        break
-                    current_value = chosen_attributes[attr]
-                    if current_value < 15:  # Don't exceed 15
-                        # Calculate how many points we can add to this attribute
-                        current_cost = point_costs.get(current_value, 0)
-                        # Find the next value that would add points
-                        for new_value in range(current_value + 1, 16):
-                            new_cost = point_costs.get(new_value, 0)
-                            if new_cost > current_cost:
-                                points_to_add = new_cost - current_cost
-                                if points_to_add <= points_needed:
-                                    chosen_attributes[attr] = new_value
-                                    points_needed -= points_to_add
-                                    print(f"Added {points_to_add} points to {attr} (now {new_value})")
-                                    break
-            
-            # Return attributes in standard order: STR, DEX, CON, INT, WIS, CHA
-            # These are BASE scores only - racial bonuses will be applied separately
-            return {
-                'STR': chosen_attributes['STR'],
-                'DEX': chosen_attributes['DEX'],
-                'CON': chosen_attributes['CON'],
-                'INT': chosen_attributes['INT'],
-                'WIS': chosen_attributes['WIS'],
-                'CHA': chosen_attributes['CHA']
-            }
-        
-        # Fallback to standard array if class not found
-        return {'STR': 13, 'DEX': 13, 'CON': 13, 'INT': 12, 'WIS': 12, 'CHA': 12}
+        return optimized_arrays.get(char_class, {
+            'STR': 15, 'DEX': 14, 'CON': 13, 'INT': 12, 'WIS': 10, 'CHA': 8
+        })
     
     def get_base_attributes(self, char_class: str, race: str = None) -> Dict[str, int]:
-        """Get base attributes without racial bonuses"""
+        """Get base attributes without optimization"""
         return self.get_recommended_attributes(char_class, race)
     
     def get_available_playstyles(self, char_class: str) -> List[str]:
         """Get available playstyles for a class"""
+        playstyles = []
+        
+        # Add optimized standard array option
+        playstyles.append('standard_array')
+        
+        # Add specific playstyles if available
         if char_class in self.playstyles:
-            return list(self.playstyles[char_class].keys())
-        return []
+            playstyles.extend(list(self.playstyles[char_class].keys()))
+        
+        return playstyles
     
     def get_playstyle_data(self, char_class: str, playstyle: str) -> Dict:
-        """Get complete data for a specific playstyle"""
-        if char_class in self.playstyles and playstyle in self.playstyles[char_class]:
-            return self.playstyles[char_class][playstyle]
-        return None
+        """Get data for a specific playstyle"""
+        return {
+            'description': f'{playstyle} playstyle for {char_class}',
+            'attributes': self.get_attributes_for_playstyle(char_class, playstyle),
+            'skills': self.get_skills_for_playstyle(char_class, playstyle),
+            'spells': self.get_spells_for_playstyle(char_class, playstyle)
+        }
     
     def get_attributes_for_playstyle(self, char_class: str, playstyle: str) -> Dict[str, int]:
-        """Get attributes for a specific playstyle"""
-        playstyle_data = self.get_playstyle_data(char_class, playstyle)
-        if playstyle_data:
-            return playstyle_data['attributes']
-        return None
+        """Get optimized attributes for a specific playstyle"""
+        # Handle standard array option
+        if playstyle == 'standard_array':
+            return self.get_optimized_standard_array(char_class)
+        
+        # Check if we have a preset for this class and playstyle
+        if char_class in self.playstyles and playstyle in self.playstyles[char_class]:
+            # Use the preset attributes (these are base scores without racial bonuses)
+            preset_attrs = self.playstyles[char_class][playstyle]['attributes'].copy()
+            
+            # Validate the preset
+            validation = self._validate_attribute_points(preset_attrs)
+            if validation['valid']:
+                return preset_attrs
+            else:
+                # If preset is invalid, fix it
+                logger.warning(f"Invalid preset for {char_class} {playstyle}: {validation}")
+                return self._fix_playstyle_attributes(char_class, playstyle)
+        
+        # Fallback to optimized standard array
+        return self.get_optimized_standard_array(char_class)
     
     def get_skills_for_playstyle(self, char_class: str, playstyle: str) -> List[str]:
-        """Get recommended skills for a specific playstyle"""
-        playstyle_data = self.get_playstyle_data(char_class, playstyle)
-        if playstyle_data and 'skills' in playstyle_data:
-            return playstyle_data['skills']
-        return []
+        """Get recommended skills for a playstyle"""
+        # Handle standard array option
+        if playstyle == 'standard_array':
+            class_skills = self.classes.get(char_class, {}).get('skill_options', [])
+            skill_choices = self.classes.get(char_class, {}).get('skill_choices', 2)
+            return class_skills[:skill_choices] if class_skills else []
+        
+        # Handle specific playstyle presets
+        if char_class in self.playstyles and playstyle in self.playstyles[char_class]:
+            return self.playstyles[char_class][playstyle].get('skills', [])
+        
+        # Fallback to generic playstyle logic
+        class_skills = self.classes.get(char_class, {}).get('skill_options', [])
+        
+        if playstyle == 'Offensive':
+            offensive_skills = ['Athletics', 'Intimidation', 'Stealth']
+            return [skill for skill in offensive_skills if skill in class_skills][:2]
+        elif playstyle == 'Defensive':
+            defensive_skills = ['Insight', 'Perception', 'Survival']
+            return [skill for skill in defensive_skills if skill in class_skills][:2]
+        elif playstyle == 'Utility':
+            utility_skills = ['Investigation', 'Arcana', 'History', 'Religion']
+            return [skill for skill in utility_skills if skill in class_skills][:2]
+        else:
+            # Balanced - random selection
+            return random.sample(class_skills, min(2, len(class_skills)))
     
     def get_spells_for_playstyle(self, char_class: str, playstyle: str) -> Dict[str, List[str]]:
-        """Get recommended spells for a specific playstyle"""
-        playstyle_data = self.get_playstyle_data(char_class, playstyle)
-        if playstyle_data:
-            spells = {}
-            if 'cantrips' in playstyle_data:
-                spells['cantrips'] = playstyle_data['cantrips']
-            if 'spells' in playstyle_data:
-                spells['spells'] = playstyle_data['spells']
-            return spells
-        return {}
+        """Get recommended spells for a playstyle"""
+        if not self.spell_manager.can_cast_spells(char_class):
+            return {'cantrips': [], 'spells': []}
+        
+        # Handle standard array option
+        if playstyle == 'standard_array':
+            suggestions = self.spell_manager.get_spell_suggestions(char_class)
+            return suggestions
+        
+        # Handle specific playstyle presets
+        if char_class in self.playstyles and playstyle in self.playstyles[char_class]:
+            preset_spells = self.playstyles[char_class][playstyle].get('spells', [])
+            preset_cantrips = self.playstyles[char_class][playstyle].get('cantrips', [])
+            return {
+                'cantrips': preset_cantrips,
+                'spells': preset_spells
+            }
+        
+        # Fallback to generic playstyle logic
+        suggestions = self.spell_manager.get_spell_suggestions(char_class)
+        
+        if playstyle == 'Offensive':
+            # Focus on damage spells
+            offensive_cantrips = ['Fire Bolt', 'Ray of Frost', 'Eldritch Blast']
+            offensive_spells = ['Magic Missile', 'Burning Hands', 'Scorching Ray']
+            
+            cantrips = [c for c in suggestions['cantrips'] if c in offensive_cantrips]
+            spells = [s for s in suggestions['spells'] if s in offensive_spells]
+            
+            return {
+                'cantrips': cantrips[:2],
+                'spells': spells[:2]
+            }
+        elif playstyle == 'Defensive':
+            # Focus on protection and healing
+            defensive_cantrips = ['Blade Ward', 'Resistance']
+            defensive_spells = ['Shield', 'Cure Wounds', 'Protection from Evil and Good']
+            
+            cantrips = [c for c in suggestions['cantrips'] if c in defensive_cantrips]
+            spells = [s for s in suggestions['spells'] if s in defensive_spells]
+            
+            return {
+                'cantrips': cantrips[:2],
+                'spells': spells[:2]
+            }
+        elif playstyle == 'Utility':
+            # Focus on utility spells
+            utility_cantrips = ['Mage Hand', 'Prestidigitation', 'Message']
+            utility_spells = ['Detect Magic', 'Comprehend Languages', 'Identify']
+            
+            cantrips = [c for c in suggestions['cantrips'] if c in utility_cantrips]
+            spells = [s for s in suggestions['spells'] if s in utility_spells]
+            
+            return {
+                'cantrips': cantrips[:2],
+                'spells': spells[:2]
+            }
+        else:
+            # Balanced - use default suggestions
+            return suggestions
     
     def fill_character(self, character: Character):
-        """Autofill all character data with exact quantities"""
-        # Generate attributes if not provided
+        """Fill character with recommended data"""
+        # Generate attributes if not set
         if not character.attributes:
-            # Use recommended attributes instead of random rolls
             character.attributes = self.get_recommended_attributes(character.char_class, character.race)
         
-        # Apply racial bonuses to existing attributes
-        if character.race in self.races:
-            race_bonuses = self.races[character.race]['ability_bonus']
-            for attr, bonus in race_bonuses.items():
-                if attr in character.attributes:
-                    character.attributes[attr] += bonus
+        # Generate skills if not set
+        if not character.skills:
+            class_data = self.classes.get(character.char_class, {})
+            skill_options = class_data.get('skill_options', [])
+            skill_choices = class_data.get('skill_choices', 2)
+            
+            # Add background skills
+            background_skills = self._select_exact_skills(character.char_class, character.background)
+            skill_options.extend(background_skills)
+            skill_choices += 2  # Background gives 2 additional skills
+            
+            # Select skills
+            character.skills = random.sample(skill_options, min(skill_choices, len(skill_options)))
         
-        # Select skills with exact quantities
-        if not character.skills and character.char_class in self.classes:
-            character.skills = self._select_exact_skills(character.char_class, character.background)
-        
-        # Add spells with exact quantities
-        if not character.spells and self.spell_manager.can_cast_spells(character.char_class):
+        # Generate spells for spellcasters
+        if self.spell_manager.can_cast_spells(character.char_class) and not character.cantrips and not character.spells_known:
             spell_suggestions = self.spell_manager.get_spell_suggestions(character.char_class)
-            character.spells = spell_suggestions['cantrips'] + spell_suggestions['spells']
-            # Separate cantrips and spells for clarity
             character.cantrips = spell_suggestions['cantrips']
             character.spells_known = spell_suggestions['spells']
+            character.spells = character.cantrips + character.spells_known
         
-        # Generate personality traits if not provided
+        # Generate personality traits
         if not character.personality_traits:
             character.personality_traits = self.generate_personality_traits(character)
     
@@ -867,17 +927,107 @@ class AutoFill:
         
         return summary
 
+    def _validate_attribute_points(self, attributes: Dict[str, int]) -> Dict[str, any]:
+        """Validate that attributes use exactly 27 points and no score exceeds 15"""
+        # Point costs for each score
+        point_costs = {
+            8: 0, 9: 1, 10: 2, 11: 3, 12: 4, 13: 5, 14: 7, 15: 9
+        }
+        
+        total_points = 0
+        max_score = 0
+        invalid_scores = []
+        
+        for attr, score in attributes.items():
+            if score not in point_costs:
+                invalid_scores.append(f"{attr}: {score} (invalid score)")
+            else:
+                total_points += point_costs[score]
+                max_score = max(max_score, score)
+        
+        return {
+            'valid': total_points == 27 and max_score <= 15 and len(invalid_scores) == 0,
+            'total_points': total_points,
+            'max_score': max_score,
+            'invalid_scores': invalid_scores,
+            'expected_points': 27
+        }
+
+    def _fix_playstyle_attributes(self, char_class: str, playstyle: str) -> Dict[str, int]:
+        """Fix playstyle attributes to use exactly 27 points and no score > 15"""
+        # Get the original preset
+        if char_class not in self.playstyles or playstyle not in self.playstyles[char_class]:
+            return self.get_recommended_attributes(char_class, None)  # No race bonus
+        
+        original_attrs = self.playstyles[char_class][playstyle]['attributes'].copy()
+        
+        # Validate the original
+        validation = self._validate_attribute_points(original_attrs)
+        if validation['valid']:
+            return original_attrs
+        
+        # If invalid, create a corrected version
+        # Use standard array as base: [15, 14, 13, 12, 10, 8] = 9+7+5+4+2+0 = 27 points
+        standard_array = [15, 14, 13, 12, 10, 8]
+        
+        # For each class, prioritize the most important attributes
+        class_priorities = {
+            'Fighter': ['STR', 'CON', 'DEX', 'WIS', 'CHA', 'INT'],
+            'Wizard': ['INT', 'CON', 'DEX', 'WIS', 'CHA', 'STR'],
+            'Cleric': ['WIS', 'CON', 'STR', 'CHA', 'INT', 'DEX'],
+            'Rogue': ['DEX', 'CON', 'INT', 'WIS', 'CHA', 'STR'],
+            'Ranger': ['DEX', 'WIS', 'CON', 'STR', 'CHA', 'INT'],
+            'Paladin': ['STR', 'CHA', 'CON', 'WIS', 'DEX', 'INT'],
+            'Bard': ['CHA', 'DEX', 'CON', 'INT', 'WIS', 'STR'],
+            'Sorcerer': ['CHA', 'CON', 'DEX', 'WIS', 'INT', 'STR'],
+            'Warlock': ['CHA', 'CON', 'DEX', 'WIS', 'INT', 'STR'],
+            'Monk': ['DEX', 'WIS', 'CON', 'STR', 'CHA', 'INT'],
+            'Druid': ['WIS', 'CON', 'DEX', 'STR', 'INT', 'CHA'],
+            'Barbarian': ['STR', 'CON', 'DEX', 'WIS', 'CHA', 'INT']
+        }
+        
+        priorities = class_priorities.get(char_class, ['STR', 'DEX', 'CON', 'INT', 'WIS', 'CHA'])
+        
+        # Assign standard array values to prioritized attributes
+        corrected_attrs = {}
+        for i, attr in enumerate(priorities):
+            if i < len(standard_array):
+                corrected_attrs[attr] = standard_array[i]
+            else:
+                corrected_attrs[attr] = 8  # Fallback
+        
+        # Validate the corrected version
+        validation = self._validate_attribute_points(corrected_attrs)
+        if not validation['valid']:
+            logger.warning(f"Failed to create valid attributes for {char_class} {playstyle}: {validation}")
+        
+        return corrected_attrs
+
+    def apply_racial_bonuses(self, attributes: Dict[str, int], race: str) -> Dict[str, int]:
+        """Apply racial bonuses to base attributes"""
+        if not race or race not in self.races:
+            return attributes.copy()
+        
+        result = attributes.copy()
+        race_bonus = self.races[race]['ability_bonus']
+        
+        for attr, bonus in race_bonus.items():
+            if attr in result:
+                result[attr] += bonus
+        
+        return result
+
     def get_suggestions(self, char_class: str, background: str, race: str = None, playstyle: str = None) -> Dict:
         """Get autofill suggestions that respect available skills and playstyle"""
-        # Get base attributes without racial bonuses
-        if playstyle and char_class in self.playstyles and playstyle in self.playstyles[char_class]:
-            # Use specific playstyle
+        # Get base attributes (presets are base scores without racial bonuses)
+        if playstyle and char_class in self.playstyles:
+            # Use specific playstyle preset
             base_attributes = self.get_attributes_for_playstyle(char_class, playstyle)
             playstyle_skills = self.get_skills_for_playstyle(char_class, playstyle)
             playstyle_spells = self.get_spells_for_playstyle(char_class, playstyle)
         else:
-            # Use random playstyle or standard array
-            base_attributes = self.get_recommended_attributes(char_class, race)
+            # Use optimized standard array without racial bonuses
+            base_attributes = self.get_optimized_standard_array(char_class)
             playstyle_skills = []
             playstyle_spells = {}
         
@@ -981,8 +1131,15 @@ class AutoFill:
         # Create summary of exact quantities
         summary = self._create_quantity_summary(char_class, background, all_skills, cantrips, spells_known)
         
+        # Apply racial bonuses if race is specified
+        attributes_with_race = self.apply_racial_bonuses(base_attributes, race) if race else base_attributes.copy()
+        
+        # Validate base attributes
+        base_validation = self._validate_attribute_points(base_attributes)
+        
         return {
-            'attributes': base_attributes,
+            'attributes': base_attributes,  # Base attributes (without racial bonuses)
+            'attributes_with_race': attributes_with_race,  # Attributes with racial bonuses applied
             'skills': all_skills,
             'spells': spells,
             'cantrips': cantrips,
@@ -990,5 +1147,6 @@ class AutoFill:
             'available_playstyles': available_playstyles,
             'current_playstyle': playstyle,
             'validation': validation,
+            'base_attributes_validation': base_validation,
             'summary': summary
         } 

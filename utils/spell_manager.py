@@ -1,6 +1,10 @@
 import json
 import os
 from typing import Dict, List, Optional
+from logging_config import get_logger
+
+# Configure logging
+logger = get_logger(__name__)
 
 class SpellManager:
     """Manages spell selection and validation according to D&D 5e rules"""
@@ -14,7 +18,7 @@ class SpellManager:
             with open('data/spells.json', 'r', encoding='utf-8') as f:
                 self.spell_data = json.load(f)
         except FileNotFoundError:
-            print("Warning: spells.json not found. Using empty spell data.")
+            logger.warning("spells.json not found. Using empty spell data.")
             self.spell_data = {"cantrips": {}, "spells": {}, "spellcasting_rules": {}}
     
     def get_available_cantrips(self, char_class: str) -> List[Dict]:
